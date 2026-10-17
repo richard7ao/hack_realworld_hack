@@ -8,3 +8,6 @@ next-env.d.ts
 
 # QA screenshots
 .playwright-mcp
+
+# Local reference recordings, never committed
+*.mov

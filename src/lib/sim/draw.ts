@@ -1,26 +1,31 @@
 import type { Sim } from "../contract";
 import type { CellState } from "../replay";
-import { BASE, BIN, FLOOR_Y, L1, OBJ_R, poseAt, progressAt, type Pose, type Pt, type Scene } from "./arm";
+import { BASE, BIN, FLOOR_Y, OBJ_R, poseAt, progressAt, type Pose, type Pt, type Scene } from "./arm";
 
 /**
  * Draws one simulation cell. Everything a viewer reads off a cell -- the arm, the object, the
  * status ring, the settle flash -- is painted here rather than mirrored into the DOM, because at a
  * hundred cells a React re-render per frame is not affordable but a hundred short canvas paths are.
  */
-const INK = "#1D1D1D";
-const FLOOR = "rgba(29,29,29,0.14)";
-const CLUTTER = "#C9CDD4";
-const STEEL = "#4A5568";
-const OBJECT = "#D7263D";
-const LANDED = "#2BA84A";
+const INK = "#121722";
+const FLOOR = "rgba(11,14,20,0.10)";
+const CLUTTER = "#D5D9E0";
+const STEEL = "#8A93A3";
+const OBJECT = "#E02424";
+const LANDED = "#0E9F6E";
 
 export const RING: Record<CellState, string> = {
-  queued: "rgba(29,29,29,0.10)",
-  booting: "rgba(109,63,217,0.30)",
-  running: "#9A66FF",
-  passed: "#2BA84A",
-  failed: "#D7263D",
+  queued: "rgba(11,14,20,0.05)",
+  booting: "rgba(28,100,242,0.22)",
+  running: "rgba(28,100,242,0.45)",
+  passed: "#0E9F6E",
+  failed: "#E02424",
 };
+
+/** Settled verdicts earn a solid border. Live work gets a hairline, so outcomes dominate the grid. */
+const RING_WIDTH: Record<CellState, number> = { queued: 1, booting: 1, running: 1, passed: 1.5, failed: 1.5 };
+/** An unstarted cell is a slot, not a scene. */
+const QUEUED_FILL = "#FAFBFC";
 
 /** The slice of unit space a cell shows. Mapped uniformly, so the arm never stretches. */
 const VIEW = { x0: 0, x1: 1, y0: 0.2, y1: 0.93 };
@@ -97,18 +102,26 @@ export type DrawArgs = {
   state: CellState;
   /** ms since the run started. */
   elapsedMs: number;
+  /**
+   * Draw the status border. Indispensable in the grid, where it is the only way to read a
+   * hundred states at a glance, and wrong on a single large preview, where it is just a loud
+   * border around a picture whose status the surrounding chrome already states.
+   */
+  ring?: boolean;
 };
 
-export function drawCell({ ctx, w, h, sim, scene: sc, state, elapsedMs }: DrawArgs): void {
+export function drawCell({ ctx, w, h, sim, scene: sc, state, elapsedMs, ring: withRing = true }: DrawArgs): void {
   const f = fit(w, h);
   ctx.clearRect(0, 0, w, h);
 
   if (state === "queued") {
     // Nothing has been provisioned yet; show the empty stage so the grid has structure immediately.
-    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = QUEUED_FILL;
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 0.3;
     stage(ctx, f, { ...sc, distractors: [] });
     ctx.globalAlpha = 1;
-    ring(ctx, w, h, RING.queued, 1);
+    if (withRing) ring(ctx, w, h, RING.queued, 1);
     return;
   }
 
@@ -160,13 +173,13 @@ export function drawCell({ ctx, w, h, sim, scene: sc, state, elapsedMs }: DrawAr
   if ((state === "passed" || state === "failed") && sinceSettled >= 0 && sinceSettled < FLASH_MS) {
     // Build the colour in one piece: ctx.fillStyle validates on assignment, so feeding it a
     // partial "rgba(r,g,b," is silently dropped and leaves the previous opaque colour in place.
-    const rgb = state === "passed" ? "43,168,74" : "215,38,61";
+    const rgb = state === "passed" ? "14,159,110" : "224,36,36";
     // Four places, not three: at the tail of the window three rounds the alpha to a literal 0.000.
     ctx.fillStyle = `rgba(${rgb},${((1 - sinceSettled / FLASH_MS) * 0.32).toFixed(4)})`;
     ctx.fillRect(0, 0, w, h);
   }
 
-  ring(ctx, w, h, RING[state], state === "running" ? 1.5 : 2);
+  if (withRing) ring(ctx, w, h, RING[state], RING_WIDTH[state]);
 }
 
 /** The status border, drawn inside the cell so it is never clipped. */
@@ -191,6 +204,3 @@ export function sizeCanvas(canvas: HTMLCanvasElement, dpr: number): { w: number;
   return { w, h };
 }
 
-/** Exported for the detail drawer, which draws one cell much larger. */
-export const unitBase = BASE;
-export const unitL1 = L1;

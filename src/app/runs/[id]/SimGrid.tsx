@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { memo, useEffect, useMemo, useRef, type CSSProperties } from "react";
 import type { Sim } from "../../../lib/contract";
 import { cellStateAt, type CellState } from "../../../lib/replay";
 import { scene, type Scene } from "../../../lib/sim/arm";
-import { drawCell, sizeCanvas } from "../../../lib/sim/draw";
+import { drawCell, FLASH_MS, sizeCanvas } from "../../../lib/sim/draw";
 
 /**
  * A hundred simulations on one screen.
@@ -14,16 +14,21 @@ import { drawCell, sizeCanvas } from "../../../lib/sim/draw";
  * actually running, plus any cell whose state just changed. With a bounded worker pool only about
  * a third of the grid is live at once, so a hundred cells cost about thirty repaints a frame.
  */
-const FLASH_MS = 700;
 
-export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
+/**
+ * Memoised: the parent re-renders about nine times a second while a run replays, and none of
+ * those renders change the grid's DOM. Only a new script, a new filter or a new handler does.
+ */
+export const SimGrid = memo(function SimGrid({ sims, clockRef, onOpen, dimmed }: {
   sims: Sim[];
   clockRef: React.RefObject<number>;
   onOpen: (id: string) => void;
   /** Rollout ids to keep bright. Null means no filter is active. */
   dimmed: Set<string> | null;
 }) {
-  const canvases = useRef<(HTMLCanvasElement | null)[]>([]);
+  // The canvases are found once per script from the list itself, rather than through a hundred
+  // ref callbacks that React would detach and reattach on every render.
+  const list = useRef<HTMLUListElement>(null);
   const scenes = useMemo<Scene[]>(() => sims.map(scene), [sims]);
 
   useEffect(() => {
@@ -34,9 +39,10 @@ export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
     const tinted: boolean[] = sims.map(() => false);
     let raf = 0;
     let forceAll = true;
+    const canvases = Array.from(list.current?.querySelectorAll("canvas") ?? []);
 
     const paint = (i: number, state: CellState, elapsedMs: number) => {
-      const canvas = canvases.current[i];
+      const canvas = canvases[i];
       if (!canvas) return;
       const size = sizeCanvas(canvas, dpr);
       if (!size) return;
@@ -76,7 +82,7 @@ export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
   }, [sims, scenes, clockRef]);
 
   return (
-    <ul className="grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-10">
+    <ul ref={list} className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-7 xl:grid-cols-10">
       {sims.map((sim, i) => {
         const dim = dimmed !== null && !dimmed.has(sim.id);
         return (
@@ -86,10 +92,10 @@ export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
               onClick={() => onOpen(sim.id)}
               aria-label={`Rollout ${sim.id}, seed ${sim.seed}. Open details.`}
               style={{ "--d": `${Math.min(i, 40) * 14}ms` } as CSSProperties}
-              className={`e-cell fk-pop block w-full cursor-pointer transition-opacity duration-300 hover:shadow-[0_6px_18px_rgb(0_0_0/0.12)] ${dim ? "opacity-20" : "opacity-100"}`}
+              className={`cell a-pop block w-full cursor-pointer ${dim ? "opacity-15" : "opacity-100"}`}
             >
-              <canvas ref={(el) => { canvases.current[i] = el; }} className="block aspect-[5/4] w-full" />
-              <span className="e-mono pointer-events-none absolute bottom-0.5 left-1 text-[8px] leading-none text-muted/70">
+              <canvas className="block aspect-[5/4] w-full" />
+              <span className="mono pointer-events-none absolute bottom-[3px] left-[5px] text-[8px] leading-none text-[#B7BDC7]">
                 {sim.id.replace("sim-", "")}
               </span>
             </button>
@@ -98,4 +104,4 @@ export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
       })}
     </ul>
   );
-}
+});

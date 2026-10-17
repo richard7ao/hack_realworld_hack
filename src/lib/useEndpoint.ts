@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchTyped } from "./client";
 import type { EndpointName, ResponseOf } from "./contract";
 
@@ -17,14 +17,25 @@ export function useEndpoint<N extends EndpointName>(
   const [data, setData] = useState<ResponseOf<N> | null>(null);
   const [error, setError] = useState<unknown>(null);
 
+  // Each request takes a ticket; only the newest one, on a still-mounted component, may write.
+  const ticket = useRef(0);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+
   const load = useCallback(async (): Promise<ResponseOf<N> | null> => {
+    const mine = ++ticket.current;
+    const current = () => mounted.current && mine === ticket.current;
     try {
       const next = await fetchTyped(name, JSON.parse(key) as { params?: Record<string, string> });
+      if (!current()) return null;
       setData(next);
       setError(null);
       return next;
     } catch (err) {
-      setError(err);
+      if (current()) setError(err);
       return null;
     }
   }, [name, key]);

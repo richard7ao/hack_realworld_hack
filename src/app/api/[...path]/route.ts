@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreateRunRequest, endpoints, type EndpointName } from "../../../lib/contract";
-import { createRun, getRun, readFixture } from "../../../lib/server/store";
+import { createRun, getRun, readFixture, UnknownEnvironment } from "../../../lib/server/store";
 
 /**
  * The single seam between the two halves of the app.
@@ -68,7 +68,12 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ path: string[] 
     if (hit.name === "createRun") {
       const parsed = CreateRunRequest.safeParse(await req.json());
       if (!parsed.success) return json({ ok: false, runId: null, error: parsed.error.issues[0]?.message ?? "Invalid request." });
-      return json({ ok: true, runId: createRun(parsed.data).id, error: null });
+      try {
+        return json({ ok: true, runId: createRun(parsed.data).id, error: null });
+      } catch (err) {
+        if (err instanceof UnknownEnvironment) return json({ ok: false, runId: null, error: err.message });
+        throw err;
+      }
     }
     return json({ error: `unhandled endpoint ${hit.name}` }, 500);
   } catch (err) {

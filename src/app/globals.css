@@ -1,118 +1,127 @@
 @import "tailwindcss";
 
 /*
- * Design system ported from forkcast (github.com/richard7ao/forkcast): oklch tokens, a light
- * "theme-e" surface with a pistachio wash and dot grid, mono caps labels, and the fk-* motion
- * set. Retuned for a robot-policy eval bench, so the semantic colours are pass / fail / run
- * rather than good / bad.
+ * Forkbench design system.
+ *
+ * Commercial SaaS surface: a near-white cool canvas, pure white cards lifted on soft wide
+ * shadows, one confident blue for anything live or interactive, and reserved status colours for
+ * pass and fail. Type does the heavy lifting: Inter at 700 to 800 with tight tracking for
+ * headings, a tabular mono for every figure, so numbers never reflow as they count up.
  */
 @theme {
-  --color-bg: oklch(0.16 0.01 260);
-  --color-panel: oklch(0.21 0.012 260);
-  --color-edge: oklch(0.31 0.015 260);
-  --color-ink: oklch(0.96 0.005 260);
-  --color-muted: oklch(0.70 0.015 260);
-  --color-accent: oklch(0.72 0.16 250);
+  --color-canvas: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-ink: #0B0E14;
+  --color-ink-2: #39414E;
+  --color-muted: #6B7483;
+  --color-faint: #99A1AE;
+  --color-line: #E7E9EE;
+  --color-line-soft: #F0F2F5;
 
-  --color-pistachio: #C2E773;
-  --color-lime: #B6F000;
-  --color-forest: #336138;
-  --color-run: #6D3FD9;
-  --color-run-mark: #9A66FF;
-  --color-pass: #2BA84A;
-  --color-fail: #D7263D;
-  --color-warn: #E08700;
-  /* Text variants. #2BA84A is 2.8:1 on white and #E08700 is 2.5:1, so neither is legible as body
-     text; these clear AA. The fill tokens above stay for bars, rings and canvas marks. */
-  --color-pass-ink: #1F7A36;
-  --color-warn-ink: #8A5200;
-  --color-track: #EDEDED;
-  --color-line: rgb(29 29 29 / 0.12);
-  --color-steel: #4A5568;
+  --color-brand: #1C64F2;
+  --color-brand-deep: #1A4FC4;
+  --color-brand-soft: #EAF1FE;
+
+  --color-pass: #0E9F6E;
+  --color-pass-soft: #E7F7F1;
+  --color-fail: #E02424;
+  --color-fail-soft: #FDECEC;
+  --color-warn: #C27803;
+  --color-warn-soft: #FDF6E3;
+
+  --color-track: #EDEFF3;
+
+  --shadow-card: 0 1px 2px rgb(11 14 20 / 0.04), 0 8px 24px -10px rgb(11 14 20 / 0.10);
+  --shadow-lift: 0 2px 6px rgb(11 14 20 / 0.05), 0 26px 52px -18px rgb(11 14 20 / 0.20);
 }
 
-body { background: var(--color-bg); color: var(--color-ink); }
-
-/* The bench surface: white, a pistachio corner wash, and a 22px dot grid. */
-.theme-e {
-  --color-bg: #FFFFFF;
-  --color-panel: #FFFFFF;
-  --color-edge: rgb(29 29 29 / 0.18);
-  --color-ink: #1D1D1D;
-  --color-muted: #555555;
-  --color-accent: #6D3FD9;
-  min-height: 100vh;
+html { -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--color-canvas);
   color: var(--color-ink);
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #FFFFFF;
-  background-image: radial-gradient(circle 900px at 100% 0, rgb(194 231 115 / 0.28), rgb(194 231 115 / 0) 70%),
-    radial-gradient(#E3E3E8 1.2px, transparent 1.2px);
-  background-size: auto, 22px 22px;
+  font-feature-settings: "cv05" 1, "ss01" 1;
 }
-body:has(.theme-e) { background: #FFFFFF; }
+
+/* The page field: a near-white wash with a cool tint top right and a faint dot grid. */
+.field {
+  min-height: 100vh;
+  background-color: var(--color-canvas);
+  background-image:
+    radial-gradient(circle 820px at 86% -4%, rgb(28 100 242 / 0.07), rgb(28 100 242 / 0) 72%),
+    radial-gradient(#DFE3EA 1px, transparent 1px);
+  background-size: auto, 24px 24px;
+}
 
 @layer components {
-  .e-h { font-weight: 400; letter-spacing: -0.045em; line-height: 1.06; }
-  .e-mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
-  /* Mono caps label with a pistachio square, e.g. "Domain randomisation". */
-  .e-lbl { display: inline-flex; align-items: center; gap: 10px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
-  .e-lbl::before { content: ""; width: 8px; height: 8px; background: var(--color-pistachio); flex: none; }
-  .e-pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1.5px solid transparent; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
-  .e-pill:disabled { opacity: 0.45; cursor: not-allowed; }
-  .e-lime { background: linear-gradient(90deg, #B6F000, #2BA84A); color: #1D1D1D; }
-  .e-outline { background: #FFFFFF; border-color: var(--color-forest); color: var(--color-forest); }
-  .e-ghost { background: #FFFFFF; border-color: var(--color-edge); color: var(--color-ink); }
-  .e-tile { background: #FFFFFF; border-radius: 16px; border: 1px solid var(--color-edge); }
-  .e-chip { background: #FFFFFF; border: 1px solid var(--color-edge); border-radius: 999px; padding: 6px 14px; font-size: 14px; line-height: 1.3; }
-  /* Sim cell: the frame around one simulation's viewport. */
-  .e-cell { background: #FBFBFC; border-radius: 10px; border: 1px solid var(--color-line); overflow: hidden; position: relative; }
-  .theme-e :focus-visible { outline: 2px solid var(--color-run); outline-offset: 2px; }
+  /* Headings. 800 is the whole difference between a prototype and a product. */
+  .h1 { font-weight: 800; letter-spacing: -0.045em; line-height: 0.98; }
+  .h2 { font-weight: 700; letter-spacing: -0.032em; line-height: 1.05; }
+  .mono { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; font-feature-settings: "tnum" 1; }
+
+  /* Small blue step label above a page title. */
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.085em; text-transform: uppercase; color: var(--color-brand); }
+  /* Quiet grey section label. */
+  .label { font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--color-muted); }
+
+  .card { background: var(--color-surface); border-radius: 14px; box-shadow: var(--shadow-card); }
+  .card-line { background: var(--color-surface); border-radius: 14px; border: 1px solid var(--color-line); }
+
+  .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 999px; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; border: 1px solid transparent; transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, box-shadow 140ms ease; }
+  .pill:disabled { opacity: 0.45; cursor: not-allowed; }
+  .pill-dark { background: var(--color-ink); color: #FFFFFF; }
+  .pill-dark:hover:not(:disabled) { background: #1C2230; }
+  .pill-ghost { background: var(--color-surface); border-color: var(--color-line); color: var(--color-ink); }
+  .pill-ghost:hover:not(:disabled) { border-color: #D3D7DF; background: #FCFCFD; }
+  .pill-brand { background: var(--color-brand); color: #FFFFFF; }
+
+  /* Filter chip. Active is solid ink, matching the chip rows in the reference. */
+  .chip { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--color-line); background: var(--color-surface); font-size: 13px; font-weight: 500; color: var(--color-ink-2); cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease; }
+  .chip:hover { border-color: #D3D7DF; }
+  .chip-on { background: var(--color-ink); border-color: var(--color-ink); color: #FFFFFF; }
+  .chip-count { font-variant-numeric: tabular-nums; opacity: 0.55; font-size: 12px; }
+
+  /* One simulation viewport. */
+  .cell { position: relative; background: var(--color-surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 2px rgb(11 14 20 / 0.05); transition: box-shadow 160ms ease, transform 160ms ease, opacity 240ms ease; }
+  .cell:hover { box-shadow: 0 4px 14px rgb(11 14 20 / 0.14); transform: translateY(-1px); }
+
+  :focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
 }
 
 /*
- * Run and reveal motion, ported from forkcast: shimmer placeholders, a scan band, titles that blur
- * into focus and cells that pop in one by one. Stagger with --d (a delay) on the element.
+ * Motion. Every animation reads a --d delay custom property so a parent can stagger a hundred
+ * children without a single JS timer, and the whole set collapses under prefers-reduced-motion.
  */
-@keyframes fk-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
-@keyframes fk-scan { from { transform: translateY(-100%); } to { transform: translateY(400%); } }
-@keyframes fk-blur-in { from { opacity: 0; filter: blur(12px); translate: 0 6px; } }
-@keyframes fk-pop { from { opacity: 0; filter: blur(8px); translate: 0 14px; scale: 0.98; } }
-@keyframes fk-float { 50% { translate: 0 -10px; } }
+@keyframes shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@keyframes rise { from { opacity: 0; translate: 0 10px; } }
+@keyframes blurIn { from { opacity: 0; filter: blur(10px); translate: 0 8px; } }
+@keyframes popIn { from { opacity: 0; scale: 0.96; translate: 0 8px; } }
+@keyframes float { 50% { translate: 0 -10px; } }
+@keyframes badgePop { from { opacity: 0; scale: 0.4; } 60% { opacity: 1; scale: 1.12; } }
+@keyframes ping { from { transform: scale(0.6); opacity: 0.65; } to { transform: scale(2.3); opacity: 0; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
 
-.fk-shimmer { background: linear-gradient(100deg, #EFEFEF 30%, #F9F9F9 50%, #EFEFEF 70%) 0 0 / 200% 100%; animation: fk-shimmer 1.4s linear infinite; animation-delay: var(--d, 0ms); }
-.fk-scan { background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 0.75)); border-bottom: 2px solid #FFFFFF; box-shadow: 0 6px 14px rgb(0 0 0 / 0.06); animation: fk-scan 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
-.fk-blur-in { animation: fk-blur-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.fk-pop { animation: fk-pop 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
-.fk-float { animation: fk-float 6s ease-in-out infinite; animation-delay: var(--d, 0ms); }
-
-/*
- * Bench-specific motion. A cell flashes once at the moment it settles, so a wall of 100 reads as a
- * stream of verdicts rather than a static grid; the gate badge pops and the winning row glows.
- */
-@keyframes fk-badge { from { opacity: 0; scale: 0.4; } 60% { opacity: 1; scale: 1.15; } }
-@keyframes fk-glow { from { box-shadow: 0 0 0 0 rgb(182 240 0 / 0), 0 14px 36px rgb(0 0 0 / 0.10); } }
-@keyframes fk-flash-pass { from { background: rgb(43 168 74 / 0.42); } to { background: rgb(43 168 74 / 0); } }
-@keyframes fk-flash-fail { from { background: rgb(215 38 61 / 0.42); } to { background: rgb(215 38 61 / 0); } }
-@keyframes fk-breathe { 50% { opacity: 0.45; } }
-/* The live dot: a filled core with a ring expanding out of it. */
-@keyframes fk-ping { from { transform: scale(0.6); opacity: 0.7; } to { transform: scale(2.4); opacity: 0; } }
-
-.fk-badge { animation: fk-badge 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.fk-glow { box-shadow: 0 0 0 2px #B6F000, 0 0 32px rgb(182 240 0 / 0.55), 0 14px 36px rgb(0 0 0 / 0.10); animation: fk-glow 0.6s ease-out both; }
-.fk-flash-pass { animation: fk-flash-pass 0.7s ease-out both; }
-.fk-flash-fail { animation: fk-flash-fail 0.7s ease-out both; }
-.fk-breathe { animation: fk-breathe 2s ease-in-out infinite; }
-.fk-ping { animation: fk-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.a-shimmer { background: linear-gradient(100deg, #EFF1F4 28%, #F8F9FB 50%, #EFF1F4 72%) 0 0 / 220% 100%; animation: shimmer 1.5s linear infinite; animation-delay: var(--d, 0ms); }
+.a-rise { animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+.a-blur-in { animation: blurIn 760ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+.a-pop { animation: popIn 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+.a-float { animation: float 7s ease-in-out infinite; animation-delay: var(--d, 0ms); }
+.a-badge { animation: badgePop 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.a-ping { animation: ping 1.7s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.a-spin { animation: spin 720ms linear infinite; }
+/* A light band travelling along the top progress rail while work is in flight. */
+.a-sweep { animation: sweep 1.5s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .fk-shimmer, .fk-float, .fk-blur-in, .fk-pop, .fk-badge, .fk-glow, .fk-breathe { animation: none; }
-  .fk-scan, .fk-flash-pass, .fk-flash-fail, .fk-ping { display: none; }
+  .a-shimmer, .a-rise, .a-blur-in, .a-pop, .a-float, .a-badge, .a-spin, .a-sweep { animation: none; }
+  .a-ping { display: none; }
+  .cell:hover { transform: none; }
 }
 
-/* Detail drawer: fades the backdrop and slides the panel in. */
-@keyframes fk-fade-kf { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fk-slide-kf { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+/* Drawer. */
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(22px); } }
 @media (prefers-reduced-motion: no-preference) {
-  .fk-fade { animation: fk-fade-kf 180ms ease-out both; }
-  .fk-slide-in { animation: fk-slide-kf 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .a-fade { animation: fadeIn 170ms ease-out both; }
+  .a-slide { animation: slideIn 250ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 }

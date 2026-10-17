@@ -14,6 +14,12 @@ import { environmentById, ENVIRONMENTS } from "../sim/environments";
  */
 const started = new Map<string, Run>();
 
+export class UnknownEnvironment extends Error {
+  constructor(id: string) {
+    super(`Unknown environment "${id}".`);
+  }
+}
+
 const FIXTURES = join(process.cwd(), "fixtures");
 let committed: Map<string, Run> | null = null;
 
@@ -32,9 +38,14 @@ export function readFixture(name: string): unknown {
 /** A short, URL-safe, human-readable run id. */
 const newRunId = () => `run-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
+/**
+ * Start a run. Throws on an environment id the catalogue does not know: substituting a default
+ * would show the user a run in an environment they never chose.
+ */
 export function createRun(body: CreateRunRequest): Run {
+  const env = environmentById(body.environmentId);
+  if (!env) throw new UnknownEnvironment(body.environmentId);
   const id = newRunId();
-  const env = environmentById(body.environmentId) ?? ENVIRONMENTS[0]!;
   const run = generateRun({ id, environmentId: env.id, task: body.task, fanout: body.fanout });
   started.set(id, run);
   // The demo does not need an eviction policy, but an unbounded map in a long-lived server does.

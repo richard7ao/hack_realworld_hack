@@ -1,33 +1,45 @@
 import type { CSSProperties, ReactNode } from "react";
 
-export const WRAP = "mx-auto w-full max-w-[1480px] px-4 md:px-10";
+export const WRAP = "mx-auto w-full max-w-[1560px] px-5 md:px-8";
 
-/** A labelled figure. `hero` is for the one number a viewer should read first. */
-export function Stat({ label, value, sub, tone = "ink", hero = false, delay = 0 }: {
+/** A labelled figure. Mono and tabular, so a counter never reflows as it climbs. */
+export function Stat({ label, value, sub, tone = "ink", delay = 0 }: {
   label: string;
   value: ReactNode;
   sub?: ReactNode;
-  tone?: "ink" | "pass" | "fail" | "run";
-  hero?: boolean;
+  tone?: "ink" | "pass" | "fail" | "brand";
   delay?: number;
 }) {
-  const colour = { ink: "text-ink", pass: "text-pass-ink", fail: "text-fail", run: "text-run" }[tone];
+  const colour = { ink: "text-ink", pass: "text-pass", fail: "text-fail", brand: "text-brand" }[tone];
   return (
-    <div className="fk-pop min-w-0" style={{ "--d": `${delay}ms` } as CSSProperties}>
-      <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">{label}</div>
-      <div className={`e-mono mt-1.5 tabular-nums leading-none tracking-[-0.04em] ${colour} ${hero ? "text-[40px] md:text-[52px]" : "text-[24px] md:text-[28px]"}`}>
-        {value}
-      </div>
+    <div className="a-rise min-w-0" style={{ "--d": `${delay}ms` } as CSSProperties}>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.07em] text-faint">{label}</div>
+      <div className={`mono mt-2 text-[26px] leading-none tracking-[-0.03em] ${colour}`}>{value}</div>
       {sub && <div className="mt-1.5 text-[12px] leading-tight text-muted">{sub}</div>}
     </div>
   );
 }
 
-/** A horizontal meter. Used for pass rates, where the label and the figure sit outside the bar. */
-export function Meter({ value, tone = "pass", track = "bg-track" }: { value: number; tone?: "pass" | "fail" | "run" | "ink"; track?: string }) {
-  const fill = { pass: "bg-pass", fail: "bg-fail", run: "bg-run", ink: "bg-ink" }[tone];
+/**
+ * The hero counter: a settled count against a total, the done part in ink and the total greyed,
+ * so the eye reads progress without needing a label.
+ */
+export function Counter({ done, total, caption }: { done: number; total: number; caption: string }) {
   return (
-    <span className={`relative block h-1.5 overflow-hidden rounded-full ${track}`}>
+    <div className="shrink-0 text-right">
+      <p className="mono text-[42px] leading-none tracking-[-0.045em] md:text-[56px]" aria-label={`${done} of ${total} ${caption}`}>
+        <span className="font-semibold text-ink">{String(done).padStart(2, "0")}</span>
+        <span className="text-[#C8CDD6]">/{total}</span>
+      </p>
+      <p className="mt-2 text-[12px] font-medium text-muted">{caption}</p>
+    </div>
+  );
+}
+
+export function Meter({ value, tone = "pass" }: { value: number; tone?: "pass" | "fail" | "brand" | "ink" }) {
+  const fill = { pass: "bg-pass", fail: "bg-fail", brand: "bg-brand", ink: "bg-ink" }[tone];
+  return (
+    <span className="relative block h-1.5 overflow-hidden rounded-full bg-track">
       <span
         className={`absolute inset-y-0 left-0 rounded-full transition-[width] duration-700 motion-reduce:transition-none ${fill}`}
         style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%` }}
@@ -36,21 +48,33 @@ export function Meter({ value, tone = "pass", track = "bg-track" }: { value: num
   );
 }
 
-export function ErrorNote({ children }: { children: ReactNode }) {
+export function Spinner({ className = "size-3.5" }: { className?: string }) {
+  return <span aria-hidden className={`a-spin shrink-0 rounded-full border-2 border-brand/25 border-t-brand ${className}`} />;
+}
+
+/** A filled state glyph. Status is never colour alone, so every use pairs it with a word. */
+export function Glyph({ state }: { state: "pass" | "fail" | "idle" }) {
+  const tone = state === "pass" ? "bg-pass" : state === "fail" ? "bg-fail" : "bg-[#CDD2DA]";
   return (
-    <p role="alert" className="rounded-xl border border-fail/30 bg-fail/5 px-4 py-3 text-sm text-fail">
-      {children}
-    </p>
+    <span aria-hidden className={`grid size-[18px] shrink-0 place-items-center rounded-full text-[10px] font-bold leading-none text-white ${tone}`}>
+      {state === "pass" ? "✓" : state === "fail" ? "✕" : "·"}
+    </span>
   );
 }
 
-/** A pulsing dot, for "this is happening now". */
-export function LiveDot({ tone = "run" }: { tone?: "run" | "pass" }) {
-  const colour = tone === "run" ? "bg-run" : "bg-pass";
+export function LiveDot() {
   return (
-    <span aria-hidden className="relative grid size-2.5 flex-none place-items-center">
-      <span className={`fk-ping absolute size-2.5 rounded-full ${colour}`} />
-      <span className={`relative size-2 rounded-full ${colour}`} />
+    <span aria-hidden className="relative grid size-2.5 shrink-0 place-items-center">
+      <span className="a-ping absolute size-2.5 rounded-full bg-brand" />
+      <span className="relative size-[7px] rounded-full bg-brand" />
     </span>
+  );
+}
+
+export function ErrorNote({ children }: { children: ReactNode }) {
+  return (
+    <p role="alert" className="rounded-xl border border-fail/25 bg-fail-soft px-4 py-3 text-sm text-fail">
+      {children}
+    </p>
   );
 }

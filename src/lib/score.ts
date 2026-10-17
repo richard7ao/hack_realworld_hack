@@ -1,19 +1,20 @@
-import { FAIL_MODES, type FailMode, type Gate, type Run, type Sim } from "./contract";
+import { FAIL_MODES, type FailMode, type Gate, type Sim } from "./contract";
 
 /** z for a two-sided 90% interval. */
 const Z90 = 1.6448536269514722;
 
-export type Tally = { passed: number; failed: number; settled: number; inFlight: number; queued: number };
+export type Tally = { passed: number; failed: number; settled: number; inFlight: number; booting: number; running: number; queued: number };
 
 export function tally(sims: readonly Sim[]): Tally {
-  let passed = 0, failed = 0, inFlight = 0, queued = 0;
+  let passed = 0, failed = 0, booting = 0, running = 0, queued = 0;
   for (const s of sims) {
     if (s.status === "passed") passed++;
     else if (s.status === "failed") failed++;
-    else if (s.status === "running" || s.status === "booting") inFlight++;
+    else if (s.status === "running") running++;
+    else if (s.status === "booting") booting++;
     else queued++;
   }
-  return { passed, failed, settled: passed + failed, inFlight, queued };
+  return { passed, failed, settled: passed + failed, inFlight: booting + running, booting, running, queued };
 }
 
 /**
@@ -29,7 +30,8 @@ export function wilson(successes: number, n: number): { lo: number; hi: number }
   return { lo: Math.max(0, centre - margin), hi: Math.min(1, centre + margin) };
 }
 
-export type Check = { id: string; label: string; detail: string; ok: boolean };
+/** `ok: null` means the check is undetermined: the settled rollouts cannot conclude it either way. */
+export type Check = { id: string; label: string; detail: string; ok: boolean | null };
 export type Verdict = { status: "pass" | "fail" | "pending"; passRate: number; lo: number; hi: number; n: number; checks: Check[] };
 
 /**
@@ -42,6 +44,17 @@ export type Verdict = { status: "pass" | "fail" | "pending"; passRate: number; l
  *  2. Regression -- the point estimate must not sit more than `regressionTolerancePp` below the
  *                   baseline run on the default branch.
  *
+ * A verdict is only returned when the gate is entitled to it. The run is DECIDED when every rollout
+ * in the fan-out has settled; until then the default is "pending", because a handful of early passes
+ * says nothing about where the interval lands at full n. The one exception is a fail-fast: if the
+ * floor would not be cleared even in the best case, where every outstanding rollout passes, the run
+ * can never go green, so it fails now rather than burning the remaining compute. Note that this also
+ * fails a fan-out too small to ever clear the floor, which is the same statement: that run cannot
+ * produce the evidence the gate asks for.
+ *
+ * While pending, a check that partial data cannot conclude reports `ok: null` rather than false. Its
+ * `detail` still carries the live numbers, which are the useful thing to watch mid-run.
+ *
  * This predicate is the one real policy decision in the app. To make the bench stricter or laxer,
  * change it here and nowhere else -- the UI renders whatever checks this returns.
  */
@@ -49,12 +62,17 @@ export function evaluateGate(sims: readonly Sim[], gate: Gate): Verdict {
   const { passed, settled } = tally(sims);
   const passRate = settled > 0 ? passed / settled : 0;
   const { lo, hi } = wilson(passed, settled);
+  const decided = settled === sims.length;
+  // Best case for the rest of the run: every outstanding rollout passes.
+  const bestCaseLo = decided ? lo : wilson(passed + (sims.length - settled), sims.length).lo;
+  const floorUnreachable = bestCaseLo < gate.threshold;
   const checks: Check[] = [
     {
       id: "floor",
       label: `Pass rate lower bound ≥ ${pct(gate.threshold)}`,
       detail: `${pct(lo)} lower bound of ${pct(passRate)} (90% CI ${pct(lo)}–${pct(hi)})`,
-      ok: lo >= gate.threshold,
+      // Undetermined mid-run unless the floor is already out of reach, which is a real failure.
+      ok: decided ? lo >= gate.threshold : floorUnreachable ? false : null,
     },
   ];
   if (gate.baseline) {
@@ -64,10 +82,11 @@ export function evaluateGate(sims: readonly Sim[], gate: Gate): Verdict {
       id: "regression",
       label: `No regression vs ${gate.baseline.ref} (≤ ${gate.regressionTolerancePp}pp)`,
       detail: `${deltaPp >= 0 ? "+" : ""}${deltaPp.toFixed(1)}pp vs ${pct(gate.baseline.passRate)} baseline`,
-      ok: passRate >= floorAgainstBaseline,
+      // A partial pass rate can still move either way, so it concludes nothing about the baseline.
+      ok: decided ? passRate >= floorAgainstBaseline : null,
     });
   }
-  const status = settled === 0 ? "pending" : checks.every((c) => c.ok) ? "pass" : "fail";
+  const status = decided ? (checks.every((c) => c.ok) ? "pass" : "fail") : floorUnreachable ? "fail" : "pending";
   return { status, passRate, lo, hi, n: settled, checks };
 }
 
@@ -90,15 +109,11 @@ export function failureBreakdown(sims: readonly Sim[]): { mode: FailMode; count:
 export type Bucket = { label: string; passed: number; n: number };
 
 export function bucketBy(sims: readonly Sim[], label: (s: Sim) => string, order: readonly string[]): Bucket[] {
-  const rows = new Map<string, Bucket>(order.map((l) => [l, { label: l, passed: 0, n: 0 }]));
-  for (const s of sims) {
-    if (s.status !== "passed" && s.status !== "failed") continue;
-    const row = rows.get(label(s));
-    if (!row) continue;
-    row.n++;
-    if (s.status === "passed") row.passed++;
-  }
-  return [...rows.values()];
+  const settled = sims.filter((s) => s.status === "passed" || s.status === "failed");
+  return order.map((l) => {
+    const inBucket = settled.filter((s) => label(s) === l);
+    return { label: l, n: inBucket.length, passed: inBucket.filter((s) => s.status === "passed").length };
+  });
 }
 
 export const CLUTTER_ORDER = ["0 distractors", "1–2", "3–4", "5+"] as const;
@@ -120,5 +135,3 @@ export function median(values: readonly number[]): number {
   return sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
 }
 
-/** Wall-clock span of the whole fan-out, in seconds: the slowest rollout's finish. */
-export const wallClockS = (run: Run) => Math.max(0, ...run.sims.map((s) => s.startOffsetMs + s.durationMs)) / 1000;
