@@ -24,3 +24,14 @@ state = line.get(job['job_id'])
 The application owns session authorization and exclusivity with other running episodes. The service emits actual episode events plus `production.started`, `production.stage_started`, `production.stage_finished`, `production.change_queued`, and `production.finished`. Saved aggregates reside in `data/production/<job_id>.json`.
 
 Verification: a real four-stage scripted obstacle-aware workflow completes all four oracle checks. Tests also verify carried world positions, unique episode/hash evidence, next-stage rerouting without history mutation, real failure preservation and operator stop propagation. Frontier performance must be reported from an actual provider-backed run; scripted tests do not establish it.
+
+## Native contact-physics mode
+
+`create(..., execution_backend='robosimstudio_cpu')` selects the actual RoboSimStudio/Newton/MuJoCo CPU engine and source YAM arm. Its four stages perform precision-part fixture transfers with dynamic cube contact, actual jaw contact/lift checks and independent placement oracles. Native mode does not run the kinematic engine under a physics label.
+
+Native stages are independently initialized. A declared fixture re-index resets the part to the known pickup, upright and at zero velocity, and resets the robot to home between stages. Prior actual final positions and orientations remain in provenance; they are not claimed as restored continuous physics state. The second stage applies an actual solver-level displacement. An initial experiment carrying the previous part position into a reverse transfer passed stage one but timed out at stage two with actual IK-unreachable rejections (`production_741c3eed55fd`); that evidence is retained. The fixture configuration avoids claiming support for that failed reverse-transfer route.
+
+Native verification completed: `production_d4bec2862db3` executed all four stages with actual contact physics and all four independent oracles returned PASS, including the displacement stage. Full canonical evidence is in `data/production/production_d4bec2862db3.json`; `data/production-native-verification.json` records each episode, scenario hash and actual native engine/contact metadata. This scripted run proves native execution and fixture-transfer behavior; it does not claim frontier-policy success.
+
+
+Actual frontier/native verification: `production_2512bc58907e` completed all four native stages with GPT 6.1 Sol + Jev, 104 actual model calls and four independent PASS results. The separate native operator-routing check `production_38e257a83377` completed all four stages with an applied next-stage tray reroute. Native fixture resets remain explicitly recorded; these results do not establish continuous-line or hardware performance.

@@ -321,3 +321,22 @@ def test_virtual_injection_is_not_misreported_as_observed_physical_motion(api):
     response = client.post("/api/scenarios/from-live", headers=headers, json={"session_id": sid, "confirmed": True})
     assert response.status_code == 200, response.text
     assert response.json()["scenario"]["source"] == "operator_defined"
+
+
+def test_same_type_capture_replacement_invalidates_geometry_and_rejects_late_frames(api):
+    client, runtime = api
+    sid, headers, _ = make_session(client)
+    def captured(seq, identity):
+        return client.post(f'/api/camera/{sid}/frame', params={'seq': seq, 'timestamp_ms': seq*200,
+            'source': 'laptop_web_rgb', 'capture_id': identity},
+            headers={**headers, 'Content-Type': 'image/jpeg'}, content=fixture_jpeg())
+    assert captured(0, 'webcam_A').status_code == 200
+    prepare_capture(client, sid, headers)
+    assert captured(2, 'webcam_A').status_code == 200
+    current = client.get(f'/api/sessions/{sid}', headers=headers).json()
+    assert current['calibrated'] and len(current['observed']['objects']) == 3
+    assert captured(3, 'webcam_B').status_code == 200
+    replaced = client.get(f'/api/sessions/{sid}', headers=headers).json()
+    assert not replaced['calibrated'] and not replaced['observed']['objects']
+    assert captured(4, 'webcam_A').status_code == 422
+    assert captured(5, 'webcam_B').status_code == 200

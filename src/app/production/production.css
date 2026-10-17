@@ -41,3 +41,7 @@
 .fl-production-changes strong { color: #37522e; font-weight: 550; }
 .fl-production-changes span { color: #637359; }
 .fl-production-changes time { margin-left: auto; font: 10px ui-monospace, monospace; color: #728167; }
+
+.fl-production-settings { margin-bottom: 16px; }
+.fl-production-settings > summary { cursor: pointer; padding: 10px 0; color: #35492d; font-size: 13px; font-weight: 550; }
+.fl-production-settings[open] > summary { margin-bottom: 8px; }

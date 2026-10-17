@@ -33,6 +33,7 @@ export default function LiveLab() {
   const [error, setError] = useState(""); const [notice, setNotice] = useState(""); const [pending, setPending] = useState("");
   const [targetId, setTargetId] = useState(""); const [policyId, setPolicyId] = useState("scripted_open_loop");
   const policyDefaultApplied = useRef(false);
+  const environmentLinkApplied = useRef(false);
   const policyManuallySelected = useRef(false);
   const [pace, setPace] = useState("1.5"); const [caseName, setCaseName] = useState("Tabletop target displacement");
   const [confirmed, setConfirmed] = useState(false);
@@ -57,7 +58,15 @@ export default function LiveLab() {
     } catch { sessionStorage.removeItem(STORAGE_KEY); }
   }, [remember]);
   const ensureSession = useCallback(async () => {
-    if (sessionRef.current && sessionRef.current.expires_at_ms > Date.now()) return sessionRef.current;
+    if (sessionRef.current && sessionRef.current.expires_at_ms > Date.now()) {
+      try {
+        await faultline(`sessions/${sessionRef.current.session_id}`, { session: sessionRef.current });
+        return sessionRef.current;
+      } catch (err) {
+        if (!errorMessage(err).includes("Invalid or expired")) throw err;
+        remember(null); setState(null);
+      }
+    }
     if (creating.current) return creating.current;
     creating.current = faultline<SessionCredentials>("camera/session", { method: "POST" }).then((credentials) => { remember(credentials); return credentials; }).finally(() => { creating.current = null; });
     return creating.current;
@@ -88,6 +97,14 @@ export default function LiveLab() {
       if (health.policies.some((policy) => policy.id === "jev_gpt-6.1-sol" && policy.available)) setPolicyId("jev_gpt-6.1-sol");
       else if (health.policies.some((policy) => policy.id === "gpt-6.1-sol" && policy.available)) setPolicyId("gpt-6.1-sol");
     }
+  }, [health]);
+  useEffect(() => {
+    if (!health || environmentLinkApplied.current) return;
+    const requested = new URL(window.location.href).searchParams.get("environment");
+    if (requested !== "physics" && requested !== "warehouse") return;
+    environmentLinkApplied.current = true;
+    if (requested === "physics") void action("Loading RoboSim physics", loadRoboSim);
+    else void action("Loading warehouse", loadWarehouse);
   }, [health]);
   const choosePolicy = (value: string) => { policyManuallySelected.current = true; setPolicyId(value); };
   const loadBenchmarks = useCallback(async () => {
@@ -277,7 +294,7 @@ export default function LiveLab() {
     return <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>{Object.entries(POLICY_NAMES).map(([key, name]) => <option key={key} value={key} disabled={!policyAvailable(key)}>{name}{!policyAvailable(key) ? (key.startsWith("scripted_") ? " · engine unavailable" : " · key unavailable") : ""}</option>)}</select>;
   }
   return <div className={`theme-e fl-lab ${focusStage && area === "workspace" ? "is-focus-mode" : ""}`}>
-    <header className="fl-header"><a href="/" className="fl-wordmark" aria-label="FAULTLINE home"><svg width="26" height="30" viewBox="0 0 26 30" fill="none" aria-hidden><path d="M3 3h20v24H3z" stroke="currentColor" strokeWidth="2" /><path d="m17 3-7 11 7 3-7 10" stroke="currentColor" strokeWidth="2" /></svg>FAULTLINE <span>Pick</span></a><nav aria-label="Product navigation">{([["workspace", "Workspace"], ["regressions", "Regression tests"], ["release", "Release checks"]] as const).map(([id, label]) => <button key={id} type="button" aria-current={area === id ? "page" : undefined} onClick={() => { setArea(id); setNotice(""); }}>{label}</button>)}<a href="/production">Production line</a><a href="/parallel">Parallel runs</a></nav><span className={`fl-status ${health ? "is-live" : "is-error"}`}>{health ? "LOCAL ENGINE CONNECTED" : "ENGINE OFFLINE"}</span></header>
+    <header className="fl-header"><a href="/" className="fl-wordmark" aria-label="FAULTLINE home"><svg width="26" height="30" viewBox="0 0 26 30" fill="none" aria-hidden><path d="M3 3h20v24H3z" stroke="currentColor" strokeWidth="2" /><path d="m17 3-7 11 7 3-7 10" stroke="currentColor" strokeWidth="2" /></svg>FAULTLINE <span>Pick</span></a><nav aria-label="Product navigation">{([["workspace", "Workspace"], ["regressions", "Regression tests"], ["release", "Release checks"]] as const).map(([id, label]) => <button key={id} type="button" aria-current={area === id ? "page" : undefined} onClick={() => { setArea(id); setNotice(""); }}>{label}</button>)}<a href="/robosim">RoboSim</a><a href="/production">Production line</a><a href="/parallel">Parallel runs</a></nav><span className={`fl-status ${health ? "is-live" : "is-error"}`}>{health ? "LOCAL ENGINE CONNECTED" : "ENGINE OFFLINE"}</span></header>
     <main className="fl-main">
       <div className="fl-title-row"><div><h1>{area === "workspace" ? "Policy workspace" : area === "regressions" ? "Regression tests" : "Release checks"}</h1><p>{area === "workspace" ? "Choose an environment, run a policy, and turn what happens into a regression test." : area === "regressions" ? "Save real disturbances, inspect versioned scenarios, and execute them against a new policy." : "Compare baseline and candidate on identical scenarios. Every release verdict links to execution evidence."}</p></div><Recorder /></div>
       {error && <div className="fl-error fl-banner" role="alert"><strong>Action needs attention.</strong> {error}<button className="fl-text-link" onClick={() => setError("")}>Dismiss</button></div>}

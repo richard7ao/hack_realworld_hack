@@ -29,15 +29,22 @@ class ProductionLine:
             self.publish(Event(kind=kind, seq=self.sequence, timestamp_ms=time.time()*1000,
                                session_id=job['session_id'], data={"job_id": job["job_id"], **data}))
 
-    def create(self, session_id, policy_id, delay_seconds=.7):
+    def create(self, session_id, policy_id, delay_seconds=.7, execution_backend="kinematic"):
         make_policy(policy_id)
+        if execution_backend not in ('kinematic', 'robosimstudio_cpu'):
+            raise ValueError('Unknown production execution backend')
+        if execution_backend == 'robosimstudio_cpu':
+            from .robosim import status
+            if not status()['available']:
+                raise ValueError('Native RoboSim runtime is unavailable')
         if not 0 <= delay_seconds <= 3:
             raise ValueError('Stage action pacing must be between 0 and 3 seconds')
         if any(job['session_id'] == session_id and job['status'] in ('QUEUED','RUNNING') for job in self.jobs.values()):
             raise ValueError('A production workflow is already active')
         job_id = 'production_' + uuid.uuid4().hex[:12]
         job = {'job_id': job_id, 'session_id': session_id, 'policy_id': policy_id,
-               'name': 'Electronics kit assembly line', 'status': 'QUEUED',
+               'name': 'Native precision part transfer line' if execution_backend == 'robosimstudio_cpu' else 'Electronics kit assembly line',
+               'execution_backend': execution_backend, 'status': 'QUEUED',
                'created_at_ms': time.time()*1000, 'delay_seconds': delay_seconds,
                'current_stage': None, 'current_stage_index': None, 'completed_stages': 0, 'total_stages': 4,
                'total_actions': 0, 'total_model_calls': 0, 'pending_changes': [], 'changes': [],
@@ -47,6 +54,11 @@ class ProductionLine:
                'scope': 'Procedural 6R kinematic kitting; object positions carried across independently verified stages; arm resets home between stages',
                'limits': {'max_stages': 4, 'max_actions': 200, 'wall_deadline_seconds': 480},
                'error': None}
+        if execution_backend == 'robosimstudio_cpu':
+            names = ['Load fixture part', 'Recover displaced fixture part', 'Rework fixture transfer', 'Dispatch placement verification']
+            for stage, name in zip(job['stages'], names):
+                stage.update(name=name, target_id='native_cube')
+            job['scope'] = 'Actual RoboSimStudio/Newton/MuJoCo CPU contacts; four independently initialized native fixture-transfer stages; fixture re-indexes part to declared pickup and resets arm/orientation/velocity between stages; prior actual poses retained as evidence'
         self.jobs[job_id] = job
         self._save(job)
         return job
@@ -84,6 +96,8 @@ class ProductionLine:
         return entry
 
     def _stage_case(self, job, index, previous_env):
+        if job.get('execution_backend') == 'robosimstudio_cpu':
+            return self._native_stage_case(job, index, previous_env)
         case = warehouse_cases(1, 90400+index)[0]
         case.case_id = f"{job['job_id']}_stage_{index+1}"
         case.name = job['stages'][index]['name']
@@ -125,6 +139,46 @@ class ProductionLine:
             carried_state='actual_previous_final_world_objects' if previous_env else 'declared_initial_layout',
             robot_reset='home_between_stages', applied_change_ids=applied)
         # Revalidation catches mutation mistakes before immutable manifest persistence.
+        return type(case).model_validate(case.model_dump())
+
+    def _native_stage_case(self, job, index, previous_env):
+        from .robosim import make_robosim_cases
+        case = make_robosim_cases(1, 91400+index)[0]
+        case.case_id = f"{job['job_id']}_stage_{index+1}"
+        case.name = job['stages'][index]['name']
+        case.family = 'native_production_transfer'
+        case.task.instruction = f"Native production transfer stage {index+1}/4: move native_cube to the destination station. Grasp must lift the dynamic cube through real contacts; observe after rejected actions."
+        prior_orientation = None
+        if previous_env:
+            previous = next(o for o in previous_env.world.objects if o.id == 'native_cube')
+            prior_orientation = previous.orientation_quaternion
+        case.destination.center = (.4175, .5, .025)
+        case.destination.size = (.12, .12, .15)
+        case.limits = Limits(max_actions=50,max_sim_seconds=120)
+        case.disturbances = make_robosim_cases(2, 91400)[1].disturbances if index == 1 else []
+        applied = []
+        for entry in list(job['pending_changes']):
+            if entry['stage_index'] != index:
+                continue
+            if entry['change'] == 'move_component':
+                case.initial_scene.objects[0].position = (.3575,.5,.025)
+            else:
+                case.destination.center = (.3975,.5,.025)
+            entry.update(status='APPLIED_BEFORE_STAGE_FREEZE',applied_at_ms=time.time()*1000)
+            job['changes'].append(entry)
+            job['pending_changes'].remove(entry)
+            applied.append(entry['id'])
+        case.provenance.update(workflow_id=job['job_id'],stage_index=index,
+            previous_episode_id=previous_env.episode_id if previous_env else None,
+            carried_state='prior_pose_recorded_fixture_reindexed_to_declared_pickup' if previous_env else 'declared_initial_layout',
+            previous_final_position=previous.position if previous_env else None,
+            fixture_reset={'before_position': previous.position if previous_env else None,
+                           'before_quaternion': prior_orientation,
+                           'after_position': case.initial_scene.objects[0].position,
+                           'after_quaternion': [0,0,0,1], 'velocity_reset': True},
+            previous_final_orientation=prior_orientation,
+            stage_boundary_reset='fixture_reindex_to_declared_pickup_robot_home_part_upright_zero_velocity',
+            applied_change_ids=applied)
         return type(case).model_validate(case.model_dump())
 
     async def run(self, job_id):

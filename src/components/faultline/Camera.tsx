@@ -11,16 +11,19 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
+  const pendingStream = useRef<MediaStream | null>(null);
   const sequence = useRef(0);
   const cameraAttempt = useRef(0);
   const cameraTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestState = useRef(state); latestState.current = state;
   const [connected, setConnected] = useState(false);
   const [captureSource, setCaptureSource] = useState<CaptureSource>("laptop_web_rgb");
+  const [captureId, setCaptureId] = useState("");
   const [syncing, setSyncing] = useState(true);
   const [busy, setBusy] = useState(false);
   const [requestingCamera, setRequestingCamera] = useState(false);
   const [error, setError] = useState("");
+  const [sourceNotice, setSourceNotice] = useState("");
   const [frameSize, setFrameSize] = useState<Point>([640, 480]);
   const [accepted, setAccepted] = useState(0);
   const [mode, setMode] = useState<Mode>("view");
@@ -37,11 +40,13 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
   function cancelCameraRequest() {
     cameraAttempt.current += 1;
     if (cameraTimeout.current) clearTimeout(cameraTimeout.current);
-    stream.current?.getTracks().forEach((track) => track.stop()); stream.current = null;
-    setConnected(false); setRequestingCamera(false); setBusy(false);
-    setError("Camera request cancelled. Check camera permissions in Chrome, then reconnect at http://localhost:3300/lab.");
+    pendingStream.current?.getTracks().forEach((track) => track.stop()); pendingStream.current = null;
+    if (video.current && stream.current) { video.current.srcObject = stream.current; void video.current.play().catch(() => {}); }
+    setRequestingCamera(false); setBusy(false);
+    setError(stream.current ? "Source selection cancelled. Your existing camera remains connected." : "Camera request cancelled. Check camera permissions, then reconnect.");
   }
   function disconnect() {
+    if (latestState.current?.running) return;
     stream.current?.getTracks().forEach((track) => track.stop()); stream.current = null;
     setConnected(false); setAccepted(0);
   }
@@ -49,6 +54,7 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
     cameraAttempt.current += 1;
     if (cameraTimeout.current) clearTimeout(cameraTimeout.current);
     stream.current?.getTracks().forEach((track) => track.stop());
+    pendingStream.current?.getTracks().forEach((track) => track.stop());
   }, []);
   async function refreshDevices() {
     try {
@@ -57,14 +63,18 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
     } catch (err) { setError(errorMessage(err)); }
   }
   async function connect(source: CaptureSource = "laptop_web_rgb") {
+    if (latestState.current?.running) { setError("Stop or finish the policy before changing capture source."); return; }
+    const previousStream = stream.current;
+    const wasSyncing = syncing;
     const attempt = ++cameraAttempt.current;
     const timeoutSeconds = source === "desk_view_window_rgb" ? 90 : 30;
     setBusy(true); setRequestingCamera(true); setError("");
     cameraTimeout.current = setTimeout(() => {
       if (cameraAttempt.current !== attempt) return;
       cameraAttempt.current += 1;
-      stream.current?.getTracks().forEach((track) => track.stop()); stream.current = null;
-      setConnected(false); setBusy(false); setRequestingCamera(false);
+      pendingStream.current?.getTracks().forEach((track) => track.stop()); pendingStream.current = null;
+      if (video.current && previousStream) { video.current.srcObject = previousStream; void video.current.play().catch(() => {}); }
+      setConnected(!!previousStream); setSyncing(wasSyncing); setBusy(false); setRequestingCamera(false);
       setError(source === "desk_view_window_rgb" ? "Window sharing did not respond within 90 seconds. In Chrome, select the Desk View window and allow screen recording in macOS, then try again. Any late stream will be closed." : "Camera permission did not respond within 30 seconds. Open http://localhost:3300/lab in Chrome, allow camera access in the browser and macOS, then reconnect. Any late camera stream will be closed.");
     }, timeoutSeconds * 1000);
     try {
@@ -75,21 +85,28 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
         : navigator.mediaDevices.getUserMedia({ audio: false, video: { width: { ideal: 640 }, height: { ideal: 480 }, ...(deviceId ? { deviceId: { exact: deviceId } } : {}) } });
       const capture = await captureRequest;
       if (cameraAttempt.current !== attempt) { capture.getTracks().forEach((track) => track.stop()); return; }
-      stream.current?.getTracks().forEach((track) => track.stop()); stream.current = capture;
+      pendingStream.current = capture;
       const credentials = await ensureSession();
       if (cameraAttempt.current !== attempt) { capture.getTracks().forEach((track) => track.stop()); return; }
+      if (latestState.current?.running) throw new Error("The policy started while source selection was open. Existing capture was retained; finish the run before switching.");
+      if (credentials.expires_at_ms < Date.now()) throw new Error("Camera session expired. Reload to create a fresh session.");
       sequence.current = Math.max(sequence.current, latestState.current?.observed.seq ?? 0);
+      setSyncing(false);
       if (video.current) { video.current.srcObject = capture; await video.current.play(); }
       if (cameraAttempt.current !== attempt) { capture.getTracks().forEach((track) => track.stop()); return; }
       if (cameraTimeout.current) clearTimeout(cameraTimeout.current);
-      setCaptureSource(source); setConnected(true); setSyncing(true);
+      stream.current = capture; pendingStream.current = null;
+      previousStream?.getTracks().forEach((track) => track.stop());
+      setCaptureSource(source); setCaptureId(crypto.randomUUID()); setConnected(true); setSyncing(true);
+      if (previousStream) { setMode("view"); setCorners([]); setBoxStart(null); setBoxEnd(null); setSourceNotice("Capture source changed. Set workspace again before executing. Existing saved evidence is retained; saving a new workspace clears the old object selections."); }
       void navigator.mediaDevices.enumerateDevices().then((all) => { if (cameraAttempt.current === attempt) setDevices(all.filter((d) => d.kind === "videoinput")); }).catch(() => {});
-      capture.getVideoTracks()[0]?.addEventListener("ended", () => setConnected(false));
-      if (credentials.expires_at_ms < Date.now()) throw new Error("Camera session expired. Reload to create a fresh session.");
+      capture.getVideoTracks()[0]?.addEventListener("ended", () => { if (stream.current === capture) { stream.current = null; setConnected(false); } });
     } catch (err) {
       if (cameraAttempt.current === attempt) {
-        stream.current?.getTracks().forEach((track) => track.stop()); stream.current = null;
-        setConnected(false); setError(errorMessage(err));
+        pendingStream.current?.getTracks().forEach((track) => track.stop()); pendingStream.current = null;
+        if (video.current && previousStream) { video.current.srcObject = previousStream; void video.current.play().catch(() => {}); }
+        setConnected(!!previousStream); setSyncing(wasSyncing);
+        setError(`${errorMessage(err)}${previousStream ? " Existing camera capture remains connected." : ""}`);
       }
     } finally {
       if (cameraAttempt.current === attempt) {
@@ -119,16 +136,27 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
           const jpeg = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", .8));
           if (jpeg && active) {
             sequence.current = Math.max(sequence.current + 1, (latestState.current?.observed.seq ?? 0) + 1);
-            await faultline(`camera/${session!.session_id}/frame?seq=${sequence.current}&timestamp_ms=${Date.now()}&source=${captureSource}`, { binary: jpeg, session, signal: abort.signal });
+            await faultline(`camera/${session!.session_id}/frame?seq=${sequence.current}&timestamp_ms=${Date.now()}&source=${captureSource}&capture_id=${encodeURIComponent(captureId)}`, { binary: jpeg, session, signal: abort.signal });
             if (active) { setAccepted((n) => n + 1); setError(""); }
           }
         }
-      } catch (err) { if (active) setError(errorMessage(err)); }
+      } catch (err) {
+        if (active) {
+          const message = errorMessage(err);
+          if (/invalid or expired|session.*expired|unauthorized|\b401\b/i.test(message)) {
+            try {
+              await ensureSession();
+              setAccepted(0); setMode("calibrate"); setCorners([]); setBoxStart(null); setBoxEnd(null);
+              setError(""); setSourceNotice("Backend session renewed. Set workspace and select objects again.");
+            } catch (renewalError) { if (active) setError(errorMessage(renewalError)); }
+          } else setError(message);
+        }
+      }
       if (active) timer = setTimeout(() => void send(), 200);
     }
     void send();
     return () => { active = false; clearTimeout(timer); abort.abort(); };
-  }, [connected, session, syncing, captureSource]);
+  }, [connected, session, syncing, captureSource, captureId]);
 
   function point(event: PointerEvent<SVGSVGElement>): Point {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -162,7 +190,7 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
       const measured = width !== "" || depth !== "";
       if (measured && (!(Number(width) > 0) || !(Number(depth) > 0))) throw new Error("Enter both measured width and depth, or leave both empty for normalized units.");
       await faultline("workcell/calibration", { session, body: { session_id: session.session_id, calibration: { corners, width: measured ? Number(width) : null, depth: measured ? Number(depth) : null } } });
-      setMode("object"); setBoxStart(null); setBoxEnd(null); setObjectId("parcel_A"); onRefresh();
+      setSourceNotice(""); setMode("object"); setBoxStart(null); setBoxEnd(null); setObjectId("parcel_A"); onRefresh();
     } catch (err) { setError(errorMessage(err)); } finally { setBusy(false); }
   }
   async function saveObject() {
@@ -194,10 +222,12 @@ export function Camera({ session, state, ensureSession, onObjectSelected, onRefr
       </svg>}
     </div>
     <div className="fl-camera-controls">
-      <div className="fl-toolbar"><button className="fl-button fl-button-primary" disabled={busy} onClick={() => connected ? disconnect() : void connect()}>{requestingCamera ? "Waiting for camera…" : connected ? "Disconnect camera" : "Connect camera"}</button>{!connected && <button className="fl-button fl-button-secondary" disabled={busy} onClick={() => void connect("desk_view_window_rgb")}>Share Desk View window</button>}{requestingCamera && <button className="fl-button fl-button-secondary" onClick={cancelCameraRequest}>Cancel camera request</button>}{connected && <button className="fl-button fl-button-secondary" onClick={() => setSyncing(!syncing)}>{syncing ? "Pause frame sync" : "Resume frame sync"}</button>}</div>
-      {!connected && <button className="fl-text-link" disabled={busy} onClick={() => void refreshDevices()}>Refresh available cameras</button>}
+      <div className="fl-toolbar"><button className="fl-button fl-button-primary" disabled={busy || state?.running} onClick={() => connected ? disconnect() : void connect()}>{requestingCamera ? "Waiting for camera…" : connected ? "Disconnect camera" : "Connect camera"}</button><button className="fl-button fl-button-secondary" disabled={busy || state?.running} onClick={() => void connect("desk_view_window_rgb")}>{!connected ? "Share Desk View window" : captureSource === "desk_view_window_rgb" ? "Select Desk View window" : "Switch to Desk View"}</button>{connected && captureSource === "desk_view_window_rgb" && <button className="fl-button fl-button-secondary" disabled={busy || state?.running} onClick={() => void connect("laptop_web_rgb")}>Use webcam</button>}{requestingCamera && <button className="fl-button fl-button-secondary" onClick={cancelCameraRequest}>Cancel camera request</button>}{connected && <button className="fl-button fl-button-secondary" disabled={busy || state?.running} onClick={() => setSyncing(!syncing)}>{syncing ? "Pause frame sync" : "Resume frame sync"}</button>}</div>
+      {!connected && <button className="fl-text-link" disabled={busy || state?.running} onClick={() => void refreshDevices()}>Refresh available cameras</button>}
       {devices.length > 0 && <label className="fl-field">Camera source<select value={deviceId} onChange={(e) => setDeviceId(e.target.value)} disabled={connected}><option value="">System default</option>{devices.map((d) => <option key={d.deviceId} value={d.deviceId}>{d.label || "Camera"}</option>)}</select></label>}
       <p className="fl-caption">{connected ? `${captureSource === "desk_view_window_rgb" ? "Desk View window RGB" : "Laptop / Continuity Camera RGB"} · ${accepted} JPEG frames accepted · up to 5 fps · ${frameSize.join(" × ")}` : "For Desk View, click Share Desk View window and select the already-open Desk View window in Chrome’s chooser. Laptop webcam and Continuity Camera also work."} {connected && !syncing && "Frame sync paused."}</p>
+      <p className="fl-caption">Desk View uses Chrome’s window chooser: select the already-open Desk View window. Cancelling keeps your current capture. After switching sources, set workspace again.</p>
+      {sourceNotice && <p className="fl-notice" role="status">{sourceNotice}</p>}
       {captureSource === "desk_view_window_rgb" && connected && <p className="fl-caption">Window capture only · RGB, no depth. Keep Desk View’s window size and framing fixed after calibration.</p>}
       <div className="fl-toolbar"><button className="fl-button fl-button-secondary" disabled={!connected || disabled} onClick={() => { setMode("calibrate"); setCorners([]); setBoxStart(null); setBoxEnd(null); }}>Set workspace</button><button className="fl-button fl-button-secondary" disabled={!connected || !state?.calibrated || disabled} onClick={() => { setMode("object"); setBoxStart(null); setBoxEnd(null); }}>Select / correct object</button>{mode !== "view" && <button className="fl-text-link" onClick={() => { setMode("view"); setBoxStart(null); setBoxEnd(null); }}>Finish selection</button>}</div>
       {mode === "calibrate" && <div className="fl-selection-form"><p><strong>Click {corners.length + 1 > 4 ? "complete" : `corner ${corners.length + 1} of 4`}.</strong> Top-left → top-right → bottom-right → bottom-left.</p><details><summary>Enter workspace coordinates with keyboard</summary><label className="fl-field">Four corners in pixels, clockwise<input value={cornersInput} onChange={(e) => setCornersInput(e.target.value)} placeholder="20,20; 620,20; 620,460; 20,460" /></label><button className="fl-button fl-button-secondary" disabled={disabled} onClick={() => typedSelection("corners")}>Apply typed corners</button></details><div className="fl-two-fields"><label className="fl-field">Measured width (m)<input type="number" step="0.01" min="0.01" value={width} onChange={(e) => setWidth(e.target.value)} placeholder="Optional" /></label><label className="fl-field">Measured depth (m)<input type="number" step="0.01" min="0.01" value={depth} onChange={(e) => setDepth(e.target.value)} placeholder="Optional" /></label></div><p className="fl-caption">Leave both empty for normalized units. Recalibrating clears object selections.</p><button className="fl-button fl-button-primary" disabled={corners.length !== 4 || disabled} onClick={() => void saveCalibration()}>Save workspace</button><button className="fl-text-link" onClick={() => setCorners([])}>Reset corners</button></div>}

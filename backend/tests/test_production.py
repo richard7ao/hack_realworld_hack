@@ -69,3 +69,23 @@ def test_stop_checkpoint_does_not_forge_success(tmp_path):
     assert final['status'] == 'FAILED'
     assert final['completed_stages'] == 0
     assert final['stages'][0]['result']['reason'] == 'POLICY_ERROR:OPERATOR_STOPPED'
+
+
+def test_native_manifests_carry_actual_position_and_disclose_reset(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    import backend.robosim
+    monkeypatch.setattr(backend.robosim,'status',lambda: {'available':True})
+    line = ProductionLine(Storage(tmp_path))
+    job = line.create('session','scripted_reobserve',0,execution_backend='robosimstudio_cpu')
+    previous = SimpleNamespace(episode_id='ep_prior',world=SimpleNamespace(objects=[
+        SimpleNamespace(id='native_cube',label='part',position=(.412,.501,.026),dimensions=(.05,.05,.05),
+                    orientation_quaternion=(0,0,.1,.995))]))
+    case = line._stage_case(job,1,previous)
+    assert case.provenance['execution_backend'] == 'robosimstudio_cpu'
+    assert case.initial_scene.objects[0].position == (.2975,.5,.025)
+    assert case.provenance['previous_final_position'] == previous.world.objects[0].position
+    assert case.provenance['previous_final_orientation'] == (0,0,.1,.995)
+    assert case.provenance['stage_boundary_reset'] == 'fixture_reindex_to_declared_pickup_robot_home_part_upright_zero_velocity'
+    assert case.destination.center == (.4175,.5,.025)
+    assert case.disturbances[0].position == (.3775,.5,.025)
+    assert all(stage['target_id'] == 'native_cube' for stage in job['stages'])

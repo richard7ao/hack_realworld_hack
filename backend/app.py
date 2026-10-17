@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import Field
 
+from .capture import Tracker
 from .generator import generate_cases, sanity_case
 from .environments import environment_catalog
 from .benchmark_dispatch import execution_backend_catalog
@@ -98,12 +99,25 @@ def state(session_id: str, authorization: str | None = Header(None)):
     return runtime.state(auth(session_id, authorization))
 
 
-async def ingest(s, data, seq, timestamp, source="laptop_web_rgb"):
+async def ingest(s, data, seq, timestamp, source="laptop_web_rgb", capture_id=None):
     async with s.lock:
         if source not in ("laptop_web_rgb", "desk_view_window_rgb"):
             raise ValueError("Unsupported RGB source")
-        if source != s.tracker.camera_source and s.job and not s.job.done():
+        capture_changed = bool(capture_id and capture_id != getattr(s, "capture_id", None))
+        if capture_id and capture_id in getattr(s, "retired_capture_ids", []):
+            raise ValueError("STALE_CAPTURE: this optical source has been replaced")
+        if (source != s.tracker.camera_source or capture_changed) and s.job and not s.job.done():
             raise ValueError("Finish the current episode before changing camera source")
+        if source != s.tracker.camera_source or capture_changed:
+            if capture_changed:
+                previous_id = getattr(s, "capture_id", None)
+                retired = getattr(s, "retired_capture_ids", [])
+                s.retired_capture_ids = (retired + ([previous_id] if previous_id else []))[-32:]
+                s.capture_id = capture_id
+            # A different optical source requires a new pixel-to-workspace calibration.
+            runtime.camera_workcell(s)
+            s.tracker = Tracker(s.id)
+            s.tracker.camera_source = source
         ref = f"frames/{s.id}/{seq:08d}.jpg"
         scene = s.tracker.ingest(data, seq, timestamp, ref)
         s.tracker.camera_source = source
@@ -124,8 +138,10 @@ async def ingest(s, data, seq, timestamp, source="laptop_web_rgb"):
 @app.post("/api/camera/{session_id}/frame")
 async def post_frame(session_id: str, request: Request, seq: int, timestamp_ms: float,
                      source: Literal["laptop_web_rgb", "desk_view_window_rgb"] = "laptop_web_rgb",
-                     authorization: str | None = Header(None)):
+                     capture_id: str | None = None, authorization: str | None = Header(None)):
     s = auth(session_id, authorization)
+    if capture_id is not None and not __import__("re").fullmatch(r"[a-zA-Z0-9_-]{1,80}", capture_id):
+        raise ValueError("Invalid optical capture ID")
     if int(request.headers.get("content-length", "0")) > 1_500_000:
         raise HTTPException(413, "Frame must be under 1.5 MB")
     data = bytearray()
@@ -133,7 +149,7 @@ async def post_frame(session_id: str, request: Request, seq: int, timestamp_ms: 
         data.extend(chunk)
         if len(data) > 1_500_000:
             raise HTTPException(413, "Frame must be under 1.5 MB")
-    scene = await ingest(s, bytes(data), seq, timestamp_ms, source)
+    scene = await ingest(s, bytes(data), seq, timestamp_ms, source, capture_id)
     return {"accepted": True, "observed": scene.model_dump(mode="json")}
 
 
@@ -563,6 +579,7 @@ def reconstructed_model(job_id: str):
 
 
 class ProductionRequest(SessionRequest):
+    execution_backend: Literal["robosimstudio_cpu", "kinematic"] = "robosimstudio_cpu"
     policy_id: str = "jev_gpt-6.1-sol"
     delay_seconds: float = Field(default=.7, ge=0, le=3)
 
@@ -574,6 +591,8 @@ class ProductionChangeRequest(SessionRequest):
 @app.post("/api/production/start")
 async def start_production(body: ProductionRequest, authorization: str | None = Header(None)):
     session = auth(body.session_id, authorization)
+    if body.execution_backend == "robosimstudio_cpu" and not robosim_health().get("available"):
+        raise HTTPException(503, "Native contact physics is unavailable; choose the kinematic execution option")
     if session.job and not session.job.done():
         raise ValueError("Finish the current execution before starting a production batch")
     if session.env and hasattr(session.env, "close"):
@@ -589,7 +608,7 @@ async def start_production(body: ProductionRequest, authorization: str | None = 
         return "POLICY_ERROR:OPERATOR_STOPPED" if session.stop_requested else None
     line = ProductionLine(runtime.storage, publish=lambda event: runtime.publish(session, event),
                           on_env=bind, checkpoint=checkpoint)
-    job = line.create(session.id, body.policy_id, body.delay_seconds)
+    job = line.create(session.id, body.policy_id, body.delay_seconds, execution_backend=body.execution_backend)
     production_lines[job["job_id"]] = line
     async def execute():
         try:

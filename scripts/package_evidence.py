@@ -52,6 +52,7 @@ class Package:
         self.scenarios: dict[str, dict] = {}
         self.benchmarks: dict[str, dict] = {}
         self.episodes: dict[str, dict] = {}
+        self.productions: dict[str, dict] = {}
         self.frames: set[str] = set()
 
     def data_path(self, relative: str) -> Path:
@@ -164,6 +165,29 @@ class Package:
             if result != self.episodes[result["episode_id"]]:
                 raise ValueError(f"Benchmark result differs from saved episode: {result['episode_id']}")
 
+    def production(self, supplied: str) -> None:
+        source = self.resolve(supplied, "production")
+        value = json.loads(source.read_bytes())
+        job_id = identity(value["job_id"])
+        self.document(source, f"data/production/{job_id}.json", "production_workflow")
+        if job_id in self.productions:
+            return
+        self.productions[job_id] = value
+        for stage in value.get("stages", []):
+            case_id = stage.get("case_id")
+            if case_id:
+                self.scenario(identity(case_id))
+                if stage.get("scenario_hash") != canonical_hash(self.scenarios[case_id]):
+                    raise ValueError(f"Production scenario hash mismatch: {case_id}")
+            result = stage.get("result")
+            if result:
+                episode_id = identity(result["episode_id"])
+                self.episode(episode_id)
+                if result != self.episodes[episode_id]:
+                    raise ValueError(f"Production result differs from saved episode: {episode_id}")
+                if case_id and result["case_id"] != case_id:
+                    raise ValueError(f"Production stage/result case mismatch: {case_id}")
+
     def finish(self, video: Path | None) -> dict:
         for relative in sorted(self.frames):
             self.add(f"data/{relative}", self.data_path(relative).read_bytes(), "referenced_camera_frame")
@@ -191,6 +215,12 @@ class Package:
             scope.append(f"- `{bench_id}`: {report.get('completed_executions', 0)}/{report.get('total_executions', 0)} executions completed; gate **{gate.get('verdict', 'not recorded')}**; reasons `{', '.join(gate.get('reasons', [])) or 'none recorded'}`; configuration `{json.dumps(gate.get('config', {}), sort_keys=True)}`.")
         if not self.benchmarks:
             scope.append("No comparison report selected.")
+        scope.extend(["", f"## Production workflows ({len(self.productions)})", ""])
+        for job_id, job in sorted(self.productions.items()):
+            scope.append(f"- `{job_id}`: **{job.get('status', 'not recorded')}**; {job.get('completed_stages', 0)}/{job.get('total_stages', len(job.get('stages', [])))} stages completed; backend `{job.get('execution_backend', 'not recorded')}`; policy `{job.get('policy_id', 'not recorded')}`.")
+            scope.append(f"  Scope: {job.get('scope', 'not recorded')}")
+        if not self.productions:
+            scope.append("No production workflow selected.")
         scope.extend([
             "", "## Provenance and boundaries", "",
             f"- {len(self.frames)} unique camera frames copied, selected only through explicit frame references in the selected scenarios and episode evidence. No camera-directory sweep is performed.",
@@ -204,7 +234,7 @@ class Package:
         manifest = {
             "schema_version": "1.0", "package_type": "faultline_selected_evidence",
             "scenario_ids": sorted(self.scenarios), "benchmark_ids": sorted(self.benchmarks),
-            "episode_ids": sorted(self.episodes), "video": video_ref,
+            "episode_ids": sorted(self.episodes), "production_ids": sorted(self.productions), "video": video_ref,
             "referenced_camera_frames": len(self.frames),
             "files": [{"path": path, "role": self.roles[path], "bytes": len(raw), "sha256": digest(raw)} for path, raw in sorted(self.files.items())],
         }
@@ -237,13 +267,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scenario", action="append", default=[], help="Saved scenario ID or JSON path; repeatable")
     parser.add_argument("--benchmark", action="append", default=[], help="Saved benchmark ID or JSON path; repeatable")
+    parser.add_argument("--production", action="append", default=[], help="Saved production job ID or JSON path; repeatable")
     parser.add_argument("--episode", action="append", default=[], help="Saved episode ID; repeatable")
     parser.add_argument("--video", type=Path, help="Optional existing local video; absence is recorded")
     parser.add_argument("--data-dir", type=Path, default=ROOT / "data")
     parser.add_argument("--output", type=Path, required=True, help="New directory, or an identical previous package")
     args = parser.parse_args()
-    if not (args.scenario or args.benchmark or args.episode):
-        parser.error("Select at least one scenario, benchmark or episode")
+    if not (args.scenario or args.benchmark or args.episode or args.production):
+        parser.error("Select at least one scenario, benchmark, episode or production workflow")
     try:
         package = Package(args.data_dir)
         for supplied in args.scenario:
@@ -252,6 +283,8 @@ def main() -> int:
             package.benchmark(supplied)
         for episode_id in args.episode:
             package.episode(episode_id)
+        for supplied in args.production:
+            package.production(supplied)
         manifest = package.finish(args.video)
         package.write(args.output)
     except (OSError, ValueError, KeyError, TypeError) as exc:
@@ -259,6 +292,7 @@ def main() -> int:
         return 1
     print(json.dumps({"output": str(args.output.resolve()), "scenarios": manifest["scenario_ids"],
                       "benchmarks": manifest["benchmark_ids"], "episodes": manifest["episode_ids"],
+                      "productions": manifest["production_ids"],
                       "referenced_camera_frames": manifest["referenced_camera_frames"],
                       "video": manifest["video"], "files": len(package.files)}, indent=2))
     return 0
