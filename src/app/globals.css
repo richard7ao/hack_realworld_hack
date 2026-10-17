@@ -22,6 +22,10 @@
   --color-pass: #2BA84A;
   --color-fail: #D7263D;
   --color-warn: #E08700;
+  /* Text variants. #2BA84A is 2.8:1 on white and #E08700 is 2.5:1, so neither is legible as body
+     text; these clear AA. The fill tokens above stay for bars, rings and canvas marks. */
+  --color-pass-ink: #1F7A36;
+  --color-warn-ink: #8A5200;
   --color-track: #EDEDED;
   --color-line: rgb(29 29 29 / 0.12);
   --color-steel: #4A5568;

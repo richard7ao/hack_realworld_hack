@@ -9,7 +9,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --import tsx --test src/lib/score.test.ts src/lib/sim/arm.test.ts src/lib/sim/generate.test.ts",
     "check": "pnpm typecheck && pnpm test && pnpm fixtures:validate",
-    "fixtures:validate": "tsx fixtures/validate.ts"
+    "fixtures:validate": "tsx fixtures/validate.ts",
+    "fixtures:build": "tsx fixtures/build.ts"
   },
   "dependencies": {
     "next": "^15.1.0",

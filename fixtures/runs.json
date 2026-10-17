@@ -1,0 +1,6998 @@
+[
+  {
+    "id": "run-demo",
+    "createdAt": "2026-10-17T10:42:21.682Z",
+    "policy": {
+      "name": "pi0-fast",
+      "commit": "a3f91c2",
+      "branch": "feat/grasp-refine"
+    },
+    "environmentId": "kitchen-counter",
+    "environmentName": "Kitchen Counter",
+    "task": "Pick up the red mug and place it on the tray",
+    "fanout": 100,
+    "concurrency": 32,
+    "stage": "done",
+    "progress": {
+      "label": "Scored 100 rollouts",
+      "done": 100,
+      "total": 100
+    },
+    "sims": [
+      {
+        "id": "sim-000",
+        "seed": 459562830,
+        "variant": {
+          "lighting": 0.5039156896411441,
+          "friction": 0.41419198983348904,
+          "objectDx": -0.056179874762892726,
+          "objectDy": -0.36104540042579175,
+          "distractors": 2,
+          "cameraJitter": 0.12279643022920937
+        },
+        "status": "passed",
+        "startOffsetMs": 125,
+        "durationMs": 5553,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.76,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-001",
+        "seed": 467951639,
+        "variant": {
+          "lighting": 0.547015569335781,
+          "friction": 0.7379493167623877,
+          "objectDx": -0.16873091198503973,
+          "objectDy": 0.0068505145609378815,
+          "distractors": 0,
+          "cameraJitter": 0.37108385253231974
+        },
+        "status": "passed",
+        "startOffsetMs": 189,
+        "durationMs": 4695,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.891,
+          "steps": 94,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-002",
+        "seed": 476340449,
+        "variant": {
+          "lighting": 0.891666601691395,
+          "friction": 0.39697416420094667,
+          "objectDx": 0.2803629495203495,
+          "objectDy": -0.3459136104211211,
+          "distractors": 4,
+          "cameraJitter": 0.20558846737258138
+        },
+        "status": "passed",
+        "startOffsetMs": 222,
+        "durationMs": 7147,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.81,
+          "steps": 143,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-003",
+        "seed": 484729258,
+        "variant": {
+          "lighting": 0.8725075313588604,
+          "friction": 0.7116660821717232,
+          "objectDx": -0.7268836379051209,
+          "objectDy": -0.26680030915886166,
+          "distractors": 0,
+          "cameraJitter": 0.5681651236256585
+        },
+        "status": "passed",
+        "startOffsetMs": 236,
+        "durationMs": 5268,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.786,
+          "steps": 105,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-004",
+        "seed": 426007592,
+        "variant": {
+          "lighting": 0.24308401205344127,
+          "friction": 1.1775916543789209,
+          "objectDx": 0.7191817328333855,
+          "objectDy": -0.2433654457330704,
+          "distractors": 4,
+          "cameraJitter": 0.8954943955410272
+        },
+        "status": "passed",
+        "startOffsetMs": 272,
+        "durationMs": 6959,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.813,
+          "steps": 139,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-005",
+        "seed": 434396401,
+        "variant": {
+          "lighting": 0.3151596195413731,
+          "friction": 1.2463560117408634,
+          "objectDx": -0.5158386528491974,
+          "objectDy": -0.1749663008376956,
+          "distractors": 0,
+          "cameraJitter": 0.2222888340242207
+        },
+        "status": "passed",
+        "startOffsetMs": 284,
+        "durationMs": 6284,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.784,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-006",
+        "seed": 442785211,
+        "variant": {
+          "lighting": 0.4194386759074405,
+          "friction": 1.319648011494428,
+          "objectDx": 0.4917049925774336,
+          "objectDy": -0.09390635918825865,
+          "distractors": 0,
+          "cameraJitter": 0.740784054226242
+        },
+        "status": "passed",
+        "startOffsetMs": 285,
+        "durationMs": 5599,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.884,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-007",
+        "seed": 451174020,
+        "variant": {
+          "lighting": 0.45465959508437664,
+          "friction": 1.080776881799102,
+          "objectDx": 0.5263877265155316,
+          "objectDy": 0.18708088211715224,
+          "distractors": 4,
+          "cameraJitter": 0.8829851087182761
+        },
+        "status": "passed",
+        "startOffsetMs": 287,
+        "durationMs": 7035,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.927,
+          "steps": 141,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-008",
+        "seed": 526673306,
+        "variant": {
+          "lighting": 0.5384401187649928,
+          "friction": 0.9870293491054326,
+          "objectDx": 0.0447181522846222,
+          "objectDy": -0.1045333430171013,
+          "distractors": 3,
+          "cameraJitter": 0.003983117477037013
+        },
+        "status": "failed",
+        "startOffsetMs": 342,
+        "durationMs": 6405,
+        "elbow": 1,
+        "failMode": "missed_approach",
+        "failAt": 0.3238963715732098,
+        "metrics": {
+          "reward": 0.162,
+          "steps": 128,
+          "graspAttempts": 3
+        }
+      },
+      {
+        "id": "sim-009",
+        "seed": 535062115,
+        "variant": {
+          "lighting": 0.5138135616318322,
+          "friction": 1.33717202921398,
+          "objectDx": -0.04108551070094109,
+          "objectDy": 0.2505786012858153,
+          "distractors": 0,
+          "cameraJitter": 0.42526440841611474
+        },
+        "status": "passed",
+        "startOffsetMs": 362,
+        "durationMs": 5315,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.771,
+          "steps": 106,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-010",
+        "seed": 2013476966,
+        "variant": {
+          "lighting": 0.20706045667175205,
+          "friction": 0.5640243104659021,
+          "objectDx": 0.3494034014642239,
+          "objectDy": 0.37637292090803387,
+          "distractors": 4,
+          "cameraJitter": 0.1313971957890317
+        },
+        "status": "failed",
+        "startOffsetMs": 366,
+        "durationMs": 7230,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.16173187256325036,
+        "metrics": {
+          "reward": 0.085,
+          "steps": 145,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-011",
+        "seed": 2005088157,
+        "variant": {
+          "lighting": 0.7158765849191695,
+          "friction": 1.088844094099477,
+          "objectDx": -0.2896339975297451,
+          "objectDy": 0.11344452239573002,
+          "distractors": 1,
+          "cameraJitter": 0.6554536134470255
+        },
+        "status": "passed",
+        "startOffsetMs": 381,
+        "durationMs": 6662,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.764,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-012",
+        "seed": 1996699347,
+        "variant": {
+          "lighting": 0.8265842295833863,
+          "friction": 1.236009888490662,
+          "objectDx": -0.03225862756371498,
+          "objectDy": 0.30329805668443444,
+          "distractors": 1,
+          "cameraJitter": 0.26780682876706124
+        },
+        "status": "passed",
+        "startOffsetMs": 415,
+        "durationMs": 6748,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.909,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-013",
+        "seed": 1988310538,
+        "variant": {
+          "lighting": 0.8536208596080541,
+          "friction": 0.61550530991517,
+          "objectDx": 0.5310490507632494,
+          "objectDy": -0.22393628992140294,
+          "distractors": 3,
+          "cameraJitter": 0.5933944367570803
+        },
+        "status": "passed",
+        "startOffsetMs": 429,
+        "durationMs": 7386,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.951,
+          "steps": 148,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-014",
+        "seed": 1979921728,
+        "variant": {
+          "lighting": 0.8855032232706435,
+          "friction": 1.1270082610659302,
+          "objectDx": -0.011823516339063644,
+          "objectDy": -0.14002023227512836,
+          "distractors": 3,
+          "cameraJitter": 0.38118667777162046
+        },
+        "status": "passed",
+        "startOffsetMs": 446,
+        "durationMs": 6786,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.847,
+          "steps": 136,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-015",
+        "seed": 1971532919,
+        "variant": {
+          "lighting": 0.9281725076609291,
+          "friction": 1.3336344162467868,
+          "objectDx": -0.4921192772686482,
+          "objectDy": 0.18446100018918515,
+          "distractors": 2,
+          "cameraJitter": 0.23989045224152505
+        },
+        "status": "passed",
+        "startOffsetMs": 504,
+        "durationMs": 5152,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.728,
+          "steps": 103,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-016",
+        "seed": 1963144109,
+        "variant": {
+          "lighting": 0.2994290528469719,
+          "friction": 1.1839567289222033,
+          "objectDx": 0.2328270070254803,
+          "objectDy": -0.264194411598146,
+          "distractors": 1,
+          "cameraJitter": 0.36463909519370646
+        },
+        "status": "passed",
+        "startOffsetMs": 520,
+        "durationMs": 5476,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.938,
+          "steps": 110,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-017",
+        "seed": 1954755300,
+        "variant": {
+          "lighting": 0.3061047536204569,
+          "friction": 0.5906428726390004,
+          "objectDx": 0.7859332565218211,
+          "objectDy": -0.3094069315120578,
+          "distractors": 1,
+          "cameraJitter": 0.5035903810523451
+        },
+        "status": "passed",
+        "startOffsetMs": 539,
+        "durationMs": 7371,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.749,
+          "steps": 147,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-018",
+        "seed": 1946366490,
+        "variant": {
+          "lighting": 0.4240679135429673,
+          "friction": 1.3422095532529057,
+          "objectDx": 0.6639015421271325,
+          "objectDy": 0.15698134005069733,
+          "distractors": 2,
+          "cameraJitter": 0.6010835567722097
+        },
+        "status": "passed",
+        "startOffsetMs": 624,
+        "durationMs": 6471,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.742,
+          "steps": 129,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-019",
+        "seed": 1937977681,
+        "variant": {
+          "lighting": 0.7305754914297722,
+          "friction": 1.026386317703873,
+          "objectDx": -0.002022422105073929,
+          "objectDy": 0.006363413110375405,
+          "distractors": 0,
+          "cameraJitter": 0.8723895807517693
+        },
+        "status": "passed",
+        "startOffsetMs": 662,
+        "durationMs": 5573,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.738,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-020",
+        "seed": 721725435,
+        "variant": {
+          "lighting": 0.9160518083837814,
+          "friction": 0.6240451751742512,
+          "objectDx": 0.5649075258523226,
+          "objectDy": -0.1226408053189516,
+          "distractors": 3,
+          "cameraJitter": 0.5146011059638113
+        },
+        "status": "passed",
+        "startOffsetMs": 691,
+        "durationMs": 6487,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.902,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-021",
+        "seed": 730114244,
+        "variant": {
+          "lighting": 0.2670682948548347,
+          "friction": 0.5459660295397043,
+          "objectDx": 0.18213220313191414,
+          "objectDy": -0.02872298937290907,
+          "distractors": 0,
+          "cameraJitter": 0.845073121972382
+        },
+        "status": "failed",
+        "startOffsetMs": 760,
+        "durationMs": 10000,
+        "elbow": 1,
+        "failMode": "timeout",
+        "failAt": 0.5428356839809567,
+        "metrics": {
+          "reward": 0.242,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-022",
+        "seed": 704947816,
+        "variant": {
+          "lighting": 0.7678117943461984,
+          "friction": 1.1575721480417998,
+          "objectDx": 0.6999972067773342,
+          "objectDy": -0.06591188926249743,
+          "distractors": 3,
+          "cameraJitter": 0.6305911502335221
+        },
+        "status": "passed",
+        "startOffsetMs": 787,
+        "durationMs": 5680,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.897,
+          "steps": 114,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-023",
+        "seed": 713336625,
+        "variant": {
+          "lighting": 0.25532175552798436,
+          "friction": 0.6224258112721145,
+          "objectDx": -0.1825380001217127,
+          "objectDy": -0.283347693271935,
+          "distractors": 0,
+          "cameraJitter": 0.11257310633081943
+        },
+        "status": "failed",
+        "startOffsetMs": 797,
+        "durationMs": 6387,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.8365014381706715,
+        "metrics": {
+          "reward": 0.401,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-024",
+        "seed": 755280673,
+        "variant": {
+          "lighting": 0.40096953242318706,
+          "friction": 0.551463807374239,
+          "objectDx": 0.12353259027004243,
+          "objectDy": 0.11393298879265785,
+          "distractors": 2,
+          "cameraJitter": 0.08654019143432379
+        },
+        "status": "passed",
+        "startOffsetMs": 808,
+        "durationMs": 5223,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.726,
+          "steps": 104,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-025",
+        "seed": 763669482,
+        "variant": {
+          "lighting": 0.7337256589555181,
+          "friction": 1.1992579408921302,
+          "objectDx": 0.2086539186537266,
+          "objectDy": 0.31491558961570265,
+          "distractors": 3,
+          "cameraJitter": 0.48166122918482873
+        },
+        "status": "passed",
+        "startOffsetMs": 864,
+        "durationMs": 6160,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.951,
+          "steps": 123,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-026",
+        "seed": 738503054,
+        "variant": {
+          "lighting": 0.6656833253102377,
+          "friction": 1.2106796101666988,
+          "objectDx": 0.36842967681586747,
+          "objectDy": -0.24506705459207298,
+          "distractors": 0,
+          "cameraJitter": 0.6276919796364382
+        },
+        "status": "passed",
+        "startOffsetMs": 1137,
+        "durationMs": 4691,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.806,
+          "steps": 94,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-027",
+        "seed": 746891863,
+        "variant": {
+          "lighting": 0.44064422020455823,
+          "friction": 0.41914877565577624,
+          "objectDx": 0.45877796187996867,
+          "objectDy": -0.22465217653661967,
+          "distractors": 2,
+          "cameraJitter": 0.4890253566205502
+        },
+        "status": "passed",
+        "startOffsetMs": 1774,
+        "durationMs": 7127,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.891,
+          "steps": 143,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-028",
+        "seed": 788835911,
+        "variant": {
+          "lighting": 0.9235990549088455,
+          "friction": 0.5274947680532932,
+          "objectDx": -0.4018179539591074,
+          "objectDy": 0.22538025975227358,
+          "distractors": 4,
+          "cameraJitter": 0.6225126168457792
+        },
+        "status": "passed",
+        "startOffsetMs": 1800,
+        "durationMs": 7681,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.937,
+          "steps": 154,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-029",
+        "seed": 797224720,
+        "variant": {
+          "lighting": 0.3631893082521856,
+          "friction": 0.5802089217118919,
+          "objectDx": -0.29271377995610237,
+          "objectDy": -0.28494828157126906,
+          "distractors": 4,
+          "cameraJitter": 0.07173709685448558
+        },
+        "status": "passed",
+        "startOffsetMs": 2130,
+        "durationMs": 6439,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.867,
+          "steps": 129,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-030",
+        "seed": 772131839,
+        "variant": {
+          "lighting": 0.2779325672774576,
+          "friction": 0.4446742866653949,
+          "objectDx": -0.42143674157559874,
+          "objectDy": 0.347528987005353,
+          "distractors": 2,
+          "cameraJitter": 0.6034560655709357
+        },
+        "status": "passed",
+        "startOffsetMs": 2328,
+        "durationMs": 6166,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.86,
+          "steps": 123,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-031",
+        "seed": 763743030,
+        "variant": {
+          "lighting": 0.4680746255791746,
+          "friction": 0.8141807766165584,
+          "objectDx": 0.6137009557336569,
+          "objectDy": 0.12887185085564853,
+          "distractors": 1,
+          "cameraJitter": 0.45390074809547515
+        },
+        "status": "passed",
+        "startOffsetMs": 2562,
+        "durationMs": 6649,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.801,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-032",
+        "seed": 788909458,
+        "variant": {
+          "lighting": 0.28523012878140436,
+          "friction": 0.4713501850143075,
+          "objectDx": -0.23157434314489367,
+          "objectDy": -0.23292191680520774,
+          "distractors": 4,
+          "cameraJitter": 0.16751755366567522
+        },
+        "status": "passed",
+        "startOffsetMs": 5064,
+        "durationMs": 6069,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.784,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-033",
+        "seed": 780520649,
+        "variant": {
+          "lighting": 0.8472247632336802,
+          "friction": 1.3072638887912036,
+          "objectDx": 0.11153213754296304,
+          "objectDy": 0.07689034361392261,
+          "distractors": 2,
+          "cameraJitter": 0.7678384440019727
+        },
+        "status": "passed",
+        "startOffsetMs": 5684,
+        "durationMs": 6960,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.853,
+          "steps": 139,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-034",
+        "seed": 738576601,
+        "variant": {
+          "lighting": 0.3167965793865733,
+          "friction": 1.0293123555835337,
+          "objectDx": 0.19418899826705457,
+          "objectDy": 0.3805840525776148,
+          "distractors": 3,
+          "cameraJitter": 0.842332717194222
+        },
+        "status": "passed",
+        "startOffsetMs": 5836,
+        "durationMs": 7210,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.965,
+          "steps": 144,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-035",
+        "seed": 730187792,
+        "variant": {
+          "lighting": 0.8652771810186095,
+          "friction": 1.121531540201977,
+          "objectDx": 0.6711589738726617,
+          "objectDy": 0.29678745586425065,
+          "distractors": 3,
+          "cameraJitter": 0.010930782300420105
+        },
+        "status": "passed",
+        "startOffsetMs": 5857,
+        "durationMs": 6645,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.833,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-036",
+        "seed": 755354220,
+        "variant": {
+          "lighting": 0.5479747918900102,
+          "friction": 0.5268228239379823,
+          "objectDx": -0.7403657726943493,
+          "objectDy": 0.005914607457816601,
+          "distractors": 4,
+          "cameraJitter": 0.2912630686769262
+        },
+        "status": "passed",
+        "startOffsetMs": 5858,
+        "durationMs": 5551,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.93,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-037",
+        "seed": 746965411,
+        "variant": {
+          "lighting": 0.4106933884206228,
+          "friction": 0.39168102028779683,
+          "objectDx": -0.061317504942417146,
+          "objectDy": 0.24198967963457108,
+          "distractors": 3,
+          "cameraJitter": 0.18179163134191187
+        },
+        "status": "passed",
+        "startOffsetMs": 6008,
+        "durationMs": 5934,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.923,
+          "steps": 119,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-038",
+        "seed": 839242315,
+        "variant": {
+          "lighting": 0.8596601378405466,
+          "friction": 0.7923651967663318,
+          "objectDx": -0.5630779754370451,
+          "objectDy": -0.1997572997584939,
+          "distractors": 1,
+          "cameraJitter": 0.21354355229996144
+        },
+        "status": "passed",
+        "startOffsetMs": 6064,
+        "durationMs": 5236,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.789,
+          "steps": 105,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-039",
+        "seed": 830853506,
+        "variant": {
+          "lighting": 0.7356136478949338,
+          "friction": 0.6675154784694314,
+          "objectDx": 0.2545368254184723,
+          "objectDy": 0.11425763405859471,
+          "distractors": 3,
+          "cameraJitter": 0.8993734502233565
+        },
+        "status": "passed",
+        "startOffsetMs": 6176,
+        "durationMs": 7190,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.82,
+          "steps": 144,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-040",
+        "seed": 687677328,
+        "variant": {
+          "lighting": 0.42788423963356764,
+          "friction": 0.9831180983688682,
+          "objectDx": -0.06619771048426629,
+          "objectDy": -0.1898982770740986,
+          "distractors": 0,
+          "cameraJitter": 0.5480154667748138
+        },
+        "status": "passed",
+        "startOffsetMs": 6211,
+        "durationMs": 4718,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.834,
+          "steps": 94,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-041",
+        "seed": 696066137,
+        "variant": {
+          "lighting": 0.3812556936056353,
+          "friction": 0.41669746083207426,
+          "objectDx": 0.42342522628605367,
+          "objectDy": -0.39218680895864966,
+          "distractors": 4,
+          "cameraJitter": 0.1748081697151065
+        },
+        "status": "passed",
+        "startOffsetMs": 6415,
+        "durationMs": 6478,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.803,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-042",
+        "seed": 704454947,
+        "variant": {
+          "lighting": 0.6478783809463493,
+          "friction": 0.6076398914679885,
+          "objectDx": 0.22831908240914345,
+          "objectDy": 0.142715329118073,
+          "distractors": 0,
+          "cameraJitter": 0.17263993376400322
+        },
+        "status": "passed",
+        "startOffsetMs": 6647,
+        "durationMs": 6208,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.735,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-043",
+        "seed": 712843756,
+        "variant": {
+          "lighting": 0.6793039342039264,
+          "friction": 0.3938666883856058,
+          "objectDx": 0.7850937511771918,
+          "objectDy": -0.0405777208507061,
+          "distractors": 3,
+          "cameraJitter": 0.38626550633925943
+        },
+        "status": "passed",
+        "startOffsetMs": 6748,
+        "durationMs": 6497,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.775,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-044",
+        "seed": 721232566,
+        "variant": {
+          "lighting": 0.4453622714383528,
+          "friction": 0.5031598325818777,
+          "objectDx": 0.7676991943269968,
+          "objectDy": 0.2611513024196029,
+          "distractors": 2,
+          "cameraJitter": 0.3301471527200192
+        },
+        "status": "failed",
+        "startOffsetMs": 6927,
+        "durationMs": 5321,
+        "elbow": -1,
+        "failMode": "missed_approach",
+        "failAt": 0.37917313673533504,
+        "metrics": {
+          "reward": 0.208,
+          "steps": 106,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-045",
+        "seed": 729621375,
+        "variant": {
+          "lighting": 0.771544457168784,
+          "friction": 1.3234526253305376,
+          "objectDx": 0.25450185835361483,
+          "objectDy": 0.030016313679516318,
+          "distractors": 0,
+          "cameraJitter": 0.5810303789796308
+        },
+        "status": "passed",
+        "startOffsetMs": 7204,
+        "durationMs": 4788,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.851,
+          "steps": 96,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-046",
+        "seed": 738010185,
+        "variant": {
+          "lighting": 0.7746165736345574,
+          "friction": 0.5828581649344414,
+          "objectDx": -0.34293727912008765,
+          "objectDy": 0.13442617859691383,
+          "distractors": 1,
+          "cameraJitter": 0.332185232383199
+        },
+        "status": "passed",
+        "startOffsetMs": 7223,
+        "durationMs": 6736,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.736,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-047",
+        "seed": 746398994,
+        "variant": {
+          "lighting": 0.8363389905309304,
+          "friction": 1.0672455687541516,
+          "objectDx": -0.6101065024733544,
+          "objectDy": 0.13379062190651894,
+          "distractors": 0,
+          "cameraJitter": 0.0019417739007622004
+        },
+        "status": "passed",
+        "startOffsetMs": 7275,
+        "durationMs": 6559,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.893,
+          "steps": 131,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-048",
+        "seed": 754787804,
+        "variant": {
+          "lighting": 0.5172402394120581,
+          "friction": 0.5553439968731254,
+          "objectDx": -0.4205104768276215,
+          "objectDy": -0.19946377463638784,
+          "distractors": 2,
+          "cameraJitter": 0.7366712089860812
+        },
+        "status": "passed",
+        "startOffsetMs": 7343,
+        "durationMs": 6656,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.766,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-049",
+        "seed": 763176613,
+        "variant": {
+          "lighting": 0.48052748256595806,
+          "friction": 0.6675849951803684,
+          "objectDx": -0.36897409409284593,
+          "objectDy": 0.30499728173017504,
+          "distractors": 0,
+          "cameraJitter": 0.6013447595061735
+        },
+        "status": "passed",
+        "startOffsetMs": 7358,
+        "durationMs": 6634,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.755,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-050",
+        "seed": 738083732,
+        "variant": {
+          "lighting": 0.7404461077414453,
+          "friction": 0.4214769661426544,
+          "objectDx": -0.07722022160887719,
+          "objectDy": -0.11692475359886885,
+          "distractors": 2,
+          "cameraJitter": 0.5582404970191419
+        },
+        "status": "passed",
+        "startOffsetMs": 7364,
+        "durationMs": 6104,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.806,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-051",
+        "seed": 729694923,
+        "variant": {
+          "lighting": 0.7407130573876202,
+          "friction": 1.3158026907127351,
+          "objectDx": 0.3976745005697012,
+          "objectDy": -0.38496939092874527,
+          "distractors": 0,
+          "cameraJitter": 0.4942954155849293
+        },
+        "status": "passed",
+        "startOffsetMs": 7411,
+        "durationMs": 5488,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.958,
+          "steps": 110,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-052",
+        "seed": 721306113,
+        "variant": {
+          "lighting": 0.588067799329292,
+          "friction": 0.7573408073745668,
+          "objectDx": 0.06875408180058003,
+          "objectDy": -0.32431133519858124,
+          "distractors": 1,
+          "cameraJitter": 0.6458811487304047
+        },
+        "status": "passed",
+        "startOffsetMs": 7412,
+        "durationMs": 5127,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.931,
+          "steps": 103,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-053",
+        "seed": 712917304,
+        "variant": {
+          "lighting": 0.5657307084067724,
+          "friction": 0.3810198355000466,
+          "objectDx": 0.03475798554718495,
+          "objectDy": 0.2674670355394483,
+          "distractors": 1,
+          "cameraJitter": 0.04931277211289853
+        },
+        "status": "passed",
+        "startOffsetMs": 7502,
+        "durationMs": 6482,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.804,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-054",
+        "seed": 771638970,
+        "variant": {
+          "lighting": 0.8941256317077204,
+          "friction": 1.046504468098283,
+          "objectDx": 0.23321794979274274,
+          "objectDy": -0.09483725316822529,
+          "distractors": 3,
+          "cameraJitter": 0.4901029315777123
+        },
+        "status": "passed",
+        "startOffsetMs": 7549,
+        "durationMs": 6354,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.935,
+          "steps": 127,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-055",
+        "seed": 763250161,
+        "variant": {
+          "lighting": 0.6647318188217468,
+          "friction": 0.4607592964544892,
+          "objectDx": 0.3191755894571543,
+          "objectDy": 0.13563940096646548,
+          "distractors": 1,
+          "cameraJitter": 0.14275877731852235
+        },
+        "status": "passed",
+        "startOffsetMs": 7776,
+        "durationMs": 5295,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.767,
+          "steps": 106,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-056",
+        "seed": 754861351,
+        "variant": {
+          "lighting": 0.41266307699261234,
+          "friction": 0.5882908244617283,
+          "objectDx": 0.26315776593983176,
+          "objectDy": 0.3312657726928592,
+          "distractors": 1,
+          "cameraJitter": 0.2882431896636263
+        },
+        "status": "failed",
+        "startOffsetMs": 7995,
+        "durationMs": 10000,
+        "elbow": 1,
+        "failMode": "timeout",
+        "failAt": 0.49923332207836213,
+        "metrics": {
+          "reward": 0.271,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-057",
+        "seed": 746472542,
+        "variant": {
+          "lighting": 0.4681234271149151,
+          "friction": 0.4833811171352863,
+          "objectDx": 0.25873590111732486,
+          "objectDy": -0.2439194418489933,
+          "distractors": 3,
+          "cameraJitter": 0.3131045047659427
+        },
+        "status": "passed",
+        "startOffsetMs": 8090,
+        "durationMs": 6032,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.826,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-058",
+        "seed": 805194208,
+        "variant": {
+          "lighting": 0.40030975283589215,
+          "friction": 1.1781632058788092,
+          "objectDx": 0.1523284263908863,
+          "objectDy": 0.04661610908806324,
+          "distractors": 2,
+          "cameraJitter": 0.03470972464419902
+        },
+        "status": "passed",
+        "startOffsetMs": 8674,
+        "durationMs": 6331,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.902,
+          "steps": 127,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-059",
+        "seed": 796805399,
+        "variant": {
+          "lighting": 0.8465537597541697,
+          "friction": 1.174697815347463,
+          "objectDx": 0.6475182086229325,
+          "objectDy": 0.14594856817275287,
+          "distractors": 3,
+          "cameraJitter": 0.49973584616091105
+        },
+        "status": "passed",
+        "startOffsetMs": 8749,
+        "durationMs": 5409,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.84,
+          "steps": 108,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-060",
+        "seed": 788490137,
+        "variant": {
+          "lighting": 0.7600897807744331,
+          "friction": 0.7077231972012669,
+          "objectDx": -0.2978654231876135,
+          "objectDy": 0.01573603507131338,
+          "distractors": 1,
+          "cameraJitter": 0.6505413500592113
+        },
+        "status": "passed",
+        "startOffsetMs": 9081,
+        "durationMs": 6153,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.833,
+          "steps": 123,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-061",
+        "seed": 796878946,
+        "variant": {
+          "lighting": 0.3543096015811898,
+          "friction": 1.1310100889764727,
+          "objectDx": 0.12041197530925274,
+          "objectDy": 0.13757723309099676,
+          "distractors": 2,
+          "cameraJitter": 0.17567885499447586
+        },
+        "status": "passed",
+        "startOffsetMs": 9391,
+        "durationMs": 5742,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.857,
+          "steps": 115,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-062",
+        "seed": 771712518,
+        "variant": {
+          "lighting": 0.7089315748191438,
+          "friction": 0.7780689146835357,
+          "objectDx": 0.7847473662346602,
+          "objectDy": -0.14610898923128843,
+          "distractors": 3,
+          "cameraJitter": 0.25153221481014043
+        },
+        "status": "passed",
+        "startOffsetMs": 9661,
+        "durationMs": 6409,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.904,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-063",
+        "seed": 780101327,
+        "variant": {
+          "lighting": 0.2285350226913579,
+          "friction": 0.4901934828609228,
+          "objectDx": 0.5538574691861868,
+          "objectDy": -0.3153829457238317,
+          "distractors": 0,
+          "cameraJitter": 0.7502093067392707
+        },
+        "status": "passed",
+        "startOffsetMs": 10940,
+        "durationMs": 6349,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.845,
+          "steps": 127,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-064",
+        "seed": 754934899,
+        "variant": {
+          "lighting": 0.5574170678039081,
+          "friction": 0.42504440494813023,
+          "objectDx": -0.34502407610416413,
+          "objectDy": 0.07073936760425568,
+          "distractors": 4,
+          "cameraJitter": 0.2310705787036568
+        },
+        "status": "passed",
+        "startOffsetMs": 11109,
+        "durationMs": 7134,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.906,
+          "steps": 143,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-065",
+        "seed": 763323708,
+        "variant": {
+          "lighting": 0.26489894550759346,
+          "friction": 0.4192161789629608,
+          "objectDx": -0.14688307084143162,
+          "objectDy": 0.1916475547477603,
+          "distractors": 1,
+          "cameraJitter": 0.446948279812932
+        },
+        "status": "passed",
+        "startOffsetMs": 11313,
+        "durationMs": 6324,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.803,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-066",
+        "seed": 738157280,
+        "variant": {
+          "lighting": 0.25299087014282123,
+          "friction": 0.6052619625348598,
+          "objectDx": 0.5576517786830664,
+          "objectDy": 0.036972942575812344,
+          "distractors": 1,
+          "cameraJitter": 0.7510022268164903
+        },
+        "status": "passed",
+        "startOffsetMs": 11480,
+        "durationMs": 6983,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.907,
+          "steps": 140,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-067",
+        "seed": 746546089,
+        "variant": {
+          "lighting": 0.7319185213302262,
+          "friction": 1.030365436244756,
+          "objectDx": 0.28397625721991065,
+          "objectDy": 0.0649897139519453,
+          "distractors": 2,
+          "cameraJitter": 0.3737359835067764
+        },
+        "status": "passed",
+        "startOffsetMs": 11589,
+        "durationMs": 5983,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.924,
+          "steps": 120,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-068",
+        "seed": 855600613,
+        "variant": {
+          "lighting": 0.36893611307023094,
+          "friction": 0.48580704503692684,
+          "objectDx": -0.48687634579837324,
+          "objectDy": 0.3582207199186087,
+          "distractors": 2,
+          "cameraJitter": 0.26654259490314874
+        },
+        "status": "passed",
+        "startOffsetMs": 12122,
+        "durationMs": 6216,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.833,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-069",
+        "seed": 863989422,
+        "variant": {
+          "lighting": 0.5138938342453911,
+          "friction": 1.0269340476021172,
+          "objectDx": 0.265705593302846,
+          "objectDy": -0.02345083970576525,
+          "distractors": 2,
+          "cameraJitter": 0.676217630901374
+        },
+        "status": "passed",
+        "startOffsetMs": 12172,
+        "durationMs": 5091,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.736,
+          "steps": 102,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-070",
+        "seed": 1912664157,
+        "variant": {
+          "lighting": 0.6948081769398413,
+          "friction": 1.1904345822054894,
+          "objectDx": 0.7199574317783117,
+          "objectDy": 0.3169296441599727,
+          "distractors": 4,
+          "cameraJitter": 0.04155032113194466
+        },
+        "status": "passed",
+        "startOffsetMs": 12428,
+        "durationMs": 5398,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.748,
+          "steps": 108,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-071",
+        "seed": 1904275348,
+        "variant": {
+          "lighting": 0.41427691815188156,
+          "friction": 0.5872992821037769,
+          "objectDx": 0.17737757079303265,
+          "objectDy": 0.08583503291010858,
+          "distractors": 1,
+          "cameraJitter": 0.4110845118993893
+        },
+        "status": "passed",
+        "startOffsetMs": 12682,
+        "durationMs": 6385,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.806,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-072",
+        "seed": 1929441776,
+        "variant": {
+          "lighting": 0.33756629754789175,
+          "friction": 1.3423455107491464,
+          "objectDx": -0.27455535978078843,
+          "objectDy": 0.26973330304026605,
+          "distractors": 0,
+          "cameraJitter": 0.6907270164694638
+        },
+        "status": "passed",
+        "startOffsetMs": 12719,
+        "durationMs": 5787,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.769,
+          "steps": 116,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-073",
+        "seed": 1921052967,
+        "variant": {
+          "lighting": 0.3462490139529109,
+          "friction": 0.9489967247005552,
+          "objectDx": -0.46108172759413724,
+          "objectDy": 0.06741596776992083,
+          "distractors": 2,
+          "cameraJitter": 0.16317263406235724
+        },
+        "status": "passed",
+        "startOffsetMs": 12824,
+        "durationMs": 6086,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.909,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-074",
+        "seed": 1946219395,
+        "variant": {
+          "lighting": 0.8905820983229205,
+          "friction": 0.7327811116352677,
+          "objectDx": -0.7804757259786129,
+          "objectDy": 0.3801899725571275,
+          "distractors": 3,
+          "cameraJitter": 0.5765475871274248
+        },
+        "status": "failed",
+        "startOffsetMs": 13035,
+        "durationMs": 6105,
+        "elbow": -1,
+        "failMode": "dropped_outside",
+        "failAt": 0.791047626119107,
+        "metrics": {
+          "reward": 0.392,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-075",
+        "seed": 1937830586,
+        "variant": {
+          "lighting": 0.23088651219150053,
+          "friction": 1.2433060558047146,
+          "objectDx": -0.05332330837845803,
+          "objectDy": -0.27063966132700445,
+          "distractors": 1,
+          "cameraJitter": 0.44742177373263986
+        },
+        "status": "passed",
+        "startOffsetMs": 13073,
+        "durationMs": 6019,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.846,
+          "steps": 120,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-076",
+        "seed": 1962997014,
+        "variant": {
+          "lighting": 0.5010684067266993,
+          "friction": 1.2556948851794005,
+          "objectDx": 0.7017614457756282,
+          "objectDy": 0.3840600548312068,
+          "distractors": 4,
+          "cameraJitter": 0.1710640764562413
+        },
+        "status": "passed",
+        "startOffsetMs": 13079,
+        "durationMs": 5234,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.818,
+          "steps": 105,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-077",
+        "seed": 1954608205,
+        "variant": {
+          "lighting": 0.4540391543880105,
+          "friction": 0.7842219606041908,
+          "objectDx": -0.12792270258069038,
+          "objectDy": -0.23491591941565276,
+          "distractors": 4,
+          "cameraJitter": 0.22757873588707297
+        },
+        "status": "passed",
+        "startOffsetMs": 13226,
+        "durationMs": 5813,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.816,
+          "steps": 116,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-078",
+        "seed": 1845553681,
+        "variant": {
+          "lighting": 0.4823054761392996,
+          "friction": 0.9526100700255483,
+          "objectDx": -0.44175839200615885,
+          "objectDy": -0.28621632494032384,
+          "distractors": 1,
+          "cameraJitter": 0.27404232874978335
+        },
+        "status": "passed",
+        "startOffsetMs": 13251,
+        "durationMs": 5959,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.806,
+          "steps": 119,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-079",
+        "seed": 1837164872,
+        "variant": {
+          "lighting": 0.48197009942959995,
+          "friction": 1.2287298244424165,
+          "objectDx": -0.20605674013495445,
+          "objectDy": -0.023129267618060112,
+          "distractors": 2,
+          "cameraJitter": 0.553675717371516
+        },
+        "status": "failed",
+        "startOffsetMs": 13425,
+        "durationMs": 6307,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.19877475732937455,
+        "metrics": {
+          "reward": 0.11,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-080",
+        "seed": 1829489574,
+        "variant": {
+          "lighting": 0.295372068870347,
+          "friction": 0.4408083852846175,
+          "objectDx": -0.5950006593018771,
+          "objectDy": 0.1517877332866192,
+          "distractors": 0,
+          "cameraJitter": 0.23622691933996975
+        },
+        "status": "passed",
+        "startOffsetMs": 13546,
+        "durationMs": 6863,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.832,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-081",
+        "seed": 1837878383,
+        "variant": {
+          "lighting": 0.7783992507494986,
+          "friction": 0.6897972169332206,
+          "objectDx": 0.4745972439646721,
+          "objectDy": 0.17557286880910397,
+          "distractors": 2,
+          "cameraJitter": 0.5013298938749359
+        },
+        "status": "failed",
+        "startOffsetMs": 13648,
+        "durationMs": 5684,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.7508891108166427,
+        "metrics": {
+          "reward": 0.343,
+          "steps": 114,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-082",
+        "seed": 1846267193,
+        "variant": {
+          "lighting": 0.852777055860497,
+          "friction": 0.7368857647757977,
+          "objectDx": 0.2787107668817043,
+          "objectDy": 0.1444257279857993,
+          "distractors": 4,
+          "cameraJitter": 0.8625098597723991
+        },
+        "status": "passed",
+        "startOffsetMs": 14014,
+        "durationMs": 6704,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.732,
+          "steps": 134,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-083",
+        "seed": 1854656002,
+        "variant": {
+          "lighting": 0.2846637487411499,
+          "friction": 1.184961262298748,
+          "objectDx": 0.28839920423924925,
+          "objectDy": 0.33652903195470574,
+          "distractors": 1,
+          "cameraJitter": 0.6292861530790106
+        },
+        "status": "passed",
+        "startOffsetMs": 14083,
+        "durationMs": 5959,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.882,
+          "steps": 119,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-084",
+        "seed": 1795934336,
+        "variant": {
+          "lighting": 0.753119430609513,
+          "friction": 1.1352353241760285,
+          "objectDx": -0.36587140373885635,
+          "objectDy": -0.12081177178770304,
+          "distractors": 3,
+          "cameraJitter": 0.04426920558325947
+        },
+        "status": "passed",
+        "startOffsetMs": 14139,
+        "durationMs": 5483,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.86,
+          "steps": 110,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-085",
+        "seed": 1804323145,
+        "variant": {
+          "lighting": 0.5403161355527117,
+          "friction": 0.9921977861318737,
+          "objectDx": 0.5487358391284943,
+          "objectDy": 0.21648883223533633,
+          "distractors": 4,
+          "cameraJitter": 0.21196524056140334
+        },
+        "status": "passed",
+        "startOffsetMs": 14164,
+        "durationMs": 6226,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.974,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-086",
+        "seed": 1812711955,
+        "variant": {
+          "lighting": 0.8126909142476506,
+          "friction": 0.9074476686306298,
+          "objectDx": 0.34013542123138907,
+          "objectDy": 0.3224162710830569,
+          "distractors": 2,
+          "cameraJitter": 0.3801616326207295
+        },
+        "status": "passed",
+        "startOffsetMs": 14172,
+        "durationMs": 5321,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.792,
+          "steps": 106,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-087",
+        "seed": 1821100764,
+        "variant": {
+          "lighting": 0.8748946762527339,
+          "friction": 0.4309159732889384,
+          "objectDx": 0.09132451303303242,
+          "objectDy": -0.3081440543755889,
+          "distractors": 2,
+          "cameraJitter": 0.20563825629651547
+        },
+        "status": "failed",
+        "startOffsetMs": 14179,
+        "durationMs": 5825,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.8456121595576406,
+        "metrics": {
+          "reward": 0.411,
+          "steps": 117,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-088",
+        "seed": 1896600050,
+        "variant": {
+          "lighting": 0.5670038016280159,
+          "friction": 0.5789331252686679,
+          "objectDx": -0.2444066844880581,
+          "objectDy": -0.23828984517604113,
+          "distractors": 0,
+          "cameraJitter": 0.6793748784111813
+        },
+        "status": "passed",
+        "startOffsetMs": 14302,
+        "durationMs": 6750,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.883,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-089",
+        "seed": 1904988859,
+        "variant": {
+          "lighting": 0.3017660771030933,
+          "friction": 1.0913544547744096,
+          "objectDx": -0.742410058900714,
+          "objectDy": -0.0034245591610670093,
+          "distractors": 4,
+          "cameraJitter": 0.05948596950620413
+        },
+        "status": "passed",
+        "startOffsetMs": 14338,
+        "durationMs": 6312,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.935,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-090",
+        "seed": 806179946,
+        "variant": {
+          "lighting": 0.5613527109846472,
+          "friction": 0.6010147811844945,
+          "objectDx": 0.486498087272048,
+          "objectDy": -0.33168885931372644,
+          "distractors": 3,
+          "cameraJitter": 0.43947080201469363
+        },
+        "status": "failed",
+        "startOffsetMs": 15185,
+        "durationMs": 6060,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.2513741095503792,
+        "metrics": {
+          "reward": 0.129,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-091",
+        "seed": 797791137,
+        "variant": {
+          "lighting": 0.6795325977611355,
+          "friction": 0.5875982005614787,
+          "objectDx": 0.029322247952222824,
+          "objectDy": 0.23182193264365197,
+          "distractors": 0,
+          "cameraJitter": 0.7383388506481424
+        },
+        "status": "passed",
+        "startOffsetMs": 15313,
+        "durationMs": 4914,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.948,
+          "steps": 98,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-092",
+        "seed": 789402327,
+        "variant": {
+          "lighting": 0.3418727669515647,
+          "friction": 0.5154159626923501,
+          "objectDx": 0.3153840105980635,
+          "objectDy": 0.2125463880598545,
+          "distractors": 3,
+          "cameraJitter": 0.5396071515977383
+        },
+        "status": "passed",
+        "startOffsetMs": 15414,
+        "durationMs": 6037,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.818,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-093",
+        "seed": 781013518,
+        "variant": {
+          "lighting": 0.29536801429931075,
+          "friction": 1.1019082895014436,
+          "objectDx": 0.04819853305816651,
+          "objectDy": 0.16499463077634574,
+          "distractors": 0,
+          "cameraJitter": 0.5819659133674577
+        },
+        "status": "passed",
+        "startOffsetMs": 16250,
+        "durationMs": 5396,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.947,
+          "steps": 108,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-094",
+        "seed": 772624708,
+        "variant": {
+          "lighting": 0.6339508030097931,
+          "friction": 0.8852204192895442,
+          "objectDx": -0.10920531637966634,
+          "objectDy": 0.33814360164105894,
+          "distractors": 4,
+          "cameraJitter": 0.11682706300634892
+        },
+        "status": "failed",
+        "startOffsetMs": 17443,
+        "durationMs": 6889,
+        "elbow": -1,
+        "failMode": "grasp_slip",
+        "failAt": 0.5081048180535436,
+        "metrics": {
+          "reward": 0.259,
+          "steps": 138,
+          "graspAttempts": 3
+        }
+      },
+      {
+        "id": "sim-095",
+        "seed": 764235899,
+        "variant": {
+          "lighting": 0.39142047088826076,
+          "friction": 0.48649293431080876,
+          "objectDx": -0.3750882860273123,
+          "objectDy": 0.3849936690181494,
+          "distractors": 4,
+          "cameraJitter": 0.40772383371368054
+        },
+        "status": "passed",
+        "startOffsetMs": 17469,
+        "durationMs": 6201,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.969,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-096",
+        "seed": 755847089,
+        "variant": {
+          "lighting": 0.36942204465158285,
+          "friction": 1.044655227707699,
+          "objectDx": 0.49004679843783383,
+          "objectDy": 0.18620300907641651,
+          "distractors": 2,
+          "cameraJitter": 0.7227445115335286
+        },
+        "status": "passed",
+        "startOffsetMs": 17752,
+        "durationMs": 6074,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.941,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-097",
+        "seed": 747458280,
+        "variant": {
+          "lighting": 0.2364301646477543,
+          "friction": 0.610549031663686,
+          "objectDx": -0.12846775986254216,
+          "objectDy": 0.12029504235833884,
+          "distractors": 0,
+          "cameraJitter": 0.033957798359915616
+        },
+        "status": "passed",
+        "startOffsetMs": 17817,
+        "durationMs": 4966,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.749,
+          "steps": 99,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-098",
+        "seed": 873290422,
+        "variant": {
+          "lighting": 0.5799497575964778,
+          "friction": 0.3764246631413698,
+          "objectDx": -0.2752123065292835,
+          "objectDy": 0.08561437204480171,
+          "distractors": 2,
+          "cameraJitter": 0.6009094476699829
+        },
+        "status": "passed",
+        "startOffsetMs": 18006,
+        "durationMs": 6447,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.886,
+          "steps": 129,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-099",
+        "seed": 864901613,
+        "variant": {
+          "lighting": 0.7017685419879853,
+          "friction": 0.7647303896024823,
+          "objectDx": 0.4703613840043545,
+          "objectDy": 0.10702685751020909,
+          "distractors": 4,
+          "cameraJitter": 0.30798034246545286
+        },
+        "status": "passed",
+        "startOffsetMs": 18175,
+        "durationMs": 6212,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.92,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      }
+    ],
+    "gate": {
+      "metric": "pass_rate",
+      "threshold": 0.8,
+      "regressionTolerancePp": 2,
+      "baseline": {
+        "ref": "main@7d21e0b",
+        "passRate": 0.82,
+        "n": 100
+      }
+    }
+  },
+  {
+    "id": "run-live",
+    "createdAt": "2026-10-17T10:42:21.683Z",
+    "policy": {
+      "name": "pi0-fast",
+      "commit": "a3f91c2",
+      "branch": "feat/grasp-refine"
+    },
+    "environmentId": "warehouse-shelf",
+    "environmentName": "Warehouse Shelf",
+    "task": "Pick the labelled carton from the middle bin",
+    "fanout": 100,
+    "concurrency": 32,
+    "stage": "rollout",
+    "progress": {
+      "label": "Running rollouts",
+      "done": 32,
+      "total": 100
+    },
+    "sims": [
+      {
+        "id": "sim-000",
+        "seed": 1606008838,
+        "variant": {
+          "lighting": 0.48732770594069735,
+          "friction": 0.6720421036239713,
+          "objectDx": -0.23188461689278483,
+          "objectDy": -0.2848399782553315,
+          "distractors": 2,
+          "cameraJitter": 0.758311128616333
+        },
+        "status": "failed",
+        "startOffsetMs": 125,
+        "durationMs": 5650,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.29221188408788296,
+        "metrics": {
+          "reward": 0.16,
+          "steps": 113,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-001",
+        "seed": 1597620029,
+        "variant": {
+          "lighting": 0.3915368178160861,
+          "friction": 0.6389869785867631,
+          "objectDx": -0.40152382478117943,
+          "objectDy": -0.27591223232448103,
+          "distractors": 4,
+          "cameraJitter": 0.40913388000335543
+        },
+        "status": "passed",
+        "startOffsetMs": 232,
+        "durationMs": 5361,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.793,
+          "steps": 107,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-002",
+        "seed": 1589231219,
+        "variant": {
+          "lighting": 0.9336253215908072,
+          "friction": 1.0356542574241758,
+          "objectDx": -0.8707299618981779,
+          "objectDy": -0.2563710257411003,
+          "distractors": 2,
+          "cameraJitter": 0.11530146484728902
+        },
+        "status": "passed",
+        "startOffsetMs": 246,
+        "durationMs": 6102,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.828,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-003",
+        "seed": 1580842410,
+        "variant": {
+          "lighting": 0.33278943538898603,
+          "friction": 0.4380409691017121,
+          "objectDx": 0.38795544067397714,
+          "objectDy": 0.2699571594595909,
+          "distractors": 3,
+          "cameraJitter": 0.1905802441528067
+        },
+        "status": "passed",
+        "startOffsetMs": 252,
+        "durationMs": 5432,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.978,
+          "steps": 109,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-004",
+        "seed": 1572453600,
+        "variant": {
+          "lighting": 0.444812264572829,
+          "friction": 1.3051676700357349,
+          "objectDx": 0.41439461102709174,
+          "objectDy": 0.3655693391337991,
+          "distractors": 0,
+          "cameraJitter": 0.33298426622059196
+        },
+        "status": "passed",
+        "startOffsetMs": 272,
+        "durationMs": 5608,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.932,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-005",
+        "seed": 1564064791,
+        "variant": {
+          "lighting": 0.7166503885993734,
+          "friction": 0.46977725499309597,
+          "objectDx": 0.1428735163062811,
+          "objectDy": -0.03493811078369618,
+          "distractors": 2,
+          "cameraJitter": 0.45306001303251836
+        },
+        "status": "passed",
+        "startOffsetMs": 283,
+        "durationMs": 5603,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.95,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-006",
+        "seed": 1555675981,
+        "variant": {
+          "lighting": 0.4990699867368676,
+          "friction": 1.0504436356946827,
+          "objectDx": -0.9162988355383277,
+          "objectDy": -0.18773677237331868,
+          "distractors": 6,
+          "cameraJitter": 0.2562873797491193
+        },
+        "status": "failed",
+        "startOffsetMs": 320,
+        "durationMs": 5592,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.3375867068720982,
+        "metrics": {
+          "reward": 0.21,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-007",
+        "seed": 1547287172,
+        "variant": {
+          "lighting": 0.39093159621115775,
+          "friction": 1.1713748566340656,
+          "objectDx": -0.3290140647441149,
+          "objectDy": 0.17569100596010687,
+          "distractors": 6,
+          "cameraJitter": 0.2294191644061357
+        },
+        "status": "passed",
+        "startOffsetMs": 377,
+        "durationMs": 6729,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.76,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-008",
+        "seed": 1538898362,
+        "variant": {
+          "lighting": 0.7303154481225647,
+          "friction": 0.8294517301488668,
+          "objectDx": 0.40248051751405,
+          "objectDy": 0.13322601206600668,
+          "distractors": 4,
+          "cameraJitter": 0.5854870488401502
+        },
+        "status": "passed",
+        "startOffsetMs": 377,
+        "durationMs": 5464,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.913,
+          "steps": 109,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-009",
+        "seed": 1530509553,
+        "variant": {
+          "lighting": 0.4411106547806412,
+          "friction": 0.3597704546060413,
+          "objectDx": 0.09000463876873255,
+          "objectDy": 0.3864454682916403,
+          "distractors": 3,
+          "cameraJitter": 0.09307550832163543
+        },
+        "status": "failed",
+        "startOffsetMs": 391,
+        "durationMs": 7365,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.24204003039281818,
+        "metrics": {
+          "reward": 0.151,
+          "steps": 147,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-010",
+        "seed": 216524607,
+        "variant": {
+          "lighting": 0.8243942942819558,
+          "friction": 1.1788732382934541,
+          "objectDx": -0.48181631369516253,
+          "objectDy": -0.33050129953771834,
+          "distractors": 3,
+          "cameraJitter": 0.6208076499402523
+        },
+        "status": "failed",
+        "startOffsetMs": 402,
+        "durationMs": 5400,
+        "elbow": 1,
+        "failMode": "missed_approach",
+        "failAt": 0.38408060634974395,
+        "metrics": {
+          "reward": 0.194,
+          "steps": 108,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-011",
+        "seed": 224913416,
+        "variant": {
+          "lighting": 0.5734582983888685,
+          "friction": 0.921952823549509,
+          "objectDx": 0.6184214767999947,
+          "objectDy": 0.026827172376215458,
+          "distractors": 0,
+          "cameraJitter": 0.8288934911135585
+        },
+        "status": "passed",
+        "startOffsetMs": 406,
+        "durationMs": 6627,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.97,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-012",
+        "seed": 199746988,
+        "variant": {
+          "lighting": 0.8106100339675322,
+          "friction": 0.9811847653705627,
+          "objectDx": -0.44319382635876536,
+          "objectDy": -0.08378323148936034,
+          "distractors": 2,
+          "cameraJitter": 0.6710358361015096
+        },
+        "status": "passed",
+        "startOffsetMs": 410,
+        "durationMs": 5327,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.88,
+          "steps": 107,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-013",
+        "seed": 208135797,
+        "variant": {
+          "lighting": 0.7694811329594813,
+          "friction": 0.9673098899889737,
+          "objectDx": -0.6120259752497077,
+          "objectDy": -0.08369572199881077,
+          "distractors": 6,
+          "cameraJitter": 0.48721250204835087
+        },
+        "status": "passed",
+        "startOffsetMs": 509,
+        "durationMs": 6190,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.946,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-014",
+        "seed": 250079845,
+        "variant": {
+          "lighting": 0.23945286647649483,
+          "friction": 0.965930957486853,
+          "objectDx": 0.18926831614226103,
+          "objectDy": -0.03399992194026709,
+          "distractors": 6,
+          "cameraJitter": 0.3665290664182976
+        },
+        "status": "passed",
+        "startOffsetMs": 530,
+        "durationMs": 7196,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.734,
+          "steps": 144,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-015",
+        "seed": 258468654,
+        "variant": {
+          "lighting": 0.6434380342136137,
+          "friction": 0.7762923321221024,
+          "objectDx": -0.45118260011076927,
+          "objectDy": -0.149684545584023,
+          "distractors": 4,
+          "cameraJitter": 0.3059595892438665
+        },
+        "status": "passed",
+        "startOffsetMs": 616,
+        "durationMs": 5577,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.858,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-016",
+        "seed": 233302226,
+        "variant": {
+          "lighting": 0.7620552682667039,
+          "friction": 0.5097771635279059,
+          "objectDx": 0.07587020192295313,
+          "objectDy": -0.09370062611997128,
+          "distractors": 1,
+          "cameraJitter": 0.38212092155590655
+        },
+        "status": "passed",
+        "startOffsetMs": 626,
+        "durationMs": 5256,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.781,
+          "steps": 105,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-017",
+        "seed": 241691035,
+        "variant": {
+          "lighting": 0.2453474159585312,
+          "friction": 1.0465109617449344,
+          "objectDx": 0.15422232076525688,
+          "objectDy": 0.12021310180425644,
+          "distractors": 5,
+          "cameraJitter": 0.7126725528622047
+        },
+        "status": "passed",
+        "startOffsetMs": 661,
+        "durationMs": 6223,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.783,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-018",
+        "seed": 149414131,
+        "variant": {
+          "lighting": 0.200886672467459,
+          "friction": 0.7978828727733344,
+          "objectDx": -0.5929853203706443,
+          "objectDy": 0.11764363441616298,
+          "distractors": 6,
+          "cameraJitter": 0.42420348871964964
+        },
+        "status": "passed",
+        "startOffsetMs": 675,
+        "durationMs": 6882,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.868,
+          "steps": 138,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-019",
+        "seed": 157802940,
+        "variant": {
+          "lighting": 0.4431073281913996,
+          "friction": 1.3297549224458636,
+          "objectDx": 0.3184661637060344,
+          "objectDy": 0.04302515406161547,
+          "distractors": 1,
+          "cameraJitter": 0.8842641399940476
+        },
+        "status": "passed",
+        "startOffsetMs": 699,
+        "durationMs": 5760,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.87,
+          "steps": 115,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-020",
+        "seed": 166118202,
+        "variant": {
+          "lighting": 0.3312077273032628,
+          "friction": 0.7449939215090126,
+          "objectDx": 0.2285243975929916,
+          "objectDy": 0.3431379580870271,
+          "distractors": 4,
+          "cameraJitter": 0.14666818706318738
+        },
+        "status": "failed",
+        "startOffsetMs": 736,
+        "durationMs": 5898,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.2184349298104644,
+        "metrics": {
+          "reward": 0.153,
+          "steps": 118,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-021",
+        "seed": 157729393,
+        "variant": {
+          "lighting": 0.6333687523030676,
+          "friction": 0.9027275146450847,
+          "objectDx": 0.6671887156553566,
+          "objectDy": 0.14575402271002533,
+          "distractors": 6,
+          "cameraJitter": 0.33940361947752534
+        },
+        "status": "passed",
+        "startOffsetMs": 748,
+        "durationMs": 7130,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.862,
+          "steps": 143,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-022",
+        "seed": 149340583,
+        "variant": {
+          "lighting": 0.7980971185490489,
+          "friction": 1.023312589293346,
+          "objectDx": 0.2784693194553256,
+          "objectDy": -0.023886100947856904,
+          "distractors": 0,
+          "cameraJitter": 0.7874454589560628
+        },
+        "status": "passed",
+        "startOffsetMs": 754,
+        "durationMs": 5839,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.751,
+          "steps": 117,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-023",
+        "seed": 140951774,
+        "variant": {
+          "lighting": 0.4157685099518858,
+          "friction": 0.48855827040970323,
+          "objectDx": 0.5748645216226578,
+          "objectDy": 0.23419268168509008,
+          "distractors": 3,
+          "cameraJitter": 0.4729184670606628
+        },
+        "status": "passed",
+        "startOffsetMs": 796,
+        "durationMs": 5542,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.917,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-024",
+        "seed": 132562964,
+        "variant": {
+          "lighting": 0.39177800638135524,
+          "friction": 0.47667674873955546,
+          "objectDx": 0.9703422971069813,
+          "objectDy": -0.38800079803913834,
+          "distractors": 1,
+          "cameraJitter": 0.6963581213029102
+        },
+        "status": "passed",
+        "startOffsetMs": 861,
+        "durationMs": 7075,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.73,
+          "steps": 142,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-025",
+        "seed": 124174155,
+        "variant": {
+          "lighting": 0.43089439497562126,
+          "friction": 0.685468768607825,
+          "objectDx": 0.9463356076739728,
+          "objectDy": -0.08431155793368816,
+          "distractors": 4,
+          "cameraJitter": 0.7254595887148753
+        },
+        "status": "passed",
+        "startOffsetMs": 872,
+        "durationMs": 7011,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.859,
+          "steps": 140,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-026",
+        "seed": 115785345,
+        "variant": {
+          "lighting": 0.2286277509876527,
+          "friction": 0.5873124912846833,
+          "objectDx": -0.619816358666867,
+          "objectDy": -0.3978232115507126,
+          "distractors": 5,
+          "cameraJitter": 0.6621399577707052
+        },
+        "status": "passed",
+        "startOffsetMs": 878,
+        "durationMs": 6289,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.754,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-027",
+        "seed": 107396536,
+        "variant": {
+          "lighting": 0.8978330946876667,
+          "friction": 1.2963655480649323,
+          "objectDx": 0.445219817571342,
+          "objectDy": -0.3643966861069203,
+          "distractors": 3,
+          "cameraJitter": 0.16285566464066506
+        },
+        "status": "failed",
+        "startOffsetMs": 893,
+        "durationMs": 5944,
+        "elbow": 1,
+        "failMode": "missed_approach",
+        "failAt": 0.3510109170572832,
+        "metrics": {
+          "reward": 0.164,
+          "steps": 119,
+          "graspAttempts": 3
+        }
+      },
+      {
+        "id": "sim-028",
+        "seed": 233228678,
+        "variant": {
+          "lighting": 0.7577308078063651,
+          "friction": 0.8716307749506086,
+          "objectDx": 0.7651188098825514,
+          "objectDy": -0.013955689780414105,
+          "distractors": 6,
+          "cameraJitter": 0.662278282432817
+        },
+        "status": "passed",
+        "startOffsetMs": 1805,
+        "durationMs": 6110,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.975,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-029",
+        "seed": 224839869,
+        "variant": {
+          "lighting": 0.29830035868799315,
+          "friction": 1.0838189720176161,
+          "objectDx": 0.4148967480286956,
+          "objectDy": -0.0006609139963984489,
+          "distractors": 6,
+          "cameraJitter": 0.5916468160226941
+        },
+        "status": "passed",
+        "startOffsetMs": 2072,
+        "durationMs": 6522,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.957,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-030",
+        "seed": 115711798,
+        "variant": {
+          "lighting": 0.6926783487899228,
+          "friction": 0.47288538087159393,
+          "objectDx": -0.09214207623153925,
+          "objectDy": -0.09129498694092036,
+          "distractors": 5,
+          "cameraJitter": 0.2828974278643727
+        },
+        "status": "passed",
+        "startOffsetMs": 2180,
+        "durationMs": 5743,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.902,
+          "steps": 115,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-031",
+        "seed": 124100607,
+        "variant": {
+          "lighting": 0.5649771796772256,
+          "friction": 0.9893799148499965,
+          "objectDx": 0.17596410308033228,
+          "objectDy": 0.023125157319009305,
+          "distractors": 3,
+          "cameraJitter": 0.2427838956937194
+        },
+        "status": "passed",
+        "startOffsetMs": 2237,
+        "durationMs": 5042,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.91,
+          "steps": 101,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-032",
+        "seed": 132489417,
+        "variant": {
+          "lighting": 0.5103408998576924,
+          "friction": 0.44245594684034584,
+          "objectDx": 0.06817305367439985,
+          "objectDy": 0.18268981482833624,
+          "distractors": 0,
+          "cameraJitter": 0.19780512701254338
+        },
+        "status": "running",
+        "startOffsetMs": 5773,
+        "durationMs": 5063,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.917,
+          "steps": 101,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-033",
+        "seed": 140878226,
+        "variant": {
+          "lighting": 0.6389044402050785,
+          "friction": 0.9196373481769115,
+          "objectDx": 0.9417249863035977,
+          "objectDy": 0.0947356015443802,
+          "distractors": 0,
+          "cameraJitter": 0.3094397160457447
+        },
+        "status": "running",
+        "startOffsetMs": 5864,
+        "durationMs": 6586,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.771,
+          "steps": 132,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-034",
+        "seed": 82156560,
+        "variant": {
+          "lighting": 0.6766444080159999,
+          "friction": 0.7759780666325241,
+          "objectDx": 0.6534447879530489,
+          "objectDy": -0.12243075594305992,
+          "distractors": 3,
+          "cameraJitter": 0.4881636104313657
+        },
+        "status": "running",
+        "startOffsetMs": 5917,
+        "durationMs": 7311,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.752,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-035",
+        "seed": 90545369,
+        "variant": {
+          "lighting": 0.8468352504307404,
+          "friction": 1.090115229273215,
+          "objectDx": -0.27378242928534746,
+          "objectDy": -0.2620329976081848,
+          "distractors": 0,
+          "cameraJitter": 0.8468288195086643
+        },
+        "status": "running",
+        "startOffsetMs": 5955,
+        "durationMs": 5547,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.921,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-036",
+        "seed": 98934179,
+        "variant": {
+          "lighting": 0.8700615512672811,
+          "friction": 0.48021053303964434,
+          "objectDx": -0.7665714765898883,
+          "objectDy": 0.21845979150384665,
+          "distractors": 2,
+          "cameraJitter": 0.05790501893498003
+        },
+        "status": "running",
+        "startOffsetMs": 5982,
+        "durationMs": 6310,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.817,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-037",
+        "seed": 107322988,
+        "variant": {
+          "lighting": 0.7890584897715598,
+          "friction": 1.1598413387779147,
+          "objectDx": 0.11370700132101774,
+          "objectDy": 0.33943859916180374,
+          "distractors": 1,
+          "cameraJitter": 0.35715561113320293
+        },
+        "status": "running",
+        "startOffsetMs": 6021,
+        "durationMs": 5207,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.891,
+          "steps": 104,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-038",
+        "seed": 182822274,
+        "variant": {
+          "lighting": 0.23233926015673206,
+          "friction": 0.45306271677836774,
+          "objectDx": 0.9346073172055185,
+          "objectDy": 0.2349817482754588,
+          "distractors": 3,
+          "cameraJitter": 0.22777301184833051
+        },
+        "status": "running",
+        "startOffsetMs": 6060,
+        "durationMs": 6417,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.26747977908235043,
+        "metrics": {
+          "reward": 0.167,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-039",
+        "seed": 191211083,
+        "variant": {
+          "lighting": 0.3986302246223204,
+          "friction": 0.3924399054609239,
+          "objectDx": -0.0031515038572251797,
+          "objectDy": -0.10156797170639038,
+          "distractors": 6,
+          "cameraJitter": 0.09295933053363115
+        },
+        "status": "running",
+        "startOffsetMs": 6062,
+        "durationMs": 6074,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.961,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-040",
+        "seed": 65305393,
+        "variant": {
+          "lighting": 0.26269172532483936,
+          "friction": 1.2750420678872616,
+          "objectDx": -0.8749951482750475,
+          "objectDy": 0.16125420089811088,
+          "distractors": 6,
+          "cameraJitter": 0.2391386095667258
+        },
+        "status": "running",
+        "startOffsetMs": 6066,
+        "durationMs": 7186,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.905,
+          "steps": 144,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-041",
+        "seed": 56916584,
+        "variant": {
+          "lighting": 0.6071771520539186,
+          "friction": 1.2510870284400881,
+          "objectDx": -0.23426178144291043,
+          "objectDy": 0.32578601501882076,
+          "distractors": 1,
+          "cameraJitter": 0.8191239720443264
+        },
+        "status": "running",
+        "startOffsetMs": 6092,
+        "durationMs": 5122,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.856,
+          "steps": 102,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-042",
+        "seed": 82083012,
+        "variant": {
+          "lighting": 0.7684296277468092,
+          "friction": 1.062761038914323,
+          "objectDx": -0.0760327773168683,
+          "objectDy": 0.11478384770452976,
+          "distractors": 5,
+          "cameraJitter": 0.08796418877318501
+        },
+        "status": "running",
+        "startOffsetMs": 6373,
+        "durationMs": 6848,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.928,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-043",
+        "seed": 73694203,
+        "variant": {
+          "lighting": 0.8194230980472639,
+          "friction": 0.6877589960582554,
+          "objectDx": -0.11726613761857152,
+          "objectDy": 0.10203578285872937,
+          "distractors": 2,
+          "cameraJitter": 0.20511315981857478
+        },
+        "status": "running",
+        "startOffsetMs": 6518,
+        "durationMs": 5581,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.845,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-044",
+        "seed": 98860631,
+        "variant": {
+          "lighting": 0.5116414899122901,
+          "friction": 0.913194272108376,
+          "objectDx": -0.6936505627818406,
+          "objectDy": -0.1565238343551755,
+          "distractors": 0,
+          "cameraJitter": 0.6096174217527732
+        },
+        "status": "running",
+        "startOffsetMs": 6528,
+        "durationMs": 4911,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.792,
+          "steps": 98,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-045",
+        "seed": 90471822,
+        "variant": {
+          "lighting": 0.5788622433785349,
+          "friction": 1.1214479684364052,
+          "objectDx": -0.5445069312117994,
+          "objectDy": 0.3264959417283535,
+          "distractors": 6,
+          "cameraJitter": 0.41751172046642754
+        },
+        "status": "running",
+        "startOffsetMs": 6639,
+        "durationMs": 6592,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.19177504067774864,
+        "metrics": {
+          "reward": 0.093,
+          "steps": 132,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-046",
+        "seed": 115638250,
+        "variant": {
+          "lighting": 0.4284973054775037,
+          "friction": 0.3782498211599886,
+          "objectDx": 0.7883547404780984,
+          "objectDy": 0.35717451460659505,
+          "distractors": 6,
+          "cameraJitter": 0.5110773570137098
+        },
+        "status": "running",
+        "startOffsetMs": 6773,
+        "durationMs": 6249,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.756,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-047",
+        "seed": 107249441,
+        "variant": {
+          "lighting": 0.7461925229756161,
+          "friction": 1.206900678249076,
+          "objectDx": 0.6157908304594457,
+          "objectDy": -0.3171018291264773,
+          "distractors": 2,
+          "cameraJitter": 0.7943726273020729
+        },
+        "status": "running",
+        "startOffsetMs": 6814,
+        "durationMs": 5797,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.925,
+          "steps": 116,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-048",
+        "seed": 132415869,
+        "variant": {
+          "lighting": 0.5585466291406191,
+          "friction": 1.2929643561597914,
+          "objectDx": -0.7945387768559158,
+          "objectDy": -0.36580907367169857,
+          "distractors": 2,
+          "cameraJitter": 0.1663345356239006
+        },
+        "status": "running",
+        "startOffsetMs": 6879,
+        "durationMs": 6532,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.887,
+          "steps": 131,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-049",
+        "seed": 124027060,
+        "variant": {
+          "lighting": 0.4510928298579529,
+          "friction": 1.2548040905036033,
+          "objectDx": 0.6889114785008132,
+          "objectDy": 0.13412719983607532,
+          "distractors": 3,
+          "cameraJitter": 0.3691840969026089
+        },
+        "status": "running",
+        "startOffsetMs": 7017,
+        "durationMs": 5130,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.733,
+          "steps": 103,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-050",
+        "seed": 1357056925,
+        "variant": {
+          "lighting": 0.6425563605036586,
+          "friction": 0.9780128099024296,
+          "objectDx": 0.24665989447385073,
+          "objectDy": 0.27117003723979,
+          "distractors": 0,
+          "cameraJitter": 0.5314182865899056
+        },
+        "status": "running",
+        "startOffsetMs": 7064,
+        "durationMs": 5074,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.789,
+          "steps": 101,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-051",
+        "seed": 1365445734,
+        "variant": {
+          "lighting": 0.440060547250323,
+          "friction": 1.1015768411103637,
+          "objectDx": -0.6828149473294616,
+          "objectDy": 0.04058578237891197,
+          "distractors": 4,
+          "cameraJitter": 0.053869599429890516
+        },
+        "status": "running",
+        "startOffsetMs": 7213,
+        "durationMs": 6644,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.813,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-052",
+        "seed": 1340279306,
+        "variant": {
+          "lighting": 0.550736197840888,
+          "friction": 0.44052519733086226,
+          "objectDx": 0.7961168773472309,
+          "objectDy": 0.178172205388546,
+          "distractors": 3,
+          "cameraJitter": 0.39470805299934003
+        },
+        "status": "running",
+        "startOffsetMs": 7286,
+        "durationMs": 7112,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.94,
+          "steps": 142,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-053",
+        "seed": 1348668115,
+        "variant": {
+          "lighting": 0.5203769820975139,
+          "friction": 0.9606046983040869,
+          "objectDx": -0.6781612038612366,
+          "objectDy": -0.3652081245556474,
+          "distractors": 1,
+          "cameraJitter": 0.28178244237788025
+        },
+        "status": "running",
+        "startOffsetMs": 7347,
+        "durationMs": 6275,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.941,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-054",
+        "seed": 1323501687,
+        "variant": {
+          "lighting": 0.4009567173663527,
+          "friction": 1.232939619012177,
+          "objectDx": -0.32166484789922833,
+          "objectDy": 0.32824851591140036,
+          "distractors": 5,
+          "cameraJitter": 0.3055323705542833
+        },
+        "status": "running",
+        "startOffsetMs": 7459,
+        "durationMs": 5750,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.839,
+          "steps": 115,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-055",
+        "seed": 1331890496,
+        "variant": {
+          "lighting": 0.5285619493108242,
+          "friction": 1.164693269552663,
+          "objectDx": -0.26976909721270204,
+          "objectDy": 0.3692869603633881,
+          "distractors": 3,
+          "cameraJitter": 0.5692165625514463
+        },
+        "status": "running",
+        "startOffsetMs": 7737,
+        "durationMs": 6452,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.916,
+          "steps": 129,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-056",
+        "seed": 1306724068,
+        "variant": {
+          "lighting": 0.920502737967763,
+          "friction": 0.8116248439997434,
+          "objectDx": 0.9502612380310893,
+          "objectDy": 0.3788472061976791,
+          "distractors": 6,
+          "cameraJitter": 0.3901594110298902
+        },
+        "status": "running",
+        "startOffsetMs": 7906,
+        "durationMs": 10000,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.191,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-057",
+        "seed": 1315112877,
+        "variant": {
+          "lighting": 0.9105292186024598,
+          "friction": 1.2972341050859542,
+          "objectDx": 0.7310776766389608,
+          "objectDy": 0.052641046792268754,
+          "distractors": 3,
+          "cameraJitter": 0.04789478711318225
+        },
+        "status": "running",
+        "startOffsetMs": 7936,
+        "durationMs": 6883,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.832,
+          "steps": 138,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-058",
+        "seed": 1289946449,
+        "variant": {
+          "lighting": 0.8771840965375304,
+          "friction": 1.027522324025631,
+          "objectDx": -0.3820982095785439,
+          "objectDy": 0.09816582910716534,
+          "distractors": 2,
+          "cameraJitter": 0.19694189911242574
+        },
+        "status": "running",
+        "startOffsetMs": 8058,
+        "durationMs": 5173,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.761,
+          "steps": 103,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-059",
+        "seed": 1298335258,
+        "variant": {
+          "lighting": 0.636265502765309,
+          "friction": 1.1060041227843613,
+          "objectDx": -0.9048758796416223,
+          "objectDy": -0.19489863626658918,
+          "distractors": 0,
+          "cameraJitter": 0.8294172127498314
+        },
+        "status": "running",
+        "startOffsetMs": 8063,
+        "durationMs": 4834,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.943,
+          "steps": 97,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-060",
+        "seed": 1306650520,
+        "variant": {
+          "lighting": 0.8853420246043242,
+          "friction": 0.4947920324280858,
+          "objectDx": 0.6497891079634428,
+          "objectDy": 0.338640315271914,
+          "distractors": 2,
+          "cameraJitter": 0.28181749423965813
+        },
+        "status": "running",
+        "startOffsetMs": 8095,
+        "durationMs": 6512,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.903,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-061",
+        "seed": 1298261711,
+        "variant": {
+          "lighting": 0.7868667521863244,
+          "friction": 0.8475558868609369,
+          "objectDx": -0.9284899812191725,
+          "objectDy": 0.06385237500071526,
+          "distractors": 3,
+          "cameraJitter": 0.4541753926780075
+        },
+        "status": "running",
+        "startOffsetMs": 8103,
+        "durationMs": 6357,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.14,
+          "steps": 127,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-062",
+        "seed": 1289872901,
+        "variant": {
+          "lighting": 0.37285992100369186,
+          "friction": 0.6724434095900506,
+          "objectDx": 0.8817563275806606,
+          "objectDy": -0.1480790188536048,
+          "distractors": 5,
+          "cameraJitter": 0.2938272242434323
+        },
+        "status": "running",
+        "startOffsetMs": 8116,
+        "durationMs": 7434,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.724,
+          "steps": 149,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-063",
+        "seed": 1281484092,
+        "variant": {
+          "lighting": 0.8888742631999775,
+          "friction": 1.1807919879443944,
+          "objectDx": 0.8754357676953077,
+          "objectDy": -0.18293856997042895,
+          "distractors": 4,
+          "cameraJitter": 0.8467858423478901
+        },
+        "status": "running",
+        "startOffsetMs": 8774,
+        "durationMs": 7438,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.964,
+          "steps": 149,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-064",
+        "seed": 1340205758,
+        "variant": {
+          "lighting": 0.21089902431704105,
+          "friction": 0.9834170065820217,
+          "objectDx": -0.5510483346879482,
+          "objectDy": -0.18584751803427935,
+          "distractors": 4,
+          "cameraJitter": 0.07594601316377521
+        },
+        "status": "queued",
+        "startOffsetMs": 11016,
+        "durationMs": 6857,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.128,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-065",
+        "seed": 1331816949,
+        "variant": {
+          "lighting": 0.8456460338667966,
+          "friction": 0.8111618977505713,
+          "objectDx": 0.4704486634582281,
+          "objectDy": 0.3512276163324714,
+          "distractors": 5,
+          "cameraJitter": 0.7076702630147338
+        },
+        "status": "queued",
+        "startOffsetMs": 11394,
+        "durationMs": 6874,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.749,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-066",
+        "seed": 1323428139,
+        "variant": {
+          "lighting": 0.7267946981475688,
+          "friction": 0.9229019180871546,
+          "objectDx": -0.09062267793342471,
+          "objectDy": 0.16652885675430298,
+          "distractors": 3,
+          "cameraJitter": 0.47882540503051135
+        },
+        "status": "queued",
+        "startOffsetMs": 11408,
+        "durationMs": 6213,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.827,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-067",
+        "seed": 1315039330,
+        "variant": {
+          "lighting": 0.7972545518307015,
+          "friction": 1.0722232781350614,
+          "objectDx": 0.149826570879668,
+          "objectDy": 0.18914716355502606,
+          "distractors": 4,
+          "cameraJitter": 0.7049912724411115
+        },
+        "status": "queued",
+        "startOffsetMs": 11619,
+        "durationMs": 5647,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.754,
+          "steps": 113,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-068",
+        "seed": 1239540044,
+        "variant": {
+          "lighting": 0.30368438984733076,
+          "friction": 0.8814711381215602,
+          "objectDx": 0.10036516236141324,
+          "objectDy": 0.06694300677627325,
+          "distractors": 1,
+          "cameraJitter": 0.3075297659263015
+        },
+        "status": "queued",
+        "startOffsetMs": 11682,
+        "durationMs": 6097,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.775,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-069",
+        "seed": 1231151235,
+        "variant": {
+          "lighting": 0.516386803635396,
+          "friction": 0.5794927260372787,
+          "objectDx": 0.6961227776482701,
+          "objectDy": -0.16749406550079585,
+          "distractors": 4,
+          "cameraJitter": 0.84375755188521
+        },
+        "status": "queued",
+        "startOffsetMs": 12279,
+        "durationMs": 6853,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.807,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-070",
+        "seed": 1256244116,
+        "variant": {
+          "lighting": 0.2293637178838253,
+          "friction": 0.6197388466913253,
+          "objectDx": 0.9742478849366307,
+          "objectDy": 0.27564803063869475,
+          "distractors": 1,
+          "cameraJitter": 0.023195477854460477
+        },
+        "status": "queued",
+        "startOffsetMs": 12316,
+        "durationMs": 5281,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.839,
+          "steps": 106,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-071",
+        "seed": 1264632925,
+        "variant": {
+          "lighting": 0.42846617351751776,
+          "friction": 1.3310115911532194,
+          "objectDx": 0.6214926270768046,
+          "objectDy": 0.254626046307385,
+          "distractors": 0,
+          "cameraJitter": 0.8046251244144514
+        },
+        "status": "queued",
+        "startOffsetMs": 12318,
+        "durationMs": 5275,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.837,
+          "steps": 106,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-072",
+        "seed": 1273021735,
+        "variant": {
+          "lighting": 0.5997114019002765,
+          "friction": 0.6230223583057523,
+          "objectDx": -0.2299661347642541,
+          "objectDy": 0.1605022266507149,
+          "distractors": 6,
+          "cameraJitter": 0.14248273086268456
+        },
+        "status": "queued",
+        "startOffsetMs": 12327,
+        "durationMs": 6375,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.921,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-073",
+        "seed": 1281410544,
+        "variant": {
+          "lighting": 0.7573914489941671,
+          "friction": 1.2395877348259092,
+          "objectDx": -0.9941443218849599,
+          "objectDy": -0.1286770585924387,
+          "distractors": 5,
+          "cameraJitter": 0.3676436231704429
+        },
+        "status": "queued",
+        "startOffsetMs": 12472,
+        "durationMs": 7236,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.959,
+          "steps": 145,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-074",
+        "seed": 1289799354,
+        "variant": {
+          "lighting": 0.329607965645846,
+          "friction": 1.1504548605531455,
+          "objectDx": 0.7290965681895614,
+          "objectDy": -0.19675728492438793,
+          "distractors": 1,
+          "cameraJitter": 0.2046638895990327
+        },
+        "status": "queued",
+        "startOffsetMs": 12630,
+        "durationMs": 5365,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.887,
+          "steps": 107,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-075",
+        "seed": 1298188163,
+        "variant": {
+          "lighting": 0.9424444063217379,
+          "friction": 0.9044095661025494,
+          "objectDx": 0.7999750673770905,
+          "objectDy": -0.3032334800809622,
+          "distractors": 4,
+          "cameraJitter": 0.3063687212532386
+        },
+        "status": "queued",
+        "startOffsetMs": 12657,
+        "durationMs": 7114,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.976,
+          "steps": 142,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-076",
+        "seed": 1306576973,
+        "variant": {
+          "lighting": 0.37571307806065307,
+          "friction": 0.7209875743370503,
+          "objectDx": -0.3499457109719515,
+          "objectDy": -0.1736996354535222,
+          "distractors": 5,
+          "cameraJitter": 0.22455352891702204
+        },
+        "status": "queued",
+        "startOffsetMs": 12791,
+        "durationMs": 5399,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.13,
+          "steps": 108,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-077",
+        "seed": 1314965782,
+        "variant": {
+          "lighting": 0.523685688781552,
+          "friction": 1.053383316518739,
+          "objectDx": 0.6692724437452853,
+          "objectDy": -0.15485794860869648,
+          "distractors": 3,
+          "cameraJitter": 0.6466417978517711
+        },
+        "status": "queued",
+        "startOffsetMs": 13077,
+        "durationMs": 10000,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.178,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-078",
+        "seed": 1189133640,
+        "variant": {
+          "lighting": 0.2240174936479889,
+          "friction": 1.2760693464893849,
+          "objectDx": -0.636557103600353,
+          "objectDy": 0.12530756779015065,
+          "distractors": 2,
+          "cameraJitter": 0.7627963736420498
+        },
+        "status": "queued",
+        "startOffsetMs": 13202,
+        "durationMs": 7079,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.813,
+          "steps": 142,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-079",
+        "seed": 1197522449,
+        "variant": {
+          "lighting": 0.5789544860483147,
+          "friction": 0.7969937728717923,
+          "objectDx": -0.01768952887505293,
+          "objectDy": 0.38953584209084513,
+          "distractors": 4,
+          "cameraJitter": 0.23407609804999083
+        },
+        "status": "queued",
+        "startOffsetMs": 13389,
+        "durationMs": 6683,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.963,
+          "steps": 134,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-080",
+        "seed": 132070095,
+        "variant": {
+          "lighting": 0.7082942878943868,
+          "friction": 0.4315948052331805,
+          "objectDx": -0.3393866131082177,
+          "objectDy": -0.19511530566960575,
+          "distractors": 2,
+          "cameraJitter": 0.4025574875995517
+        },
+        "status": "queued",
+        "startOffsetMs": 13401,
+        "durationMs": 7318,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.864,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-081",
+        "seed": 123681286,
+        "variant": {
+          "lighting": 0.45526029709726573,
+          "friction": 0.7761986927594989,
+          "objectDx": 0.881054853554815,
+          "objectDy": -0.04089940190315247,
+          "distractors": 3,
+          "cameraJitter": 0.3512250477215275
+        },
+        "status": "queued",
+        "startOffsetMs": 13408,
+        "durationMs": 5659,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.248,
+          "steps": 113,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-082",
+        "seed": 148847714,
+        "variant": {
+          "lighting": 0.33179837208008395,
+          "friction": 0.3806073019746691,
+          "objectDx": 0.9398264363408089,
+          "objectDy": 0.29212389402091504,
+          "distractors": 0,
+          "cameraJitter": 0.8465132433688268
+        },
+        "status": "queued",
+        "startOffsetMs": 13411,
+        "durationMs": 5359,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.776,
+          "steps": 107,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-083",
+        "seed": 140458905,
+        "variant": {
+          "lighting": 0.5146890746429562,
+          "friction": 1.0906889679841698,
+          "objectDx": 0.1647195122204721,
+          "objectDy": 0.06378933154046536,
+          "distractors": 3,
+          "cameraJitter": 0.7019269265932963
+        },
+        "status": "queued",
+        "startOffsetMs": 13411,
+        "durationMs": 6605,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.738,
+          "steps": 132,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-084",
+        "seed": 98514857,
+        "variant": {
+          "lighting": 0.6123152588726952,
+          "friction": 0.43986256294883785,
+          "objectDx": -0.12011386081576347,
+          "objectDy": 0.14631015099585057,
+          "distractors": 5,
+          "cameraJitter": 0.1949674422852695
+        },
+        "status": "queued",
+        "startOffsetMs": 13432,
+        "durationMs": 7298,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.77,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-085",
+        "seed": 90126048,
+        "variant": {
+          "lighting": 0.7163973682792857,
+          "friction": 1.0974071171600372,
+          "objectDx": 0.3383006281219423,
+          "objectDy": -0.30214264020323756,
+          "distractors": 5,
+          "cameraJitter": 0.490594486403279
+        },
+        "status": "queued",
+        "startOffsetMs": 13591,
+        "durationMs": 6272,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.818,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-086",
+        "seed": 115292476,
+        "variant": {
+          "lighting": 0.4190761903766543,
+          "friction": 0.8111967417877167,
+          "objectDx": -0.0011964840814471245,
+          "objectDy": -0.3259917074814439,
+          "distractors": 5,
+          "cameraJitter": 0.08321257000789047
+        },
+        "status": "queued",
+        "startOffsetMs": 13802,
+        "durationMs": 6032,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.852,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-087",
+        "seed": 106903667,
+        "variant": {
+          "lighting": 0.5113386472105048,
+          "friction": 1.2561882649548353,
+          "objectDx": 0.1876942990347743,
+          "objectDy": 0.1883686125278473,
+          "distractors": 0,
+          "cameraJitter": 0.6085198297630996
+        },
+        "status": "queued",
+        "startOffsetMs": 14037,
+        "durationMs": 6238,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.759,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-088",
+        "seed": 199180571,
+        "variant": {
+          "lighting": 0.6763556119869463,
+          "friction": 0.7153527626302093,
+          "objectDx": 0.9765263325534761,
+          "objectDy": -0.1914715075865388,
+          "distractors": 1,
+          "cameraJitter": 0.7666430266108364
+        },
+        "status": "queued",
+        "startOffsetMs": 14369,
+        "durationMs": 6169,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.866,
+          "steps": 123,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-089",
+        "seed": 190791762,
+        "variant": {
+          "lighting": 0.8173013591323979,
+          "friction": 0.46696856678463516,
+          "objectDx": 0.20477019809186459,
+          "objectDy": 0.2614336872473359,
+          "distractors": 2,
+          "cameraJitter": 0.7847277077380568
+        },
+        "status": "queued",
+        "startOffsetMs": 14578,
+        "durationMs": 6661,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.826,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-090",
+        "seed": 81663691,
+        "variant": {
+          "lighting": 0.5344452619785443,
+          "friction": 0.544297902751714,
+          "objectDx": -0.8261738624423742,
+          "objectDy": 0.3401786841452122,
+          "distractors": 2,
+          "cameraJitter": 0.05557842368725687
+        },
+        "status": "queued",
+        "startOffsetMs": 14640,
+        "durationMs": 5562,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.191,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-091",
+        "seed": 90052500,
+        "variant": {
+          "lighting": 0.7498092183261178,
+          "friction": 0.43706333511509,
+          "objectDx": -0.7848273869603872,
+          "objectDy": 0.3459499090909958,
+          "distractors": 4,
+          "cameraJitter": 0.5365807447582484
+        },
+        "status": "queued",
+        "startOffsetMs": 14787,
+        "durationMs": 5898,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.843,
+          "steps": 118,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-092",
+        "seed": 64886072,
+        "variant": {
+          "lighting": 0.3706012481590733,
+          "friction": 0.5299583849497139,
+          "objectDx": 0.5252278982661664,
+          "objectDy": -0.27366981226950887,
+          "distractors": 2,
+          "cameraJitter": 0.7031106332084164
+        },
+        "status": "queued",
+        "startOffsetMs": 14999,
+        "durationMs": 6834,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.756,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-093",
+        "seed": 73274881,
+        "variant": {
+          "lighting": 0.7664551469963043,
+          "friction": 0.6261494766455143,
+          "objectDx": 0.13846738263964653,
+          "objectDy": 0.006758112832903862,
+          "distractors": 2,
+          "cameraJitter": 0.8043923407327384
+        },
+        "status": "queued",
+        "startOffsetMs": 15730,
+        "durationMs": 5136,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.197,
+          "steps": 103,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-094",
+        "seed": 115218929,
+        "variant": {
+          "lighting": 0.9111741210101172,
+          "friction": 1.2179545589257033,
+          "objectDx": -0.34762760158628225,
+          "objectDy": 0.03451977018266916,
+          "distractors": 4,
+          "cameraJitter": 0.8925167531473562
+        },
+        "status": "queued",
+        "startOffsetMs": 16392,
+        "durationMs": 5127,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.729,
+          "steps": 103,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-095",
+        "seed": 123607738,
+        "variant": {
+          "lighting": 0.20233891682000832,
+          "friction": 0.5674762443173677,
+          "objectDx": -0.2046302119269967,
+          "objectDy": -0.1984983764588833,
+          "distractors": 4,
+          "cameraJitter": 0.3969430864322931
+        },
+        "status": "queued",
+        "startOffsetMs": 17446,
+        "durationMs": 6625,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.855,
+          "steps": 133,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-096",
+        "seed": 98441310,
+        "variant": {
+          "lighting": 0.7073618542519398,
+          "friction": 1.3269140670541675,
+          "objectDx": -0.5372159318067133,
+          "objectDy": -0.2548399602994323,
+          "distractors": 2,
+          "cameraJitter": 0.24831146621145309
+        },
+        "status": "queued",
+        "startOffsetMs": 17773,
+        "durationMs": 4864,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.899,
+          "steps": 97,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-097",
+        "seed": 106830119,
+        "variant": {
+          "lighting": 0.5592165728332474,
+          "friction": 1.3031312577892096,
+          "objectDx": -0.7854717345908284,
+          "objectDy": -0.14358388017863036,
+          "distractors": 6,
+          "cameraJitter": 0.05391282867640257
+        },
+        "status": "queued",
+        "startOffsetMs": 17777,
+        "durationMs": 7289,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.828,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-098",
+        "seed": 148774167,
+        "variant": {
+          "lighting": 0.2628581680939533,
+          "friction": 1.02195966350846,
+          "objectDx": -0.8498824178241193,
+          "objectDy": -0.11317928619682789,
+          "distractors": 6,
+          "cameraJitter": 0.7321295497706161
+        },
+        "status": "queued",
+        "startOffsetMs": 17801,
+        "durationMs": 6056,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.918,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-099",
+        "seed": 157162976,
+        "variant": {
+          "lighting": 0.7717168819974176,
+          "friction": 1.2324645150452853,
+          "objectDx": -0.7306241001933813,
+          "objectDy": -0.12092223539948464,
+          "distractors": 5,
+          "cameraJitter": 0.3296565027208999
+        },
+        "status": "queued",
+        "startOffsetMs": 17959,
+        "durationMs": 7204,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.923,
+          "steps": 144,
+          "graspAttempts": 1
+        }
+      }
+    ],
+    "gate": {
+      "metric": "pass_rate",
+      "threshold": 0.8,
+      "regressionTolerancePp": 2,
+      "baseline": {
+        "ref": "main@7d21e0b",
+        "passRate": 0.82,
+        "n": 100
+      }
+    }
+  },
+  {
+    "id": "run-regression",
+    "createdAt": "2026-10-17T10:42:21.683Z",
+    "policy": {
+      "name": "pi0-fast",
+      "commit": "9b02e41",
+      "branch": "feat/vision-swap"
+    },
+    "environmentId": "cluttered-desk",
+    "environmentName": "Cluttered Desk",
+    "task": "Pick up the stapler without snagging the cables",
+    "fanout": 100,
+    "concurrency": 32,
+    "stage": "done",
+    "progress": {
+      "label": "Scored 100 rollouts",
+      "done": 100,
+      "total": 100
+    },
+    "sims": [
+      {
+        "id": "sim-000",
+        "seed": 1027055957,
+        "variant": {
+          "lighting": 0.634228436613921,
+          "friction": 1.1760286368895323,
+          "objectDx": -0.1544904294423759,
+          "objectDy": 0.004743766970932484,
+          "distractors": 0,
+          "cameraJitter": 0.7204768588766456
+        },
+        "status": "passed",
+        "startOffsetMs": 157,
+        "durationMs": 5770,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.759,
+          "steps": 115,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-001",
+        "seed": 1035444766,
+        "variant": {
+          "lighting": 0.47357302902964876,
+          "friction": 0.689497389504686,
+          "objectDx": -0.08147435495629907,
+          "objectDy": -0.229710609652102,
+          "distractors": 1,
+          "cameraJitter": 0.6156882426934317
+        },
+        "status": "failed",
+        "startOffsetMs": 172,
+        "durationMs": 10000,
+        "elbow": 1,
+        "failMode": "timeout",
+        "failAt": 0.35031143717933444,
+        "metrics": {
+          "reward": 0.179,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-002",
+        "seed": 1010278338,
+        "variant": {
+          "lighting": 0.5020355849293991,
+          "friction": 0.4117637424729764,
+          "objectDx": 0.9221757869236171,
+          "objectDy": -0.2630295494571328,
+          "distractors": 1,
+          "cameraJitter": 0.14296689620241523
+        },
+        "status": "passed",
+        "startOffsetMs": 176,
+        "durationMs": 7292,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.921,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-003",
+        "seed": 1018667147,
+        "variant": {
+          "lighting": 0.496827714832034,
+          "friction": 1.165349638229236,
+          "objectDx": 0.291154095903039,
+          "objectDy": -0.28271713871508836,
+          "distractors": 1,
+          "cameraJitter": 0.38587441951967777
+        },
+        "status": "passed",
+        "startOffsetMs": 230,
+        "durationMs": 4833,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.912,
+          "steps": 97,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-004",
+        "seed": 993500719,
+        "variant": {
+          "lighting": 0.9371893368544988,
+          "friction": 1.293396030459553,
+          "objectDx": -0.8902057283557951,
+          "objectDy": -0.06989577133208513,
+          "distractors": 5,
+          "cameraJitter": 0.7529862061142921
+        },
+        "status": "failed",
+        "startOffsetMs": 249,
+        "durationMs": 5637,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.21515966342762113,
+        "metrics": {
+          "reward": 0.139,
+          "steps": 113,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-005",
+        "seed": 1001889528,
+        "variant": {
+          "lighting": 0.266629943496082,
+          "friction": 0.4029251892585307,
+          "objectDx": -0.4439793126657605,
+          "objectDy": -0.257597428932786,
+          "distractors": 3,
+          "cameraJitter": 0.2510651244549081
+        },
+        "status": "failed",
+        "startOffsetMs": 283,
+        "durationMs": 7178,
+        "elbow": 1,
+        "failMode": "grasp_slip",
+        "failAt": 0.6403826708905399,
+        "metrics": {
+          "reward": 0.318,
+          "steps": 144,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-006",
+        "seed": 976723100,
+        "variant": {
+          "lighting": 0.8124554644920863,
+          "friction": 1.1203661096747966,
+          "objectDx": -0.21052129473537207,
+          "objectDy": -0.16770259626209738,
+          "distractors": 3,
+          "cameraJitter": 0.6484535085037351
+        },
+        "status": "passed",
+        "startOffsetMs": 329,
+        "durationMs": 5379,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.902,
+          "steps": 108,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-007",
+        "seed": 985111909,
+        "variant": {
+          "lighting": 0.4680580868618563,
+          "friction": 0.720833431603387,
+          "objectDx": -0.7396733029745519,
+          "objectDy": 0.3104624727740884,
+          "distractors": 5,
+          "cameraJitter": 0.7783331498270855
+        },
+        "status": "passed",
+        "startOffsetMs": 355,
+        "durationMs": 7339,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.935,
+          "steps": 147,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-008",
+        "seed": 959945481,
+        "variant": {
+          "lighting": 0.8028991309576667,
+          "friction": 0.7674233840312809,
+          "objectDx": -0.47421171981841326,
+          "objectDy": 0.2873597411438823,
+          "distractors": 2,
+          "cameraJitter": 0.514035356626846
+        },
+        "status": "passed",
+        "startOffsetMs": 358,
+        "durationMs": 6255,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.94,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-009",
+        "seed": 968334290,
+        "variant": {
+          "lighting": 0.27139777747215704,
+          "friction": 0.7361440329346806,
+          "objectDx": 0.44722769875079393,
+          "objectDy": -0.15905466433614493,
+          "distractors": 2,
+          "cameraJitter": 0.8977860470535234
+        },
+        "status": "passed",
+        "startOffsetMs": 403,
+        "durationMs": 5457,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.92,
+          "steps": 109,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-010",
+        "seed": 781455419,
+        "variant": {
+          "lighting": 0.8275531210121698,
+          "friction": 1.289481586450711,
+          "objectDx": -0.4333945899270475,
+          "objectDy": -0.36396852713078265,
+          "distractors": 1,
+          "cameraJitter": 0.7338341642171144
+        },
+        "status": "passed",
+        "startOffsetMs": 423,
+        "durationMs": 5286,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.79,
+          "steps": 106,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-011",
+        "seed": 773066610,
+        "variant": {
+          "lighting": 0.6459427976398728,
+          "friction": 0.8458579104859382,
+          "objectDx": 0.736098671797663,
+          "objectDy": 0.1305970372632146,
+          "distractors": 1,
+          "cameraJitter": 0.20716863884590567
+        },
+        "status": "passed",
+        "startOffsetMs": 443,
+        "durationMs": 6990,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.752,
+          "steps": 140,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-012",
+        "seed": 798233038,
+        "variant": {
+          "lighting": 0.7948358048917725,
+          "friction": 0.920186402881518,
+          "objectDx": 0.5895875785499811,
+          "objectDy": -0.2668820979073644,
+          "distractors": 0,
+          "cameraJitter": 0.711383705958724
+        },
+        "status": "passed",
+        "startOffsetMs": 449,
+        "durationMs": 6250,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.82,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-013",
+        "seed": 789844229,
+        "variant": {
+          "lighting": 0.4039809157140553,
+          "friction": 0.5141667354851961,
+          "objectDx": -0.30697396770119667,
+          "objectDy": 0.36579916365444665,
+          "distractors": 6,
+          "cameraJitter": 0.4022994846571237
+        },
+        "status": "failed",
+        "startOffsetMs": 472,
+        "durationMs": 5651,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.3204925192240626,
+        "metrics": {
+          "reward": 0.194,
+          "steps": 113,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-014",
+        "seed": 747900181,
+        "variant": {
+          "lighting": 0.3768950872356072,
+          "friction": 1.2929892639163882,
+          "objectDx": -0.8672675020061433,
+          "objectDy": -0.2987884199246764,
+          "distractors": 4,
+          "cameraJitter": 0.7367223551496863
+        },
+        "status": "failed",
+        "startOffsetMs": 519,
+        "durationMs": 7289,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.31635699410457163,
+        "metrics": {
+          "reward": 0.148,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-015",
+        "seed": 739511372,
+        "variant": {
+          "lighting": 0.22167404990177603,
+          "friction": 1.126939585339278,
+          "objectDx": 0.5692687351256609,
+          "objectDy": 0.021291122958064082,
+          "distractors": 6,
+          "cameraJitter": 0.8669442325131967
+        },
+        "status": "passed",
+        "startOffsetMs": 630,
+        "durationMs": 5514,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.881,
+          "steps": 110,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-016",
+        "seed": 764677800,
+        "variant": {
+          "lighting": 0.4293366917874664,
+          "friction": 0.8510419744066894,
+          "objectDx": -0.6868619141168892,
+          "objectDy": -0.21270982138812544,
+          "distractors": 2,
+          "cameraJitter": 0.6615730446064845
+        },
+        "status": "failed",
+        "startOffsetMs": 648,
+        "durationMs": 5130,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.1670073766214773,
+        "metrics": {
+          "reward": 0.1,
+          "steps": 103,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-017",
+        "seed": 756288991,
+        "variant": {
+          "lighting": 0.4416934663197026,
+          "friction": 1.0079726203344763,
+          "objectDx": -0.0679966346360743,
+          "objectDy": 0.09608239512890578,
+          "distractors": 3,
+          "cameraJitter": 0.40563845748547467
+        },
+        "status": "passed",
+        "startOffsetMs": 657,
+        "durationMs": 6750,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.791,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-018",
+        "seed": 714344943,
+        "variant": {
+          "lighting": 0.49711583157768474,
+          "friction": 0.7497648826334625,
+          "objectDx": -0.9864828321151435,
+          "objectDy": -0.16566540077328684,
+          "distractors": 4,
+          "cameraJitter": 0.20075360268820078
+        },
+        "status": "passed",
+        "startOffsetMs": 659,
+        "durationMs": 7327,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.951,
+          "steps": 147,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-019",
+        "seed": 705956134,
+        "variant": {
+          "lighting": 0.918600973370485,
+          "friction": 0.6843284886796027,
+          "objectDx": -0.09438913548365235,
+          "objectDy": 0.3997083919122815,
+          "distractors": 6,
+          "cameraJitter": 0.37822793719824405
+        },
+        "status": "passed",
+        "startOffsetMs": 694,
+        "durationMs": 7100,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.797,
+          "steps": 142,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-020",
+        "seed": 630236206,
+        "variant": {
+          "lighting": 0.6894545163842849,
+          "friction": 0.47752739270217714,
+          "objectDx": -0.37798582948744297,
+          "objectDy": 0.2459481328725815,
+          "distractors": 6,
+          "cameraJitter": 0.12632392526138575
+        },
+        "status": "passed",
+        "startOffsetMs": 730,
+        "durationMs": 6809,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.894,
+          "steps": 136,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-021",
+        "seed": 638625015,
+        "variant": {
+          "lighting": 0.42847412375267596,
+          "friction": 1.0197386275045575,
+          "objectDx": 0.6450645364820957,
+          "objectDy": -0.08840069044381381,
+          "distractors": 5,
+          "cameraJitter": 0.6070371144684031
+        },
+        "status": "passed",
+        "startOffsetMs": 829,
+        "durationMs": 5872,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.735,
+          "steps": 117,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-022",
+        "seed": 647013825,
+        "variant": {
+          "lighting": 0.21540798897622154,
+          "friction": 1.1434598589781673,
+          "objectDx": 0.005850689020007849,
+          "objectDy": -0.34360808897763495,
+          "distractors": 0,
+          "cameraJitter": 0.6277929752832279
+        },
+        "status": "failed",
+        "startOffsetMs": 842,
+        "durationMs": 10000,
+        "elbow": 1,
+        "failMode": "timeout",
+        "failAt": 0.46811755453236403,
+        "metrics": {
+          "reward": 0.262,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-023",
+        "seed": 655402634,
+        "variant": {
+          "lighting": 0.5232894921093247,
+          "friction": 0.727629256574437,
+          "objectDx": -0.18602247023954988,
+          "objectDy": -0.33706806357949975,
+          "distractors": 6,
+          "cameraJitter": 0.2531145762652159
+        },
+        "status": "passed",
+        "startOffsetMs": 874,
+        "durationMs": 7411,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.861,
+          "steps": 148,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-024",
+        "seed": 596680968,
+        "variant": {
+          "lighting": 0.45300476414849983,
+          "friction": 1.284198150644079,
+          "objectDx": -0.2989999381825328,
+          "objectDy": -0.07393091078847647,
+          "distractors": 0,
+          "cameraJitter": 0.2327485382789746
+        },
+        "status": "passed",
+        "startOffsetMs": 875,
+        "durationMs": 6036,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.837,
+          "steps": 121,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-025",
+        "seed": 605069777,
+        "variant": {
+          "lighting": 0.4332706226152368,
+          "friction": 0.44091790742240844,
+          "objectDx": 0.4243465084582567,
+          "objectDy": -0.04068171158432961,
+          "distractors": 6,
+          "cameraJitter": 0.15833437722176313
+        },
+        "status": "failed",
+        "startOffsetMs": 955,
+        "durationMs": 6452,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.20112275798805057,
+        "metrics": {
+          "reward": 0.1,
+          "steps": 129,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-026",
+        "seed": 613458587,
+        "variant": {
+          "lighting": 0.23777547809295357,
+          "friction": 1.1511051879730076,
+          "objectDx": -0.7427340629510581,
+          "objectDy": 0.3425853727385402,
+          "distractors": 1,
+          "cameraJitter": 0.7763534834375605
+        },
+        "status": "failed",
+        "startOffsetMs": 1144,
+        "durationMs": 5564,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.1699487937707454,
+        "metrics": {
+          "reward": 0.129,
+          "steps": 111,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-027",
+        "seed": 621847396,
+        "variant": {
+          "lighting": 0.6642059158650226,
+          "friction": 1.3155548851005734,
+          "objectDx": -0.17590649845078588,
+          "objectDy": -0.06589880790561438,
+          "distractors": 3,
+          "cameraJitter": 0.33304868994746356
+        },
+        "status": "passed",
+        "startOffsetMs": 1280,
+        "durationMs": 6768,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.804,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-028",
+        "seed": 697346682,
+        "variant": {
+          "lighting": 0.7720508835511282,
+          "friction": 0.6806760762352496,
+          "objectDx": -0.7728730882517993,
+          "objectDy": -0.3043193889781833,
+          "distractors": 1,
+          "cameraJitter": 0.7683288134168834
+        },
+        "status": "passed",
+        "startOffsetMs": 1533,
+        "durationMs": 5751,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.798,
+          "steps": 115,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-029",
+        "seed": 705735491,
+        "variant": {
+          "lighting": 0.8563950055278837,
+          "friction": 1.0080061516724528,
+          "objectDx": 0.23563313437625766,
+          "objectDy": -0.3071102280169726,
+          "distractors": 4,
+          "cameraJitter": 0.26595157643314454
+        },
+        "status": "passed",
+        "startOffsetMs": 1597,
+        "durationMs": 7066,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.847,
+          "steps": 141,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-030",
+        "seed": 680642610,
+        "variant": {
+          "lighting": 0.8165186049765907,
+          "friction": 0.954134070686996,
+          "objectDx": 0.9792167725972831,
+          "objectDy": -0.3021331410855055,
+          "distractors": 2,
+          "cameraJitter": 0.10326553594786674
+        },
+        "status": "passed",
+        "startOffsetMs": 2056,
+        "durationMs": 5701,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.848,
+          "steps": 114,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-031",
+        "seed": 672253801,
+        "variant": {
+          "lighting": 0.8845545840915292,
+          "friction": 0.6677737919613719,
+          "objectDx": -0.6021570092998445,
+          "objectDy": -0.3729919968172908,
+          "distractors": 3,
+          "cameraJitter": 0.07140344430226833
+        },
+        "status": "passed",
+        "startOffsetMs": 2693,
+        "durationMs": 6195,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.866,
+          "steps": 124,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-032",
+        "seed": 663864991,
+        "variant": {
+          "lighting": 0.33268088398035617,
+          "friction": 1.2234162573236973,
+          "objectDx": 0.953922659624368,
+          "objectDy": -0.33191002793610097,
+          "distractors": 2,
+          "cameraJitter": 0.15423209904693067
+        },
+        "status": "passed",
+        "startOffsetMs": 5243,
+        "durationMs": 5447,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.979,
+          "steps": 109,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-033",
+        "seed": 655476182,
+        "variant": {
+          "lighting": 0.26023208011174576,
+          "friction": 1.042192700924352,
+          "objectDx": 0.361034928355366,
+          "objectDy": -0.11788117419928312,
+          "distractors": 2,
+          "cameraJitter": 0.8218264803523198
+        },
+        "status": "passed",
+        "startOffsetMs": 5888,
+        "durationMs": 6335,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.736,
+          "steps": 127,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-034",
+        "seed": 647087372,
+        "variant": {
+          "lighting": 0.32567062163725496,
+          "friction": 0.846841826941818,
+          "objectDx": -0.46139115933328867,
+          "objectDy": 0.0876721439883113,
+          "distractors": 5,
+          "cameraJitter": 0.2493094202131033
+        },
+        "status": "passed",
+        "startOffsetMs": 5889,
+        "durationMs": 7407,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.954,
+          "steps": 148,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-035",
+        "seed": 638698563,
+        "variant": {
+          "lighting": 0.3365684875054285,
+          "friction": 0.6350506182294339,
+          "objectDx": -0.14924537250772119,
+          "objectDy": 0.048598097264766695,
+          "distractors": 1,
+          "cameraJitter": 0.750158961256966
+        },
+        "status": "passed",
+        "startOffsetMs": 5958,
+        "durationMs": 5880,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.91,
+          "steps": 118,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-036",
+        "seed": 630309753,
+        "variant": {
+          "lighting": 0.4603195791016333,
+          "friction": 0.5494260635692626,
+          "objectDx": 0.09653008496388793,
+          "objectDy": 0.17047363556921483,
+          "distractors": 2,
+          "cameraJitter": 0.89476625144016
+        },
+        "status": "passed",
+        "startOffsetMs": 6040,
+        "durationMs": 5459,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.915,
+          "steps": 109,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-037",
+        "seed": 621920944,
+        "variant": {
+          "lighting": 0.27744646386709065,
+          "friction": 0.7459923004731536,
+          "objectDx": -0.9501951658166945,
+          "objectDy": 0.2345110671594739,
+          "distractors": 3,
+          "cameraJitter": 0.8574145155027509
+        },
+        "status": "failed",
+        "startOffsetMs": 6066,
+        "durationMs": 6406,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.7920730850286781,
+        "metrics": {
+          "reward": 0.356,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-038",
+        "seed": 747753086,
+        "variant": {
+          "lighting": 0.5775412510731257,
+          "friction": 1.155687855463475,
+          "objectDx": -0.5415593101643026,
+          "objectDy": -0.2717833278700709,
+          "distractors": 4,
+          "cameraJitter": 0.6077258359640837
+        },
+        "status": "passed",
+        "startOffsetMs": 6107,
+        "durationMs": 5440,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.974,
+          "steps": 109,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-039",
+        "seed": 739364277,
+        "variant": {
+          "lighting": 0.5466780852759257,
+          "friction": 0.4786205246578902,
+          "objectDx": -0.4657992939464748,
+          "objectDy": 0.15611154790967705,
+          "distractors": 6,
+          "cameraJitter": 0.2613941382849589
+        },
+        "status": "failed",
+        "startOffsetMs": 6303,
+        "durationMs": 5958,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.8252448232006282,
+        "metrics": {
+          "reward": 0.359,
+          "steps": 119,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-040",
+        "seed": 1871581333,
+        "variant": {
+          "lighting": 0.6406245886930264,
+          "friction": 0.7169919644016772,
+          "objectDx": 0.3476537405513227,
+          "objectDy": 0.20988591387867928,
+          "distractors": 6,
+          "cameraJitter": 0.26300912545993926
+        },
+        "status": "passed",
+        "startOffsetMs": 6324,
+        "durationMs": 6608,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.898,
+          "steps": 132,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-041",
+        "seed": 1879970142,
+        "variant": {
+          "lighting": 0.6782737665227614,
+          "friction": 0.38390479809604583,
+          "objectDx": -0.5430339397862554,
+          "objectDy": 0.03250761292874813,
+          "distractors": 1,
+          "cameraJitter": 0.6486729220021517
+        },
+        "status": "passed",
+        "startOffsetMs": 6793,
+        "durationMs": 5957,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.756,
+          "steps": 119,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-042",
+        "seed": 1854803714,
+        "variant": {
+          "lighting": 0.850121359329205,
+          "friction": 1.0071600334718824,
+          "objectDx": -0.6426741946488619,
+          "objectDy": -0.15507396422326566,
+          "distractors": 2,
+          "cameraJitter": 0.8698662745999173
+        },
+        "status": "failed",
+        "startOffsetMs": 6879,
+        "durationMs": 6907,
+        "elbow": -1,
+        "failMode": "dropped_outside",
+        "failAt": 0.8323648961447179,
+        "metrics": {
+          "reward": 0.374,
+          "steps": 138,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-043",
+        "seed": 1863192523,
+        "variant": {
+          "lighting": 0.22073308033868672,
+          "friction": 0.9757280868012458,
+          "objectDx": 0.9069925392977893,
+          "objectDy": -0.3228701859712601,
+          "distractors": 4,
+          "cameraJitter": 0.10536926602944732
+        },
+        "status": "passed",
+        "startOffsetMs": 6881,
+        "durationMs": 6110,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.818,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-044",
+        "seed": 1838026095,
+        "variant": {
+          "lighting": 0.6204739007982425,
+          "friction": 1.0818791889119894,
+          "objectDx": 0.32251791190356016,
+          "objectDy": 0.09609202910214663,
+          "distractors": 4,
+          "cameraJitter": 0.12091098900418729
+        },
+        "status": "failed",
+        "startOffsetMs": 6888,
+        "durationMs": 10000,
+        "elbow": -1,
+        "failMode": "timeout",
+        "failAt": 0.47403383839409796,
+        "metrics": {
+          "reward": 0.234,
+          "steps": 200,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-045",
+        "seed": 1846414904,
+        "variant": {
+          "lighting": 0.8691723761032335,
+          "friction": 0.37771570975892244,
+          "objectDx": -0.9363536396995187,
+          "objectDy": -0.3194948233664036,
+          "distractors": 5,
+          "cameraJitter": 0.4392979627707973
+        },
+        "status": "failed",
+        "startOffsetMs": 7091,
+        "durationMs": 7928,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.26855889710597697,
+        "metrics": {
+          "reward": 0.138,
+          "steps": 159,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-046",
+        "seed": 1821248476,
+        "variant": {
+          "lighting": 0.43070161836221815,
+          "friction": 0.5716953989118337,
+          "objectDx": 0.3166900174692273,
+          "objectDy": -0.11505811847746372,
+          "distractors": 4,
+          "cameraJitter": 0.27166479122824966
+        },
+        "status": "failed",
+        "startOffsetMs": 7464,
+        "durationMs": 6810,
+        "elbow": -1,
+        "failMode": "dropped_outside",
+        "failAt": 0.8351394290011376,
+        "metrics": {
+          "reward": 0.384,
+          "steps": 136,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-047",
+        "seed": 1829637285,
+        "variant": {
+          "lighting": 0.42919760213699193,
+          "friction": 0.47808496924117205,
+          "objectDx": 0.9154476099647582,
+          "objectDy": -0.0866240717470646,
+          "distractors": 5,
+          "cameraJitter": 0.09811123735271395
+        },
+        "status": "passed",
+        "startOffsetMs": 7587,
+        "durationMs": 5645,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.802,
+          "steps": 113,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-048",
+        "seed": 1804470857,
+        "variant": {
+          "lighting": 0.42154212812893094,
+          "friction": 0.4906827867031097,
+          "objectDx": 0.8433024305850267,
+          "objectDy": 0.05333551801741124,
+          "distractors": 6,
+          "cameraJitter": 0.6381409686757252
+        },
+        "status": "passed",
+        "startOffsetMs": 7587,
+        "durationMs": 6945,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.851,
+          "steps": 139,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-049",
+        "seed": 1812859666,
+        "variant": {
+          "lighting": 0.6117980289156548,
+          "friction": 1.2580776162445546,
+          "objectDx": -0.6375408717431128,
+          "objectDy": 0.22919885721057653,
+          "distractors": 0,
+          "cameraJitter": 0.5737324784277007
+        },
+        "status": "passed",
+        "startOffsetMs": 7613,
+        "durationMs": 5903,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.933,
+          "steps": 118,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-050",
+        "seed": 1653545833,
+        "variant": {
+          "lighting": 0.2301581578096375,
+          "friction": 1.120348643185571,
+          "objectDx": 0.990268578287214,
+          "objectDy": -0.24003646336495876,
+          "distractors": 3,
+          "cameraJitter": 0.4619982725707814
+        },
+        "status": "passed",
+        "startOffsetMs": 7641,
+        "durationMs": 5815,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.851,
+          "steps": 116,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-051",
+        "seed": 1645157024,
+        "variant": {
+          "lighting": 0.2566902777645737,
+          "friction": 0.5835710043553263,
+          "objectDx": -0.42161110835149884,
+          "objectDy": -0.24988530930131675,
+          "distractors": 0,
+          "cameraJitter": 0.71713390967343
+        },
+        "status": "passed",
+        "startOffsetMs": 7648,
+        "durationMs": 5817,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.922,
+          "steps": 116,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-052",
+        "seed": 1670323452,
+        "variant": {
+          "lighting": 0.3082597163040191,
+          "friction": 0.7151258256286382,
+          "objectDx": -0.3890805128030479,
+          "objectDy": 0.3326927622780204,
+          "distractors": 0,
+          "cameraJitter": 0.7410546059254557
+        },
+        "status": "passed",
+        "startOffsetMs": 7719,
+        "durationMs": 7072,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.744,
+          "steps": 141,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-053",
+        "seed": 1661934643,
+        "variant": {
+          "lighting": 0.5016820718767121,
+          "friction": 1.1515271946787835,
+          "objectDx": 0.39722136966884136,
+          "objectDy": -0.2391643885523081,
+          "distractors": 2,
+          "cameraJitter": 0.2475380837218836
+        },
+        "status": "passed",
+        "startOffsetMs": 7874,
+        "durationMs": 4845,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.765,
+          "steps": 97,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-054",
+        "seed": 1687101071,
+        "variant": {
+          "lighting": 0.7514554744004271,
+          "friction": 0.45137209598906336,
+          "objectDx": 0.5251743136905134,
+          "objectDy": -0.2713147696107626,
+          "distractors": 5,
+          "cameraJitter": 0.28780213580466807
+        },
+        "status": "failed",
+        "startOffsetMs": 7937,
+        "durationMs": 5942,
+        "elbow": -1,
+        "failMode": "grasp_slip",
+        "failAt": 0.5503961144015193,
+        "metrics": {
+          "reward": 0.253,
+          "steps": 119,
+          "graspAttempts": 3
+        }
+      },
+      {
+        "id": "sim-055",
+        "seed": 1678712262,
+        "variant": {
+          "lighting": 0.8757221913430839,
+          "friction": 0.6363937963265925,
+          "objectDx": 0.49870128743350506,
+          "objectDy": 0.22334311045706273,
+          "distractors": 3,
+          "cameraJitter": 0.7088808552129194
+        },
+        "status": "failed",
+        "startOffsetMs": 7974,
+        "durationMs": 7410,
+        "elbow": -1,
+        "failMode": "grasp_slip",
+        "failAt": 0.6083425322547555,
+        "metrics": {
+          "reward": 0.272,
+          "steps": 148,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-056",
+        "seed": 1703878690,
+        "variant": {
+          "lighting": 0.8127446300233714,
+          "friction": 1.079140232782811,
+          "objectDx": -0.8041029907763004,
+          "objectDy": 0.13011896330863237,
+          "distractors": 5,
+          "cameraJitter": 0.008341032173484563
+        },
+        "status": "passed",
+        "startOffsetMs": 7988,
+        "durationMs": 6277,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.734,
+          "steps": 126,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-057",
+        "seed": 1695489881,
+        "variant": {
+          "lighting": 0.5033033610554412,
+          "friction": 0.42632333203218875,
+          "objectDx": 0.9950436931103468,
+          "objectDy": -0.08653735760599375,
+          "distractors": 6,
+          "cameraJitter": 0.27684020886663346
+        },
+        "status": "passed",
+        "startOffsetMs": 8166,
+        "durationMs": 7817,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.844,
+          "steps": 156,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-058",
+        "seed": 1720656309,
+        "variant": {
+          "lighting": 0.504186432971619,
+          "friction": 0.9489586173091084,
+          "objectDx": 0.4786205398850143,
+          "objectDy": 0.3037764081731439,
+          "distractors": 4,
+          "cameraJitter": 0.5643440901534632
+        },
+        "status": "passed",
+        "startOffsetMs": 8228,
+        "durationMs": 5177,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.852,
+          "steps": 104,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-059",
+        "seed": 1712267500,
+        "variant": {
+          "lighting": 0.6561830429593101,
+          "friction": 0.8152419742196798,
+          "objectDx": 0.8204830545000732,
+          "objectDy": 0.06929820217192173,
+          "distractors": 0,
+          "cameraJitter": 0.6593216178473086
+        },
+        "status": "passed",
+        "startOffsetMs": 8465,
+        "durationMs": 6805,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.945,
+          "steps": 136,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-060",
+        "seed": 697000908,
+        "variant": {
+          "lighting": 0.26990530993789436,
+          "friction": 1.2935805464163423,
+          "objectDx": -0.928370313718915,
+          "objectDy": -0.18584784232079984,
+          "distractors": 5,
+          "cameraJitter": 0.38648704905062914
+        },
+        "status": "passed",
+        "startOffsetMs": 8843,
+        "durationMs": 6109,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.751,
+          "steps": 122,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-061",
+        "seed": 705389717,
+        "variant": {
+          "lighting": 0.9303829892771318,
+          "friction": 1.0966705655679108,
+          "objectDx": 0.1385653167963028,
+          "objectDy": -0.20963283572345973,
+          "distractors": 5,
+          "cameraJitter": 0.6018187037436292
+        },
+        "status": "failed",
+        "startOffsetMs": 9068,
+        "durationMs": 6429,
+        "elbow": -1,
+        "failMode": "missed_approach",
+        "failAt": 0.3857887104386464,
+        "metrics": {
+          "reward": 0.203,
+          "steps": 129,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-062",
+        "seed": 713778527,
+        "variant": {
+          "lighting": 0.49397241218248383,
+          "friction": 0.5218765897676348,
+          "objectDx": 0.7010250031016767,
+          "objectDy": -0.19788802545517684,
+          "distractors": 2,
+          "cameraJitter": 0.08858636675868184
+        },
+        "status": "passed",
+        "startOffsetMs": 10352,
+        "durationMs": 6247,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.954,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-063",
+        "seed": 722167336,
+        "variant": {
+          "lighting": 0.5394312580348923,
+          "friction": 1.3420001479331405,
+          "objectDx": 0.12791522545740008,
+          "objectDy": -0.17121516205370427,
+          "distractors": 5,
+          "cameraJitter": 0.5719932270236313
+        },
+        "status": "failed",
+        "startOffsetMs": 10870,
+        "durationMs": 4968,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.3332836969941855,
+        "metrics": {
+          "reward": 0.202,
+          "steps": 99,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-064",
+        "seed": 730556146,
+        "variant": {
+          "lighting": 0.8856190494727343,
+          "friction": 0.5646360699553042,
+          "objectDx": -0.7375530651770532,
+          "objectDy": 0.18343345988541843,
+          "distractors": 1,
+          "cameraJitter": 0.5209183527622372
+        },
+        "status": "passed",
+        "startOffsetMs": 11022,
+        "durationMs": 7246,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.881,
+          "steps": 145,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-065",
+        "seed": 738944955,
+        "variant": {
+          "lighting": 0.8264509155880659,
+          "friction": 0.38948545036837456,
+          "objectDx": -0.538444145116955,
+          "objectDy": -0.266716037876904,
+          "distractors": 5,
+          "cameraJitter": 0.5701032880693674
+        },
+        "status": "passed",
+        "startOffsetMs": 11679,
+        "durationMs": 6739,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.97,
+          "steps": 135,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-066",
+        "seed": 747333765,
+        "variant": {
+          "lighting": 0.4811301772017032,
+          "friction": 0.9789328502025455,
+          "objectDx": -0.4006519359536469,
+          "objectDy": 0.3279544880613685,
+          "distractors": 3,
+          "cameraJitter": 0.7359715243801475
+        },
+        "status": "passed",
+        "startOffsetMs": 11727,
+        "durationMs": 5889,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.733,
+          "steps": 118,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-067",
+        "seed": 755722574,
+        "variant": {
+          "lighting": 0.44840978579595686,
+          "friction": 0.6583769830409437,
+          "objectDx": -0.6395697896368802,
+          "objectDy": 0.050817034766078,
+          "distractors": 6,
+          "cameraJitter": 0.08276539819780737
+        },
+        "status": "passed",
+        "startOffsetMs": 12018,
+        "durationMs": 6269,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.901,
+          "steps": 125,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-068",
+        "seed": 629890432,
+        "variant": {
+          "lighting": 0.6592784403357654,
+          "friction": 0.8971712790895253,
+          "objectDx": -0.8617810318246484,
+          "objectDy": -0.13561779893934728,
+          "distractors": 5,
+          "cameraJitter": 0.2822303591296077
+        },
+        "status": "passed",
+        "startOffsetMs": 12403,
+        "durationMs": 5379,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.772,
+          "steps": 108,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-069",
+        "seed": 638279241,
+        "variant": {
+          "lighting": 0.8341935250675305,
+          "friction": 0.8346432604826987,
+          "objectDx": 0.10555707896128297,
+          "objectDy": 0.0375205934047699,
+          "distractors": 3,
+          "cameraJitter": 0.5923099618172273
+        },
+        "status": "passed",
+        "startOffsetMs": 12441,
+        "durationMs": 6712,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.949,
+          "steps": 134,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-070",
+        "seed": 1821174928,
+        "variant": {
+          "lighting": 0.8616056648781523,
+          "friction": 0.9686375610996037,
+          "objectDx": -0.14799106353893876,
+          "objectDy": 0.17345118522644043,
+          "distractors": 5,
+          "cameraJitter": 0.048310042521916334
+        },
+        "status": "passed",
+        "startOffsetMs": 12652,
+        "durationMs": 5213,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.852,
+          "steps": 104,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-071",
+        "seed": 1812786119,
+        "variant": {
+          "lighting": 0.8012448949622921,
+          "friction": 1.1726004475727678,
+          "objectDx": -0.3343879817984998,
+          "objectDy": 0.01806270722299814,
+          "distractors": 0,
+          "cameraJitter": 0.5359174063894898
+        },
+        "status": "passed",
+        "startOffsetMs": 12899,
+        "durationMs": 5842,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.875,
+          "steps": 117,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-072",
+        "seed": 1804397309,
+        "variant": {
+          "lighting": 0.3736895567155443,
+          "friction": 0.35912145571783183,
+          "objectDx": 0.13256544573232532,
+          "objectDy": -0.11676660981029273,
+          "distractors": 2,
+          "cameraJitter": 0.5112283391878009
+        },
+        "status": "passed",
+        "startOffsetMs": 12930,
+        "durationMs": 5859,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.87,
+          "steps": 117,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-073",
+        "seed": 1796008500,
+        "variant": {
+          "lighting": 0.21118195842718707,
+          "friction": 0.8285290078725666,
+          "objectDx": 0.5258186394348741,
+          "objectDy": 0.0029660940170288088,
+          "distractors": 0,
+          "cameraJitter": 0.06697842325083912
+        },
+        "status": "passed",
+        "startOffsetMs": 13112,
+        "durationMs": 4879,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.942,
+          "steps": 98,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-074",
+        "seed": 1854730166,
+        "variant": {
+          "lighting": 0.6843411223846487,
+          "friction": 1.2173694827593864,
+          "objectDx": 0.17554785264655948,
+          "objectDy": 0.05549519639462233,
+          "distractors": 4,
+          "cameraJitter": 0.46209584986791014
+        },
+        "status": "failed",
+        "startOffsetMs": 13171,
+        "durationMs": 6325,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.19112155397888275,
+        "metrics": {
+          "reward": 0.115,
+          "steps": 127,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-075",
+        "seed": 1846341357,
+        "variant": {
+          "lighting": 0.5557152779540047,
+          "friction": 0.890688093053177,
+          "objectDx": 0.07613008143380284,
+          "objectDy": 0.10441515240818262,
+          "distractors": 6,
+          "cameraJitter": 0.19925188813358546
+        },
+        "status": "passed",
+        "startOffsetMs": 13412,
+        "durationMs": 6843,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.739,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-076",
+        "seed": 1837952547,
+        "variant": {
+          "lighting": 0.3412879524868913,
+          "friction": 1.002178225805983,
+          "objectDx": -0.21281157853081822,
+          "objectDy": 0.30318621378391986,
+          "distractors": 6,
+          "cameraJitter": 0.6235887926537543
+        },
+        "status": "failed",
+        "startOffsetMs": 13476,
+        "durationMs": 7509,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.16532499701716005,
+        "metrics": {
+          "reward": 0.121,
+          "steps": 150,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-077",
+        "seed": 1829563738,
+        "variant": {
+          "lighting": 0.42863882483216004,
+          "friction": 0.8313484870828688,
+          "objectDx": -0.00762149365618825,
+          "objectDy": -0.18674524426460268,
+          "distractors": 6,
+          "cameraJitter": 0.2022977022221312
+        },
+        "status": "failed",
+        "startOffsetMs": 13585,
+        "durationMs": 5521,
+        "elbow": 1,
+        "failMode": "collision",
+        "failAt": 0.16129789642523976,
+        "metrics": {
+          "reward": 0.101,
+          "steps": 110,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-078",
+        "seed": 1754064452,
+        "variant": {
+          "lighting": 0.41796151669695975,
+          "friction": 0.9861775749828666,
+          "objectDx": 0.8053145627491176,
+          "objectDy": -0.3973025292158127,
+          "distractors": 3,
+          "cameraJitter": 0.40534550284501164
+        },
+        "status": "passed",
+        "startOffsetMs": 13636,
+        "durationMs": 5844,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.869,
+          "steps": 117,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-079",
+        "seed": 1745675643,
+        "variant": {
+          "lighting": 0.4481830310425721,
+          "friction": 0.5579074790235609,
+          "objectDx": -0.4496565945446491,
+          "objectDy": -0.188241764344275,
+          "distractors": 3,
+          "cameraJitter": 0.45594824021682145
+        },
+        "status": "failed",
+        "startOffsetMs": 13645,
+        "durationMs": 5948,
+        "elbow": -1,
+        "failMode": "grasp_slip",
+        "failAt": 0.5725426509976387,
+        "metrics": {
+          "reward": 0.296,
+          "steps": 119,
+          "graspAttempts": 2
+        }
+      },
+      {
+        "id": "sim-080",
+        "seed": 596188099,
+        "variant": {
+          "lighting": 0.6118491489207372,
+          "friction": 1.02053628875874,
+          "objectDx": 0.5964215225540102,
+          "objectDy": -0.12481089401990175,
+          "distractors": 3,
+          "cameraJitter": 0.2282141212373972
+        },
+        "status": "passed",
+        "startOffsetMs": 13696,
+        "durationMs": 6497,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.927,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-081",
+        "seed": 604576908,
+        "variant": {
+          "lighting": 0.35537027502432467,
+          "friction": 0.9580978559330106,
+          "objectDx": 0.2771584205329418,
+          "objectDy": 0.18214572295546533,
+          "distractors": 4,
+          "cameraJitter": 0.7891874340595678
+        },
+        "status": "failed",
+        "startOffsetMs": 13966,
+        "durationMs": 7271,
+        "elbow": -1,
+        "failMode": "collision",
+        "failAt": 0.19460303097963333,
+        "metrics": {
+          "reward": 0.125,
+          "steps": 145,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-082",
+        "seed": 579410480,
+        "variant": {
+          "lighting": 0.3322356819873676,
+          "friction": 1.0708843433763833,
+          "objectDx": 0.768832977861166,
+          "objectDy": -0.23331861905753615,
+          "distractors": 6,
+          "cameraJitter": 0.4516273743705824
+        },
+        "status": "passed",
+        "startOffsetMs": 14059,
+        "durationMs": 7318,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.799,
+          "steps": 146,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-083",
+        "seed": 587799289,
+        "variant": {
+          "lighting": 0.8233374918811023,
+          "friction": 0.8951699381228536,
+          "objectDx": -0.6143885431811213,
+          "objectDy": 0.24863117877393962,
+          "distractors": 6,
+          "cameraJitter": 0.4738639528630301
+        },
+        "status": "passed",
+        "startOffsetMs": 14445,
+        "durationMs": 5593,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.767,
+          "steps": 112,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-084",
+        "seed": 629743337,
+        "variant": {
+          "lighting": 0.7881121474085375,
+          "friction": 0.46667902092449365,
+          "objectDx": 0.36953002167865634,
+          "objectDy": -0.3130149282515049,
+          "distractors": 3,
+          "cameraJitter": 0.06050696808379143
+        },
+        "status": "passed",
+        "startOffsetMs": 14454,
+        "durationMs": 6521,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.976,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-085",
+        "seed": 638132146,
+        "variant": {
+          "lighting": 0.42892804798902945,
+          "friction": 0.8417163141071796,
+          "objectDx": -0.05761459423229098,
+          "objectDy": 0.025522338040173054,
+          "distractors": 3,
+          "cameraJitter": 0.35582780619151894
+        },
+        "status": "passed",
+        "startOffsetMs": 14712,
+        "durationMs": 6425,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.783,
+          "steps": 129,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-086",
+        "seed": 612965718,
+        "variant": {
+          "lighting": 0.5207877906970679,
+          "friction": 0.36950455899350343,
+          "objectDx": 0.44911663327366114,
+          "objectDy": -0.1675982866436243,
+          "distractors": 6,
+          "cameraJitter": 0.25238460323307665
+        },
+        "status": "passed",
+        "startOffsetMs": 14971,
+        "durationMs": 5892,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.824,
+          "steps": 118,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-087",
+        "seed": 621354527,
+        "variant": {
+          "lighting": 0.4331140631577,
+          "friction": 0.4556342276278883,
+          "objectDx": -0.8937015635892749,
+          "objectDy": 0.01246384121477604,
+          "distractors": 5,
+          "cameraJitter": 0.7398136674659327
+        },
+        "status": "failed",
+        "startOffsetMs": 15132,
+        "durationMs": 6523,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.7693595920037478,
+        "metrics": {
+          "reward": 0.335,
+          "steps": 130,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-088",
+        "seed": 663298575,
+        "variant": {
+          "lighting": 0.48323080646805466,
+          "friction": 1.138615364348516,
+          "objectDx": 0.05170837743207812,
+          "objectDy": -0.23410010263323786,
+          "distractors": 2,
+          "cameraJitter": 0.20146975417155774
+        },
+        "status": "passed",
+        "startOffsetMs": 15199,
+        "durationMs": 5092,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.721,
+          "steps": 102,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-089",
+        "seed": 671687384,
+        "variant": {
+          "lighting": 0.32182510329876096,
+          "friction": 0.444976652180776,
+          "objectDx": -0.2852575876750052,
+          "objectDy": -0.24684706293046477,
+          "distractors": 5,
+          "cameraJitter": 0.7828813481843099
+        },
+        "status": "passed",
+        "startOffsetMs": 15450,
+        "durationMs": 7377,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.722,
+          "steps": 148,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-090",
+        "seed": 646594503,
+        "variant": {
+          "lighting": 0.21753894903231413,
+          "friction": 0.6524104824289679,
+          "objectDx": 0.8233007034286857,
+          "objectDy": 0.3457195140421391,
+          "distractors": 6,
+          "cameraJitter": 0.004563933284953236
+        },
+        "status": "failed",
+        "startOffsetMs": 15564,
+        "durationMs": 5683,
+        "elbow": 1,
+        "failMode": "dropped_outside",
+        "failAt": 0.8161418374162167,
+        "metrics": {
+          "reward": 0.383,
+          "steps": 114,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-091",
+        "seed": 638205694,
+        "variant": {
+          "lighting": 0.36468591295415537,
+          "friction": 1.246960803307593,
+          "objectDx": -0.5882527255453169,
+          "objectDy": -0.25266158040612935,
+          "distractors": 5,
+          "cameraJitter": 0.7634691749699414
+        },
+        "status": "passed",
+        "startOffsetMs": 15677,
+        "durationMs": 5625,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.825,
+          "steps": 113,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-092",
+        "seed": 663372122,
+        "variant": {
+          "lighting": 0.8291811923729255,
+          "friction": 0.5851639322005212,
+          "objectDx": 0.2094862526282668,
+          "objectDy": -0.1438294282183051,
+          "distractors": 1,
+          "cameraJitter": 0.3335167268291116
+        },
+        "status": "passed",
+        "startOffsetMs": 16018,
+        "durationMs": 6385,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.882,
+          "steps": 128,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-093",
+        "seed": 654983313,
+        "variant": {
+          "lighting": 0.5004083666019141,
+          "friction": 0.9426454253494739,
+          "objectDx": 0.4683070098981261,
+          "objectDy": -0.228982999175787,
+          "distractors": 3,
+          "cameraJitter": 0.7538098816992715
+        },
+        "status": "passed",
+        "startOffsetMs": 16163,
+        "durationMs": 6859,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.736,
+          "steps": 137,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-094",
+        "seed": 613039265,
+        "variant": {
+          "lighting": 0.2020160158746876,
+          "friction": 1.0569817527662964,
+          "objectDx": -0.47229461651295424,
+          "objectDy": 0.3064265197142959,
+          "distractors": 1,
+          "cameraJitter": 0.10157962571829558
+        },
+        "status": "passed",
+        "startOffsetMs": 16779,
+        "durationMs": 5720,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.9,
+          "steps": 114,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-095",
+        "seed": 604650456,
+        "variant": {
+          "lighting": 0.2896918223006651,
+          "friction": 0.9585732823703438,
+          "objectDx": -0.11419090814888477,
+          "objectDy": 0.35003695227205756,
+          "distractors": 6,
+          "cameraJitter": 0.13874293311964722
+        },
+        "status": "passed",
+        "startOffsetMs": 17068,
+        "durationMs": 5997,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.899,
+          "steps": 120,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-096",
+        "seed": 629816884,
+        "variant": {
+          "lighting": 0.5563351776683703,
+          "friction": 1.068708995729685,
+          "objectDx": 0.46860079374164343,
+          "objectDy": 0.29533375445753335,
+          "distractors": 6,
+          "cameraJitter": 0.32413050821051004
+        },
+        "status": "failed",
+        "startOffsetMs": 17796,
+        "durationMs": 6152,
+        "elbow": -1,
+        "failMode": "missed_approach",
+        "failAt": 0.36267929996829484,
+        "metrics": {
+          "reward": 0.208,
+          "steps": 123,
+          "graspAttempts": 3
+        }
+      },
+      {
+        "id": "sim-097",
+        "seed": 621428075,
+        "variant": {
+          "lighting": 0.3708466357085854,
+          "friction": 1.0386902269907297,
+          "objectDx": -0.6771575002931058,
+          "objectDy": -0.2963963903486729,
+          "distractors": 0,
+          "cameraJitter": 0.34128620645496993
+        },
+        "status": "passed",
+        "startOffsetMs": 17962,
+        "durationMs": 5198,
+        "elbow": 1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.859,
+          "steps": 104,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-098",
+        "seed": 713704979,
+        "variant": {
+          "lighting": 0.533960396470502,
+          "friction": 0.38934286558069287,
+          "objectDx": 0.4184552514925599,
+          "objectDy": 0.31139885373413567,
+          "distractors": 0,
+          "cameraJitter": 0.65932472711429
+        },
+        "status": "passed",
+        "startOffsetMs": 18045,
+        "durationMs": 5969,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.825,
+          "steps": 119,
+          "graspAttempts": 1
+        }
+      },
+      {
+        "id": "sim-099",
+        "seed": 705316170,
+        "variant": {
+          "lighting": 0.33073048111982645,
+          "friction": 0.8127354070544243,
+          "objectDx": -0.028347873128950596,
+          "objectDy": 0.21943379007279873,
+          "distractors": 5,
+          "cameraJitter": 0.08669104578439146
+        },
+        "status": "passed",
+        "startOffsetMs": 18171,
+        "durationMs": 6607,
+        "elbow": -1,
+        "failMode": null,
+        "failAt": null,
+        "metrics": {
+          "reward": 0.95,
+          "steps": 132,
+          "graspAttempts": 1
+        }
+      }
+    ],
+    "gate": {
+      "metric": "pass_rate",
+      "threshold": 0.8,
+      "regressionTolerancePp": 2,
+      "baseline": {
+        "ref": "main@7d21e0b",
+        "passRate": 0.82,
+        "n": 100
+      }
+    }
+  }
+]

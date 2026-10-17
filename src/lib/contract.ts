@@ -85,6 +85,8 @@ export const Run = z.object({
   environmentName: z.string(),
   task: z.string(),
   fanout: z.number().int().positive(),
+  /** How many rollouts run at once. Fewer workers than rollouts means later ones queue. */
+  concurrency: z.number().int().positive(),
   stage: RunStage,
   progress: z.object({ label: z.string(), done: z.number().int().nonnegative(), total: z.number().int().nonnegative() }),
   sims: z.array(Sim),

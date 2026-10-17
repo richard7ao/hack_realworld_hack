@@ -20,11 +20,15 @@ export type GenerateOpts = {
   skill?: number;
   policy?: { name: string; commit: string; branch: string };
   baseline?: { ref: string; passRate: number; n: number } | null;
+  /** How many rollouts execute at once. Rollouts beyond this queue for a free worker. */
+  concurrency?: number;
   /** Report the run as if it were this many ms in, leaving later rollouts unsettled. */
   freezeAtMs?: number;
 };
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+/** Container reuse between rollouts is not free. */
+const TEARDOWN_MS = 180;
 
 /** How hard this particular randomisation made the rollout, in 0..1. */
 export function difficultyOf(v: Variant): number {
@@ -76,6 +80,7 @@ export function generateRun(opts: GenerateOpts): Run {
     skill = 0.87,
     policy = { name: "pi0-fast", commit: "a3f91c2", branch: "feat/grasp-refine" },
     baseline = { ref: "main@7d21e0b", passRate: 0.82, n: 100 },
+    concurrency = 32,
     freezeAtMs,
   } = opts;
 
@@ -101,6 +106,11 @@ export function generateRun(opts: GenerateOpts): Run {
   const weight = (d: number) => 0.25 + 1.75 * ((d - lowest) / range);
   const meanWeight = spread.reduce((s, d) => s + weight(d), 0) / Math.max(1, spread.length);
 
+  // Container cold start, per worker: most are warm, a tail is not. Paid once, not per rollout.
+  const freeAt = Array.from({ length: Math.max(1, Math.min(concurrency, fanout)) }, () =>
+    between(rnd, 120, 900) + (rnd() < 0.2 ? between(rnd, 600, 2100) : 0),
+  );
+
   const sims: Sim[] = drafts.map(({ i, variant, difficulty, seed }) => {
     const pFail = Math.min(0.95, (targetFail * weight(difficulty)) / meanWeight);
     const fails = rnd() < pFail;
@@ -108,11 +118,15 @@ export function generateRun(opts: GenerateOpts): Run {
     const [lo, hi] = failMode ? FAIL_WINDOW[failMode] : [0, 0];
     const failAt = failMode ? between(rnd, lo, hi) : null;
 
-    // Modal cold starts: most containers are warm, a tail is not.
-    const startOffsetMs = Math.round(between(rnd, 80, 1700) + (rnd() < 0.14 ? between(rnd, 700, 2400) : 0));
     const durationMs = failMode === "timeout"
-      ? 12000
-      : Math.round(between(rnd, 5200, 7200) + difficulty * 2600);
+      ? 10000
+      : Math.round(between(rnd, 4200, 6400) + difficulty * 2200);
+    // Schedule onto the first free worker. With fewer workers than rollouts the fan-out lands in
+    // waves, which is both what Modal actually does and why the grid has a queue to drain.
+    let worker = 0;
+    for (let w = 1; w < freeAt.length; w++) if (freeAt[w]! < freeAt[worker]!) worker = w;
+    const startOffsetMs = Math.round(freeAt[worker]!);
+    freeAt[worker] = startOffsetMs + durationMs + TEARDOWN_MS;
 
     const reward = failMode
       ? Number((0.04 + (failAt ?? 0) * 0.42 + between(rnd, -0.03, 0.03)).toFixed(3))
@@ -144,6 +158,7 @@ export function generateRun(opts: GenerateOpts): Run {
     environmentName: env.name,
     task,
     fanout,
+    concurrency: Math.max(1, Math.min(concurrency, fanout)),
     stage: "done",
     progress: { label: `Scored ${fanout} rollouts`, done: fanout, total: fanout },
     sims,
