@@ -9,13 +9,20 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --import tsx --test src/lib/score.test.ts src/lib/sim/arm.test.ts src/lib/sim/generate.test.ts",
     "check": "pnpm typecheck && pnpm test && pnpm fixtures:validate",
-    "fixtures:validate": "tsx fixtures/validate.ts",
-    "fixtures:build": "tsx fixtures/build.ts"
+    "fixtures:validate": "node --import tsx fixtures/validate.ts",
+    "fixtures:build": "node --import tsx fixtures/build.ts",
+    "dev:full": "bash scripts/dev.sh",
+    "backend:test": ".venv/bin/python -m pytest backend/tests -q",
+    "smoke": ".venv/bin/python scripts/smoke_test.py",
+    "benchmark": ".venv/bin/python scripts/run_benchmark.py",
+    "contracts": ".venv/bin/python -m scripts.export_contracts"
   },
   "dependencies": {
+    "@react-three/fiber": "^9",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "three": "^0.186.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -23,6 +30,7 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
+    "@types/three": "^0.186.0",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"

@@ -1,0 +1,28 @@
+.fl3-viewer { background: #f2f5ed; overflow: hidden; }
+.fl3-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #d8ddd1; background: #f9fbf6; }
+.fl3-toolbar > div:first-child { min-width: 0; }
+.fl3-toolbar span { font: 10px ui-monospace, monospace; letter-spacing: .025em; color: #3d5135; }
+.fl3-toolbar small { display: block; margin-top: 4px; color: #5e6c54; font-size: 10px; line-height: 1.4; }
+.fl3-tabs { display: flex; border: 1px solid #a8b59c; border-radius: 6px; overflow: hidden; flex: none; }
+.fl3-tabs button { border: 0; background: #fff; padding: 7px 10px; min-height: 32px; font-size: 11px; color: #405437; cursor: pointer; }
+.fl3-tabs button[aria-pressed="true"] { background: #385333; color: #f7fff1; }
+.fl3-tabs button:disabled { color: #8a9581; cursor: not-allowed; }
+.fl3-tabs button:hover:not(:disabled):not([aria-pressed="true"]) { background: #e8f0dd; }
+.fl3-viewport { position: relative; height: clamp(330px, 33vw, 500px); width: 100%; background: #edf1e7; touch-action: none; }
+.fl3-viewport canvas { display: block; width: 100%; height: 100%; }
+.fl3-viewport:focus-visible { outline: 2px solid #336138; outline-offset: -3px; }
+.fl3-camera-controls { position: absolute; right: 12px; bottom: 32px; display: flex; align-items: center; gap: 4px; }
+.fl3-camera-controls button { padding: 7px 9px; border-radius: 5px; border: 1px solid #9aa88d; color: #34482b; background: #fbfff5; cursor: pointer; font-size: 10px; min-height: 30px; }
+.fl3-camera-controls button:hover { background: #e5efda; }
+.fl3-interaction-note { position: absolute; right: 14px; bottom: 12px; color: #536449; font-size: 9px; pointer-events: none; }
+.fl3-loading { height: 360px; display: flex; align-items: center; justify-content: center; color: #536449; font-size: 12px; background: #f2f5ed; }
+.fl3-fallback-note { padding: 10px 16px; color: #59694d; font-size: 11px; border-bottom: 1px solid #d8ddd1; }
+.fl3-joints { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 14px; padding: 10px 16px; font: 10px ui-monospace, monospace; color: #43563a; background: #f4f8ed; border-top: 1px solid #d8ddd1; font-variant-numeric: tabular-nums; }
+@media (max-width: 800px) { .fl3-viewport { height: 350px; } .fl3-toolbar { padding: 10px 12px; } .fl3-toolbar small { max-width: 230px; } }
+.fl3-shot-controls { position: absolute; top: 14px; left: 14px; display: flex; flex-wrap: wrap; gap: 4px; max-width: calc(100% - 28px); }
+.fl3-shot-controls button, .fl3-presentation-controls button { min-height: 32px; padding: 7px 11px; border-radius: 5px; border: 1px solid #a4b396; background: #fbfff5; color: #354e2a; font-size: 10px; font-weight: 550; cursor: pointer; }
+.fl3-shot-controls button:hover, .fl3-presentation-controls button:hover:not(:disabled) { background: #e7efd9; }
+.fl3-shot-controls button[aria-pressed="true"], .fl3-presentation-controls button[aria-pressed="true"] { background: #385333; border-color: #385333; color: #f7fff1; }
+.fl3-presentation-controls { position: absolute; left: 14px; bottom: 14px; display: flex; flex-wrap: wrap; gap: 5px; max-width: calc(100% - 210px); }
+.fl3-presentation-controls button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 600px) { .fl3-shot-controls { top: 10px; left: 10px; gap: 3px; } .fl3-shot-controls button { padding: 6px 9px; } .fl3-presentation-controls { left: 10px; bottom: 56px; max-width: calc(100% - 20px); } .fl3-presentation-controls button { min-height: 28px; padding: 5px 8px; font-size: 9px; } }

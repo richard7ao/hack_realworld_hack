@@ -1,0 +1,2 @@
+# Optional cloud runner; install core backend requirements separately.
+modal>=1.0,<2

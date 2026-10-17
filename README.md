@@ -1,124 +1,104 @@
-# Forkbench
+# FAULTLINE Pick
 
-A CI/CD-style evaluation bench for robot manipulation policies. You drop an environment and a task into the dashboard, Forkbench fans the policy out across a batch of randomised simulations, animates every rollout live on one screen, and gates the merge on the aggregate pass rate the way CI gates a build.
+**CI/CD for physical AI: turn real-world failures into regression tests.**
 
-This repository is the frontend. The execution backend runs on Modal and is being built in parallel, so the frontend ships with a complete deterministic fallback and demos end to end before the backend exists.
+Laptop RGB camera → selected unmarked objects → warehouse twin → policy adapter → validated simulated action → independent evaluator → saved case → fresh paired execution and release gate.
 
-## Quick start
+The main warehouse uses a **simulated six-revolute-joint arm** with actual FK/IK, joint limits and arm-link obstacle checks. A legacy Cartesian gripper and a shorter generic six-joint profile remain available independently of policy selection. RGB supplies estimated positions and assumed object geometry. Virtual grasping does not establish physical robot grasp success; there are no contact dynamics, self-collision checks, torque models or hardware drivers. No invented benchmark outcomes or model traces are used in the live Lab.
+
+## Run locally
 
 ```bash
 pnpm install
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+# backend/.env already exists locally; otherwise:
+cp -n backend/.env.example backend/.env
+pnpm dev:full
+```
+
+Open **[FAULTLINE Live Lab](http://localhost:3300/lab)**. Backend: `127.0.0.1:8787`, with [OpenAPI](http://127.0.0.1:8787/docs). The services can also run separately:
+
+```bash
+.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8787
 pnpm dev
 ```
 
-The dev server listens on port 3300.
+On this machine, if Corepack cannot write its cache, prefix pnpm commands with `COREPACK_HOME=/private/tmp/faultline-corepack`.
 
-This machine's zsh lazy-loads nvm through shell functions that do not survive a non-interactive shell. If `pnpm` fails with `command not found: _load_nvm`, invoke Node 22 directly instead of going through the shell wrapper.
+## First live regression
 
-Three routes to look at:
+1. Put three contrasting unmarked objects on a table. Mount the laptop/Continuity Camera above them and keep it still.
+2. Connect in `/lab`. Select workspace corners clockwise from the top left. Leave coordinates normalized or enter both measured side lengths in metres.
+3. Drag a box around each object and assign identities. Geometry is an editable assumption, not depth measurement. Choose a target such as `chocolate_A`.
+4. Start `scripted_open_loop` at a slow action pace. **Move the physical target after approach and before grasp.** Inspect the actual `TARGET_DISPLACED` or uncertainty event.
+5. Review the recorded disturbance boundaries and confirm **Create Regression Test**. The immutable manifest contains the initial state, source frame references and scheduled movements.
+6. Run a fresh paired comparison with `scripted_reobserve` on the same saved case. The candidate receives no future schedule. The independent evaluator verifies correct-item release and full destination containment.
 
-- `/` the drop screen: pick an environment, type a task, choose a fan-out, start a run.
-- `/runs/run-demo` a run that clears the gate.
-- `/runs/run-regression` a run that fails the gate.
+Trace playback and fresh rerun are separate controls. While a saved case reruns, webcam updates cannot alter its environment. Explicitly injected virtual disturbances are labelled `operator_defined`, separate from physical movements.
 
-Copy `.env.example` to `.env.local` if you want to change the data mode. The default needs no configuration.
+## Larger warehouse and robot adapters
 
-## How it works
+In `/lab`, select the warehouse workcell and **Load warehouse** to preview a declared 4 × 3 metre layout with 16 parcels, perimeter racks, pallets and scenario-specific obstructions. A preview saves definitions and renders initial state; it does not execute a policy or count as a completed test. Choose a saved warehouse case and run it explicitly. `scripted_obstacle_aware` searches deterministic waypoint routes using only permitted observations and the public robot geometry; the executor independently checks the resulting joint trajectory.
 
-### The DATA_MODE seam
+Robot profiles come from `backend/robots.py`: `industrial_6r` is the main generic arm, `compact_6r` uses shorter implemented geometry, and `cartesian` preserves the original demonstration gripper. Profiles are independent of scripted or frontier policy adapters. Six-joint profiles require measured metric calibration for a new camera trial. Their link lengths are declared engineering assumptions scaled from the workcell, rather than measurements inferred from RGB. Choosing another robot creates a new experiment; a saved scenario keeps its original robot configuration and hash.
 
-Every component fetches `/api/<path>`. One route handler, `src/app/api/[...path]/route.ts`, decides where those bytes come from:
+The 3D renderer draws articulated links from backend FK positions, with real scenario colliders available as an overlay. Orbit/pan/zoom, overview/robot/target/top views and optional cinematic camera motion change presentation only. They do not change actions, state, collisions or results. Reduced-motion preferences disable automatic camera motion.
 
-- `DATA_MODE=fixture` (the default) serves the local fixture engine.
-- `DATA_MODE=live` proxies to `API_URL`, the Modal web endpoint.
+## Frontier policies
 
-The decision lives in that one file and nowhere in component code. That is the point: the frontend is never blocked on the backend, and switching to the real executor is an environment variable, not a refactor. The shapes on both sides of the seam come from one place, `src/lib/contract.ts`, which the proxy, the typed client in `src/lib/client.ts`, and the fixture validator all read.
+Add keys to **`backend/.env`**, ignored by git. Never put keys in frontend variables or commit them.
 
-### The replay model
+- `gpt-6.1-sol` and `gpt-6-astra`: OpenAI Responses API, typed JSON actions, low reasoning effort.
+- `claude-opus-5-5`: Anthropic Messages API, JSON schema via `output_config.format`, low effort, no disabled thinking or forced tool choice.
 
-The backend does not stream frames. For each rollout it supplies a script: a start offset, a duration, an outcome, and, if the rollout fails, a failure mode and the progress point where it goes wrong. The client renders the motion from that script.
+Missing keys prevent launch; API failures produce UNKNOWN/TIMEOUT evidence. There is no silent scripted fallback. Traces retain policy IDs, prompt hashes, configuration, actual response model/ID, token usage, observations, returned actions and measured inference latency. Policy-provider calls send symbolic observations and action history, not camera image bytes.
 
-`src/lib/sim/arm.ts` is a planar 2-link arm solved with closed-form inverse kinematics, driven through a scripted pick-and-place. The pose is a pure function of `(sim, progress)`, so a cell can be drawn at any frame without holding state, a run can be scrubbed, and the motion is byte-identical on every replay. `src/lib/replay.ts` maps the run clock onto each rollout's own window and decides what a cell should show right now. It consults the backend's reported status only once the clock says the episode is over, because that is the first moment a verdict means anything.
+Camera frames are stored locally by default. The explicit Jev enhancement is an exception: an operator-approved saved log and inspected tabletop-only crop can be sent to TypeSafe. Two actual `jev-1.14.0` calls are recorded in `data/jev-verification.json`; the red parcel box was correctly withheld because its confidence was 0.44, below the local 0.6 threshold. Jev suggestions remain advisory and require operator confirmation; they do not change tracker state or the independent oracle. See [Jev evidence and data boundaries](docs/JEV.md).
 
-The result looks live, stays deterministic, and behaves identically against committed fixtures or against Modal.
+## Verify and execute
 
-### Why the grid can run a hundred animated cells
-
-`src/app/runs/[id]/SimGrid.tsx` treats the cost model as the design. A React render per cell per frame is not affordable, so the DOM is built once and never updated: each cell is a static button wrapping a static canvas. A single `requestAnimationFrame` loop walks the array and repaints only the cells that moved, meaning the rollouts actually running, plus any cell whose state just changed and any cell still inside its settle flash. With a bounded worker pool only part of the grid is in flight at once, so most frames repaint a fraction of the cells.
-
-### The gate
-
-`src/lib/score.ts` holds the one real policy decision in the app. Two checks, both computed over settled rollouts only:
-
-1. **Floor.** The lower bound of the 90% Wilson interval on the pass rate must clear `gate.threshold`.
-2. **Regression.** The pass rate must not sit more than `gate.regressionTolerancePp` percentage points below the baseline run on the default branch.
-
-The floor check uses the lower bound rather than the point estimate so a run cannot go green on noise: the point estimate answers "what did we measure", the lower bound answers "what do we know is true", and a merge gate should only pass on the second. The interval is Wilson rather than the normal approximation because it stays inside [0, 1] and behaves at the small sample sizes you have while a run is still filling up.
-
-## The fallback engine
-
-`src/lib/sim/generate.ts` builds a complete, plausible eval from a single seed. This is synthetic data. It is a stand-in for real rollouts until the Modal backend lands, and it is clearly labelled as such here so nobody mistakes a fixture for a measurement.
-
-What makes it useful rather than decorative is that failure is **caused** by the domain randomisation rather than drawn at random. Each rollout draws a variant: lighting, friction, object offset, distractor count, camera jitter. `difficultyOf` turns that variant into a single hardness number, and the probability of failure scales with it. `failModeFor` then picks how the rollout breaks from the same variant, so heavy clutter produces collisions, low friction produces grasp slips and drops, and bad localisation or camera jitter produces missed approaches. Each failure mode also has its own window in the episode: a collision happens on approach, a drop happens near the bin.
-
-That causal link is what makes the breakdown panels worth reading. When the pass rate by clutter bucket drops off at five or more distractors, that is a property of the simulated policy, not an artefact of the RNG. If failures were drawn independently of the variant, every breakdown panel would be flat noise and the whole analysis surface would be theatre.
-
-Two details keep it honest. Difficulty is a sum of five roughly uniform terms, so it clusters tightly around its mean; the generator rescales across the fan-out's own spread so that a hard rollout is genuinely likelier to fail. And rollouts are scheduled onto a bounded worker pool with per-worker cold starts, so the fan-out lands in waves and the grid has a real queue to drain.
-
-`freeze(run, atMs)` rewinds a finished run to a point in time so a fixture can show a fan-out mid-flight. Unsettled rollouts lose their outcome: the UI must never know how a running episode ends.
-
-## Project layout
-
-```
-src/lib/
-  contract.ts        Zod schemas and the endpoint registry. One source of truth for the proxy,
-                     the client, and the fixture validator. Frozen for the backend.
-  client.ts          Typed fetch. Parses every response against the contract.
-  score.ts           Wilson intervals, the two-check gate, failure breakdown, variant buckets.
-  replay.ts          Run clock to cell state. The replay model lives here.
-  rng.ts             Seeded mulberry32 and weighted picks.
-  useEndpoint.ts     Polling hook over the typed client.
-  useRunClock.ts     The client-side run clock the grid animates against.
-  server/store.ts    Fixture-mode run storage. In-memory runs, committed fixtures, then
-                     deterministic regeneration so a shared link never 404s.
-  sim/
-    environments.ts  The four environments offered on the drop screen.
-    arm.ts           2-link IK arm, scripted pick-and-place, five failure modes.
-    generate.ts      The fallback engine. Causal failure from domain randomisation.
-    draw.ts          Canvas rendering for a single cell.
-
-src/app/
-  page.tsx           The drop screen.
-  runs/[id]/         The run dashboard: SimGrid, Aggregate, Breakdown, Verdict, SimDrawer.
-  api/[...path]/     The DATA_MODE seam.
-
-src/components/      Shared UI, the logo, and the standalone sim canvas.
-
-fixtures/
-  runs.json          run-demo, run-live, run-regression.
-  environments.json  The environment catalogue.
-  run-created.json   The create-run response.
-  build.ts           Regenerates the fixtures from the generator.
-  validate.ts        Parses every fixture with the schema the frontend parses it with, and
-                     asserts the fixtures cover the states the UI must render.
-
-docs/
-  API.md             The backend contract. See below.
+```bash
+pnpm typecheck
+pnpm test
+pnpm fixtures:validate
+pnpm backend:test
+pnpm smoke
+pnpm benchmark --count 10
+# Twelve larger six-joint warehouse cases, each run against both policies:
+.venv/bin/python scripts/run_benchmark.py --count 0 --warehouse-count 12 \
+  --baseline scripted_open_loop --candidate scripted_obstacle_aware \
+  --minimum-cases 4 --completion-threshold 0.8 --fail-on-gate
+# Fresh pair on a saved physical case:
+.venv/bin/python scripts/run_benchmark.py --count 0 \
+  --scenario data/scenarios/CAPTURE-YOUR_CASE_ID.json \
+  --baseline scripted_open_loop --candidate gpt-6.1-sol \
+  --minimum-cases 1 --completion-threshold 1
 ```
 
-## Scripts
+The default benchmark still executes 10 legacy cases × 2 controllers; `--warehouse-count` defaults to zero. Legacy generated cases, warehouse cases and repeated `--scenario` manifests share a 1–100 total-case limit. Use `--count 0` for warehouse-only runs. Generated definitions are not completed results. Gates return `PASS`, `BLOCK` or `INSUFFICIENT_EVIDENCE`; any forbidden violation or individual regression blocks release. Escalation is not task completion. The warehouse includes deliberately blocked picks, so its 80% completion gate can correctly return BLOCK; `--fail-on-gate` then exits 2. Different capture and controller sources are counted explicitly.
 
-| Script | What it does |
-| --- | --- |
-| `pnpm dev` | Next.js dev server on port 3300. |
-| `pnpm build` | Production build. |
-| `pnpm start` | Serves the production build on port 3300. |
-| `pnpm typecheck` | `tsc --noEmit` over the whole project. |
-| `pnpm test` | Node's built-in test runner over `src/lib/score.test.ts`, `src/lib/sim/arm.test.ts`, and `src/lib/sim/generate.test.ts`. 37 tests, all passing. |
-| `pnpm check` | `typecheck`, then `test`, then `fixtures:validate`. The gate to run before pushing. |
-| `pnpm fixtures:validate` | Parses every fixture against the contract and asserts coverage: a green gate, a red gate, a run in flight, and every failure mode reachable. |
-| `pnpm fixtures:build` | Regenerates `fixtures/*.json` from the generator. Run it whenever the contract or the generator changes, then commit the output. |
+## Evidence and architecture
 
-## Backend handoff
+- `backend/models.py` and `contracts/faultline.schema.json`: shared wire contract; regenerate with `pnpm contracts`.
+- `backend/engine.py`: deterministic executor, authority rules, swept proxy collisions.
+- `backend/kinematics.py`, `backend/robots.py`: six-axis FK/IK, joint trajectories, link collision validation and policy-independent robot profiles.
+- `backend/warehouse.py`: separate opt-in metric warehouse definitions; existing captured manifests stay unchanged.
+- `backend/oracle.py`: independent goal verification and paired release gate.
+- `backend/capture.py`: selected-object appearance tracking and four-corner homography.
+- `backend/policies.py`: interchangeable scripted/frontier adapters.
+- `backend/runtime.py`, `backend/app.py`: state bus and authenticated camera/API transports.
+- `src/app/lab/`, `src/components/faultline/`: live capture, shared-state renderer and evidence controls.
+- `data/scenarios/`: immutable cases. `data/episodes/<id>/`: original manifest, append-only `trace.jsonl`, result, final world and disturbances. `data/frames/`: local source JPEGs. Data is ignored by git; back it up separately for submission.
 
-The backend contract is written up in `docs/API.md`. Three endpoints, all defined in `src/lib/contract.ts` and all exercised by the fixture validator: `GET /environments` returns the environment catalogue, `POST /runs` accepts an environment id, a task string, and a fan-out and returns a run id, and `GET /runs/:id` returns the full run including every rollout's script. The schemas are frozen for the backend, so additions should be optional fields only. The one behaviour that is easy to miss: `failMode` and `failAt` must be reported as soon as the harness knows them, mid-episode rather than only at completion, otherwise a doomed rollout animates as a clean success and then snaps on the next poll.
+Read [architecture and event contracts](docs/FAULTLINE_ARCHITECTURE.md), [verified integration notes](docs/INTEGRATIONS.md), and the [one-minute demo/submission guide](docs/DEMO.md). Authoritative specs are in [faultline_final](faultline_final/README_FIRST.md).
+
+Tracking assumes a fixed camera and distinct appearances. Rotation, occlusion and similar objects may require reselection; uncertainty is surfaced. No LiDAR measurements, grasp forces, real robot trials, cloud executions or frontier runs are claimed without actual evidence.
+
+## Optional enhancements and legacy preview
+
+`modal/faultline.py` is an optional bounded CPU runner for the same engine. LiDAR requires a native ARKit bridge. Jev's verified typed diagnosis and experimental crop grounding remain optional; Hyper3D assets remain researched stretch work. None is required for the local loop.
+
+The original teammate frontend at `/` and `/runs/*` remains a **synthetic preview**. Its generated outcomes and scripted animations are separate from FAULTLINE execution evidence. Original documentation is in [legacy frontend notes](docs/LEGACY_FRONTEND.md) and [legacy API](docs/API.md). `modal/app.py` is legacy scaffolding, not the judged executor.
+
+**Deadline: 16:00 Europe/London, 17 October 2026. Stop enhancements by 15:15; reserve the final 45 minutes for a local video, preview, submission and recovery.**

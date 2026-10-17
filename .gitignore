@@ -3,8 +3,17 @@ node_modules
 out
 .env
 .env.local
+.venv/
+**/.env
+**/.env.local
+__pycache__/
+.pytest_cache/
+data/*
+!data/.gitkeep
+.DS_Store
 *.tsbuildinfo
 next-env.d.ts
 
 # QA screenshots
 .playwright-mcp
+.impeccable/review/

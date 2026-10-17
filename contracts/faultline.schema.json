@@ -1,0 +1,2972 @@
+{
+  "schema_version": "1.0",
+  "models": {
+    "ObjectEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "default": "parcel",
+          "maxLength": 80,
+          "title": "Label",
+          "type": "string"
+        },
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "dimensions": {
+          "default": [
+            0.1,
+            0.07,
+            0.04
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "yaw_rad": {
+          "default": 0,
+          "title": "Yaw Rad",
+          "type": "number"
+        },
+        "visible": {
+          "default": true,
+          "title": "Visible",
+          "type": "boolean"
+        },
+        "confidence": {
+          "default": 1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "source": {
+          "default": "rgb_tracker",
+          "title": "Source",
+          "type": "string"
+        },
+        "measured_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Measured Fields",
+          "type": "array"
+        },
+        "assumed_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumed Fields",
+          "type": "array"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        }
+      },
+      "required": [
+        "id",
+        "position"
+      ],
+      "title": "ObjectEstimate",
+      "type": "object"
+    },
+    "ObservedScene": {
+      "$defs": {
+        "ObjectEstimate": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "title": "Id",
+              "type": "string"
+            },
+            "label": {
+              "default": "parcel",
+              "maxLength": 80,
+              "title": "Label",
+              "type": "string"
+            },
+            "position": {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Position",
+              "type": "array"
+            },
+            "dimensions": {
+              "default": [
+                0.1,
+                0.07,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Dimensions",
+              "type": "array"
+            },
+            "yaw_rad": {
+              "default": 0,
+              "title": "Yaw Rad",
+              "type": "number"
+            },
+            "visible": {
+              "default": true,
+              "title": "Visible",
+              "type": "boolean"
+            },
+            "confidence": {
+              "default": 1,
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "source": {
+              "default": "rgb_tracker",
+              "title": "Source",
+              "type": "string"
+            },
+            "measured_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Measured Fields",
+              "type": "array"
+            },
+            "assumed_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Assumed Fields",
+              "type": "array"
+            },
+            "bbox": {
+              "anyOf": [
+                {
+                  "maxItems": 4,
+                  "minItems": 4,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Bbox"
+            }
+          },
+          "required": [
+            "id",
+            "position"
+          ],
+          "title": "ObjectEstimate",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "const": "observed.scene",
+          "default": "observed.scene",
+          "title": "Kind",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "seq": {
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "timestamp_ms": {
+          "title": "Timestamp Ms",
+          "type": "number"
+        },
+        "coordinate_frame": {
+          "default": "workcell_normalized",
+          "enum": [
+            "workcell_normalized",
+            "workcell_m"
+          ],
+          "title": "Coordinate Frame",
+          "type": "string"
+        },
+        "sensor_mode": {
+          "default": "RGB",
+          "enum": [
+            "RGB",
+            "RGBD",
+            "PROCEDURAL"
+          ],
+          "title": "Sensor Mode",
+          "type": "string"
+        },
+        "camera_source": {
+          "default": "laptop_web_rgb",
+          "title": "Camera Source",
+          "type": "string"
+        },
+        "frame_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frame Ref"
+        },
+        "objects": {
+          "items": {
+            "$ref": "#/$defs/ObjectEstimate"
+          },
+          "maxItems": 32,
+          "title": "Objects",
+          "type": "array"
+        },
+        "workspace": {
+          "default": [
+            1,
+            1
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Workspace",
+          "type": "array"
+        },
+        "depth_available": {
+          "default": false,
+          "title": "Depth Available",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "session_id",
+        "seq",
+        "timestamp_ms"
+      ],
+      "title": "ObservedScene",
+      "type": "object"
+    },
+    "Zone": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "default": "outbound_bin",
+          "title": "Id",
+          "type": "string"
+        },
+        "center": {
+          "default": [
+            0.82,
+            0.78,
+            0.04
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Center",
+          "type": "array"
+        },
+        "size": {
+          "default": [
+            0.3,
+            0.3,
+            0.2
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Size",
+          "type": "array"
+        }
+      },
+      "title": "Zone",
+      "type": "object"
+    },
+    "Robot": {
+      "additionalProperties": false,
+      "properties": {
+        "position": {
+          "default": [
+            0.1,
+            0.1,
+            0.25
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "gripper_state": {
+          "default": "open",
+          "enum": [
+            "open",
+            "closed"
+          ],
+          "title": "Gripper State",
+          "type": "string"
+        },
+        "holding_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Holding Id"
+        },
+        "kinematics_kind": {
+          "default": "cartesian",
+          "enum": [
+            "cartesian",
+            "six_dof_kinematic"
+          ],
+          "title": "Kinematics Kind",
+          "type": "string"
+        },
+        "joint_angles": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joint Angles"
+        },
+        "joint_limits": {
+          "anyOf": [
+            {
+              "items": {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joint Limits"
+        },
+        "link_positions": {
+          "anyOf": [
+            {
+              "items": {
+                "maxItems": 3,
+                "minItems": 3,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Link Positions"
+        },
+        "tool_rotation": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Rotation"
+        }
+      },
+      "title": "Robot",
+      "type": "object"
+    },
+    "SimObject": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "default": "parcel",
+          "maxLength": 80,
+          "title": "Label",
+          "type": "string"
+        },
+        "position": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Position",
+          "type": "array"
+        },
+        "dimensions": {
+          "default": [
+            0.1,
+            0.07,
+            0.04
+          ],
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "yaw_rad": {
+          "default": 0,
+          "title": "Yaw Rad",
+          "type": "number"
+        },
+        "visible": {
+          "default": true,
+          "title": "Visible",
+          "type": "boolean"
+        },
+        "confidence": {
+          "default": 1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "source": {
+          "default": "rgb_tracker",
+          "title": "Source",
+          "type": "string"
+        },
+        "measured_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Measured Fields",
+          "type": "array"
+        },
+        "assumed_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumed Fields",
+          "type": "array"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "authority": {
+          "default": "camera",
+          "enum": [
+            "camera",
+            "simulator"
+          ],
+          "title": "Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "position"
+      ],
+      "title": "SimObject",
+      "type": "object"
+    },
+    "SimWorld": {
+      "$defs": {
+        "Robot": {
+          "additionalProperties": false,
+          "properties": {
+            "position": {
+              "default": [
+                0.1,
+                0.1,
+                0.25
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Position",
+              "type": "array"
+            },
+            "gripper_state": {
+              "default": "open",
+              "enum": [
+                "open",
+                "closed"
+              ],
+              "title": "Gripper State",
+              "type": "string"
+            },
+            "holding_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Holding Id"
+            },
+            "kinematics_kind": {
+              "default": "cartesian",
+              "enum": [
+                "cartesian",
+                "six_dof_kinematic"
+              ],
+              "title": "Kinematics Kind",
+              "type": "string"
+            },
+            "joint_angles": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Joint Angles"
+            },
+            "joint_limits": {
+              "anyOf": [
+                {
+                  "items": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Joint Limits"
+            },
+            "link_positions": {
+              "anyOf": [
+                {
+                  "items": {
+                    "maxItems": 3,
+                    "minItems": 3,
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Link Positions"
+            },
+            "tool_rotation": {
+              "anyOf": [
+                {
+                  "items": {
+                    "items": {
+                      "type": "number"
+                    },
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Tool Rotation"
+            }
+          },
+          "title": "Robot",
+          "type": "object"
+        },
+        "SimObject": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "title": "Id",
+              "type": "string"
+            },
+            "label": {
+              "default": "parcel",
+              "maxLength": 80,
+              "title": "Label",
+              "type": "string"
+            },
+            "position": {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Position",
+              "type": "array"
+            },
+            "dimensions": {
+              "default": [
+                0.1,
+                0.07,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Dimensions",
+              "type": "array"
+            },
+            "yaw_rad": {
+              "default": 0,
+              "title": "Yaw Rad",
+              "type": "number"
+            },
+            "visible": {
+              "default": true,
+              "title": "Visible",
+              "type": "boolean"
+            },
+            "confidence": {
+              "default": 1,
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "source": {
+              "default": "rgb_tracker",
+              "title": "Source",
+              "type": "string"
+            },
+            "measured_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Measured Fields",
+              "type": "array"
+            },
+            "assumed_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Assumed Fields",
+              "type": "array"
+            },
+            "bbox": {
+              "anyOf": [
+                {
+                  "maxItems": 4,
+                  "minItems": 4,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Bbox"
+            },
+            "authority": {
+              "default": "camera",
+              "enum": [
+                "camera",
+                "simulator"
+              ],
+              "title": "Authority",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "position"
+          ],
+          "title": "SimObject",
+          "type": "object"
+        },
+        "Zone": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "default": "outbound_bin",
+              "title": "Id",
+              "type": "string"
+            },
+            "center": {
+              "default": [
+                0.82,
+                0.78,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Center",
+              "type": "array"
+            },
+            "size": {
+              "default": [
+                0.3,
+                0.3,
+                0.2
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Size",
+              "type": "array"
+            }
+          },
+          "title": "Zone",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "episode_id": {
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 0,
+          "title": "Version",
+          "type": "integer"
+        },
+        "coordinate_frame": {
+          "enum": [
+            "workcell_normalized",
+            "workcell_m"
+          ],
+          "title": "Coordinate Frame",
+          "type": "string"
+        },
+        "workspace": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Workspace",
+          "type": "array"
+        },
+        "objects": {
+          "items": {
+            "$ref": "#/$defs/SimObject"
+          },
+          "title": "Objects",
+          "type": "array"
+        },
+        "robot": {
+          "$ref": "#/$defs/Robot"
+        },
+        "destination": {
+          "$ref": "#/$defs/Zone"
+        },
+        "obstacles": {
+          "items": {
+            "$ref": "#/$defs/Zone"
+          },
+          "title": "Obstacles",
+          "type": "array"
+        },
+        "step": {
+          "default": 0,
+          "title": "Step",
+          "type": "integer"
+        },
+        "sim_elapsed_ms": {
+          "default": 0,
+          "title": "Sim Elapsed Ms",
+          "type": "number"
+        },
+        "state": {
+          "default": "IDLE",
+          "enum": [
+            "IDLE",
+            "RUNNING",
+            "DISTURBED",
+            "RECOVERING",
+            "PASSED",
+            "FAILED",
+            "ESCALATED",
+            "TIMEOUT"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "episode_id",
+        "coordinate_frame",
+        "workspace",
+        "objects"
+      ],
+      "title": "SimWorld",
+      "type": "object"
+    },
+    "Task": {
+      "additionalProperties": false,
+      "properties": {
+        "target_id": {
+          "title": "Target Id",
+          "type": "string"
+        },
+        "destination_id": {
+          "default": "outbound_bin",
+          "title": "Destination Id",
+          "type": "string"
+        },
+        "instruction": {
+          "default": "Pick the target and place it in the outbound bin",
+          "title": "Instruction",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_id"
+      ],
+      "title": "Task",
+      "type": "object"
+    },
+    "PolicyAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "OBSERVE",
+            "MOVE_TO",
+            "GRASP",
+            "PLACE",
+            "WAIT",
+            "REQUEST_HELP",
+            "DONE"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "target_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Id"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "orientation_rpy": {
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Orientation Rpy"
+        },
+        "reason": {
+          "default": "",
+          "maxLength": 500,
+          "title": "Reason",
+          "type": "string"
+        },
+        "max_execution_ms": {
+          "default": 3000,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Execution Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "PolicyAction",
+      "type": "object"
+    },
+    "ActionResult": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "ok",
+          "enum": [
+            "ok",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "default": "OK",
+          "title": "Reason",
+          "type": "string"
+        },
+        "action_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "OBSERVE",
+                "MOVE_TO",
+                "GRASP",
+                "PLACE",
+                "WAIT",
+                "REQUEST_HELP",
+                "DONE"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Type"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "title": "ActionResult",
+      "type": "object"
+    },
+    "PolicyObservation": {
+      "$defs": {
+        "ActionResult": {
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "default": "ok",
+              "enum": [
+                "ok",
+                "rejected"
+              ],
+              "title": "Status",
+              "type": "string"
+            },
+            "reason": {
+              "default": "OK",
+              "title": "Reason",
+              "type": "string"
+            },
+            "action_type": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "OBSERVE",
+                    "MOVE_TO",
+                    "GRASP",
+                    "PLACE",
+                    "WAIT",
+                    "REQUEST_HELP",
+                    "DONE"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Action Type"
+            },
+            "details": {
+              "additionalProperties": true,
+              "title": "Details",
+              "type": "object"
+            }
+          },
+          "title": "ActionResult",
+          "type": "object"
+        },
+        "ObjectEstimate": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "title": "Id",
+              "type": "string"
+            },
+            "label": {
+              "default": "parcel",
+              "maxLength": 80,
+              "title": "Label",
+              "type": "string"
+            },
+            "position": {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Position",
+              "type": "array"
+            },
+            "dimensions": {
+              "default": [
+                0.1,
+                0.07,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Dimensions",
+              "type": "array"
+            },
+            "yaw_rad": {
+              "default": 0,
+              "title": "Yaw Rad",
+              "type": "number"
+            },
+            "visible": {
+              "default": true,
+              "title": "Visible",
+              "type": "boolean"
+            },
+            "confidence": {
+              "default": 1,
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "source": {
+              "default": "rgb_tracker",
+              "title": "Source",
+              "type": "string"
+            },
+            "measured_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Measured Fields",
+              "type": "array"
+            },
+            "assumed_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Assumed Fields",
+              "type": "array"
+            },
+            "bbox": {
+              "anyOf": [
+                {
+                  "maxItems": 4,
+                  "minItems": 4,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Bbox"
+            }
+          },
+          "required": [
+            "id",
+            "position"
+          ],
+          "title": "ObjectEstimate",
+          "type": "object"
+        },
+        "Robot": {
+          "additionalProperties": false,
+          "properties": {
+            "position": {
+              "default": [
+                0.1,
+                0.1,
+                0.25
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Position",
+              "type": "array"
+            },
+            "gripper_state": {
+              "default": "open",
+              "enum": [
+                "open",
+                "closed"
+              ],
+              "title": "Gripper State",
+              "type": "string"
+            },
+            "holding_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Holding Id"
+            },
+            "kinematics_kind": {
+              "default": "cartesian",
+              "enum": [
+                "cartesian",
+                "six_dof_kinematic"
+              ],
+              "title": "Kinematics Kind",
+              "type": "string"
+            },
+            "joint_angles": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Joint Angles"
+            },
+            "joint_limits": {
+              "anyOf": [
+                {
+                  "items": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Joint Limits"
+            },
+            "link_positions": {
+              "anyOf": [
+                {
+                  "items": {
+                    "maxItems": 3,
+                    "minItems": 3,
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Link Positions"
+            },
+            "tool_rotation": {
+              "anyOf": [
+                {
+                  "items": {
+                    "items": {
+                      "type": "number"
+                    },
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Tool Rotation"
+            }
+          },
+          "title": "Robot",
+          "type": "object"
+        },
+        "Task": {
+          "additionalProperties": false,
+          "properties": {
+            "target_id": {
+              "title": "Target Id",
+              "type": "string"
+            },
+            "destination_id": {
+              "default": "outbound_bin",
+              "title": "Destination Id",
+              "type": "string"
+            },
+            "instruction": {
+              "default": "Pick the target and place it in the outbound bin",
+              "title": "Instruction",
+              "type": "string"
+            }
+          },
+          "required": [
+            "target_id"
+          ],
+          "title": "Task",
+          "type": "object"
+        },
+        "Zone": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "default": "outbound_bin",
+              "title": "Id",
+              "type": "string"
+            },
+            "center": {
+              "default": [
+                0.82,
+                0.78,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Center",
+              "type": "array"
+            },
+            "size": {
+              "default": [
+                0.3,
+                0.3,
+                0.2
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Size",
+              "type": "array"
+            }
+          },
+          "title": "Zone",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "episode_id": {
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "step": {
+          "title": "Step",
+          "type": "integer"
+        },
+        "timestamp_ms": {
+          "title": "Timestamp Ms",
+          "type": "number"
+        },
+        "observed_at_step": {
+          "title": "Observed At Step",
+          "type": "integer"
+        },
+        "coordinate_frame": {
+          "enum": [
+            "workcell_normalized",
+            "workcell_m"
+          ],
+          "title": "Coordinate Frame",
+          "type": "string"
+        },
+        "task": {
+          "$ref": "#/$defs/Task"
+        },
+        "robot": {
+          "$ref": "#/$defs/Robot"
+        },
+        "detected_objects": {
+          "items": {
+            "$ref": "#/$defs/ObjectEstimate"
+          },
+          "title": "Detected Objects",
+          "type": "array"
+        },
+        "destination": {
+          "$ref": "#/$defs/Zone"
+        },
+        "observed_obstacles": {
+          "items": {
+            "$ref": "#/$defs/Zone"
+          },
+          "title": "Observed Obstacles",
+          "type": "array"
+        },
+        "last_action_result": {
+          "$ref": "#/$defs/ActionResult"
+        },
+        "workspace": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Workspace",
+          "type": "array"
+        },
+        "camera_frame_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Camera Frame Ref"
+        }
+      },
+      "required": [
+        "episode_id",
+        "step",
+        "timestamp_ms",
+        "observed_at_step",
+        "coordinate_frame",
+        "task",
+        "robot",
+        "detected_objects",
+        "destination",
+        "observed_obstacles",
+        "last_action_result",
+        "workspace"
+      ],
+      "title": "PolicyObservation",
+      "type": "object"
+    },
+    "PolicyManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "policy_id": {
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "adapter_type": {
+          "enum": [
+            "scripted",
+            "symbolic_tool_agent"
+          ],
+          "title": "Adapter Type",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "prompt_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Hash"
+        },
+        "observation_modalities": {
+          "default": [
+            "object_estimates",
+            "robot_feedback",
+            "last_action_result"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Observation Modalities",
+          "type": "array"
+        },
+        "action_space": {
+          "const": "symbolic_v1",
+          "default": "symbolic_v1",
+          "title": "Action Space",
+          "type": "string"
+        },
+        "coordinate_frames": {
+          "default": [
+            "workcell_normalized",
+            "workcell_m"
+          ],
+          "items": {
+            "enum": [
+              "workcell_normalized",
+              "workcell_m"
+            ],
+            "type": "string"
+          },
+          "title": "Coordinate Frames",
+          "type": "array"
+        },
+        "max_rate_hz": {
+          "default": 5,
+          "title": "Max Rate Hz",
+          "type": "number"
+        },
+        "deterministic": {
+          "default": true,
+          "title": "Deterministic",
+          "type": "boolean"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "policy_id",
+        "version",
+        "adapter_type"
+      ],
+      "title": "PolicyManifest",
+      "type": "object"
+    },
+    "Disturbance": {
+      "$defs": {
+        "Zone": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "default": "outbound_bin",
+              "title": "Id",
+              "type": "string"
+            },
+            "center": {
+              "default": [
+                0.82,
+                0.78,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Center",
+              "type": "array"
+            },
+            "size": {
+              "default": [
+                0.3,
+                0.3,
+                0.2
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Size",
+              "type": "array"
+            }
+          },
+          "title": "Zone",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "MOVE_OBJECT",
+            "OCCLUDE_OBJECT",
+            "ADD_OBSTACLE",
+            "MOVE_DESTINATION"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "after_action_index": {
+          "minimum": 0,
+          "title": "After Action Index",
+          "type": "integer"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "obstacle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Zone"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source": {
+          "default": "procedural",
+          "enum": [
+            "camera_observed",
+            "operator_injected",
+            "procedural"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "frame_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frame Ref"
+        }
+      },
+      "required": [
+        "type",
+        "after_action_index"
+      ],
+      "title": "Disturbance",
+      "type": "object"
+    },
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "max_actions": {
+          "default": 24,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Actions",
+          "type": "integer"
+        },
+        "max_sim_seconds": {
+          "default": 45,
+          "exclusiveMinimum": 0,
+          "maximum": 300,
+          "title": "Max Sim Seconds",
+          "type": "number"
+        }
+      },
+      "title": "Limits",
+      "type": "object"
+    },
+    "Scenario": {
+      "$defs": {
+        "Disturbance": {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "MOVE_OBJECT",
+                "OCCLUDE_OBJECT",
+                "ADD_OBSTACLE",
+                "MOVE_DESTINATION"
+              ],
+              "title": "Type",
+              "type": "string"
+            },
+            "after_action_index": {
+              "minimum": 0,
+              "title": "After Action Index",
+              "type": "integer"
+            },
+            "object_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Object Id"
+            },
+            "position": {
+              "anyOf": [
+                {
+                  "maxItems": 3,
+                  "minItems": 3,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Position"
+            },
+            "obstacle": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Zone"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "source": {
+              "default": "procedural",
+              "enum": [
+                "camera_observed",
+                "operator_injected",
+                "procedural"
+              ],
+              "title": "Source",
+              "type": "string"
+            },
+            "confidence": {
+              "default": 1,
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "frame_ref": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Frame Ref"
+            }
+          },
+          "required": [
+            "type",
+            "after_action_index"
+          ],
+          "title": "Disturbance",
+          "type": "object"
+        },
+        "Limits": {
+          "additionalProperties": false,
+          "properties": {
+            "max_actions": {
+              "default": 24,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Max Actions",
+              "type": "integer"
+            },
+            "max_sim_seconds": {
+              "default": 45,
+              "exclusiveMinimum": 0,
+              "maximum": 300,
+              "title": "Max Sim Seconds",
+              "type": "number"
+            }
+          },
+          "title": "Limits",
+          "type": "object"
+        },
+        "ObjectEstimate": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "title": "Id",
+              "type": "string"
+            },
+            "label": {
+              "default": "parcel",
+              "maxLength": 80,
+              "title": "Label",
+              "type": "string"
+            },
+            "position": {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Position",
+              "type": "array"
+            },
+            "dimensions": {
+              "default": [
+                0.1,
+                0.07,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Dimensions",
+              "type": "array"
+            },
+            "yaw_rad": {
+              "default": 0,
+              "title": "Yaw Rad",
+              "type": "number"
+            },
+            "visible": {
+              "default": true,
+              "title": "Visible",
+              "type": "boolean"
+            },
+            "confidence": {
+              "default": 1,
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "source": {
+              "default": "rgb_tracker",
+              "title": "Source",
+              "type": "string"
+            },
+            "measured_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Measured Fields",
+              "type": "array"
+            },
+            "assumed_fields": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Assumed Fields",
+              "type": "array"
+            },
+            "bbox": {
+              "anyOf": [
+                {
+                  "maxItems": 4,
+                  "minItems": 4,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Bbox"
+            }
+          },
+          "required": [
+            "id",
+            "position"
+          ],
+          "title": "ObjectEstimate",
+          "type": "object"
+        },
+        "ObservedScene": {
+          "additionalProperties": false,
+          "properties": {
+            "schema_version": {
+              "const": "1.0",
+              "default": "1.0",
+              "title": "Schema Version",
+              "type": "string"
+            },
+            "kind": {
+              "const": "observed.scene",
+              "default": "observed.scene",
+              "title": "Kind",
+              "type": "string"
+            },
+            "session_id": {
+              "title": "Session Id",
+              "type": "string"
+            },
+            "seq": {
+              "minimum": 0,
+              "title": "Seq",
+              "type": "integer"
+            },
+            "timestamp_ms": {
+              "title": "Timestamp Ms",
+              "type": "number"
+            },
+            "coordinate_frame": {
+              "default": "workcell_normalized",
+              "enum": [
+                "workcell_normalized",
+                "workcell_m"
+              ],
+              "title": "Coordinate Frame",
+              "type": "string"
+            },
+            "sensor_mode": {
+              "default": "RGB",
+              "enum": [
+                "RGB",
+                "RGBD",
+                "PROCEDURAL"
+              ],
+              "title": "Sensor Mode",
+              "type": "string"
+            },
+            "camera_source": {
+              "default": "laptop_web_rgb",
+              "title": "Camera Source",
+              "type": "string"
+            },
+            "frame_ref": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Frame Ref"
+            },
+            "objects": {
+              "items": {
+                "$ref": "#/$defs/ObjectEstimate"
+              },
+              "maxItems": 32,
+              "title": "Objects",
+              "type": "array"
+            },
+            "workspace": {
+              "default": [
+                1,
+                1
+              ],
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Workspace",
+              "type": "array"
+            },
+            "depth_available": {
+              "default": false,
+              "title": "Depth Available",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "session_id",
+            "seq",
+            "timestamp_ms"
+          ],
+          "title": "ObservedScene",
+          "type": "object"
+        },
+        "Task": {
+          "additionalProperties": false,
+          "properties": {
+            "target_id": {
+              "title": "Target Id",
+              "type": "string"
+            },
+            "destination_id": {
+              "default": "outbound_bin",
+              "title": "Destination Id",
+              "type": "string"
+            },
+            "instruction": {
+              "default": "Pick the target and place it in the outbound bin",
+              "title": "Instruction",
+              "type": "string"
+            }
+          },
+          "required": [
+            "target_id"
+          ],
+          "title": "Task",
+          "type": "object"
+        },
+        "Zone": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "default": "outbound_bin",
+              "title": "Id",
+              "type": "string"
+            },
+            "center": {
+              "default": [
+                0.82,
+                0.78,
+                0.04
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Center",
+              "type": "array"
+            },
+            "size": {
+              "default": [
+                0.3,
+                0.3,
+                0.2
+              ],
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "title": "Size",
+              "type": "array"
+            }
+          },
+          "title": "Zone",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "case_id": {
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "captured_live_rgb",
+            "procedural",
+            "operator_defined"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "family": {
+          "default": "target_displacement",
+          "title": "Family",
+          "type": "string"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "task": {
+          "$ref": "#/$defs/Task"
+        },
+        "initial_scene": {
+          "$ref": "#/$defs/ObservedScene"
+        },
+        "destination": {
+          "$ref": "#/$defs/Zone"
+        },
+        "obstacles": {
+          "items": {
+            "$ref": "#/$defs/Zone"
+          },
+          "title": "Obstacles",
+          "type": "array"
+        },
+        "disturbances": {
+          "items": {
+            "$ref": "#/$defs/Disturbance"
+          },
+          "title": "Disturbances",
+          "type": "array"
+        },
+        "limits": {
+          "$ref": "#/$defs/Limits"
+        },
+        "success_predicate": {
+          "const": "correct_item_in_outbound_and_no_forbidden_collision",
+          "default": "correct_item_in_outbound_and_no_forbidden_collision",
+          "title": "Success Predicate",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "const": "oracle_v1",
+          "default": "oracle_v1",
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "provenance": {
+          "additionalProperties": true,
+          "title": "Provenance",
+          "type": "object"
+        }
+      },
+      "required": [
+        "case_id",
+        "name",
+        "source",
+        "seed",
+        "task",
+        "initial_scene"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "Event": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "seq": {
+          "title": "Seq",
+          "type": "integer"
+        },
+        "timestamp_ms": {
+          "title": "Timestamp Ms",
+          "type": "number"
+        },
+        "sim_elapsed_ms": {
+          "default": 0,
+          "title": "Sim Elapsed Ms",
+          "type": "number"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "episode_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Episode Id"
+        },
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "seq",
+        "timestamp_ms",
+        "data"
+      ],
+      "title": "Event",
+      "type": "object"
+    },
+    "CaseResult": {
+      "$defs": {
+        "PolicyManifest": {
+          "additionalProperties": false,
+          "properties": {
+            "policy_id": {
+              "title": "Policy Id",
+              "type": "string"
+            },
+            "version": {
+              "title": "Version",
+              "type": "string"
+            },
+            "adapter_type": {
+              "enum": [
+                "scripted",
+                "symbolic_tool_agent"
+              ],
+              "title": "Adapter Type",
+              "type": "string"
+            },
+            "model": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Model"
+            },
+            "prompt_hash": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Prompt Hash"
+            },
+            "observation_modalities": {
+              "default": [
+                "object_estimates",
+                "robot_feedback",
+                "last_action_result"
+              ],
+              "items": {
+                "type": "string"
+              },
+              "title": "Observation Modalities",
+              "type": "array"
+            },
+            "action_space": {
+              "const": "symbolic_v1",
+              "default": "symbolic_v1",
+              "title": "Action Space",
+              "type": "string"
+            },
+            "coordinate_frames": {
+              "default": [
+                "workcell_normalized",
+                "workcell_m"
+              ],
+              "items": {
+                "enum": [
+                  "workcell_normalized",
+                  "workcell_m"
+                ],
+                "type": "string"
+              },
+              "title": "Coordinate Frames",
+              "type": "array"
+            },
+            "max_rate_hz": {
+              "default": 5,
+              "title": "Max Rate Hz",
+              "type": "number"
+            },
+            "deterministic": {
+              "default": true,
+              "title": "Deterministic",
+              "type": "boolean"
+            },
+            "parameters": {
+              "additionalProperties": true,
+              "title": "Parameters",
+              "type": "object"
+            }
+          },
+          "required": [
+            "policy_id",
+            "version",
+            "adapter_type"
+          ],
+          "title": "PolicyManifest",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "episode_id": {
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "scenario_hash": {
+          "title": "Scenario Hash",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "policy": {
+          "$ref": "#/$defs/PolicyManifest"
+        },
+        "outcome": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN",
+            "TIMEOUT",
+            "ESCALATED"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "task_success": {
+          "title": "Task Success",
+          "type": "boolean"
+        },
+        "constraint_violations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Constraint Violations",
+          "type": "array"
+        },
+        "actions": {
+          "title": "Actions",
+          "type": "integer"
+        },
+        "recovery_attempts": {
+          "title": "Recovery Attempts",
+          "type": "integer"
+        },
+        "sim_elapsed_ms": {
+          "title": "Sim Elapsed Ms",
+          "type": "number"
+        },
+        "wall_elapsed_ms": {
+          "title": "Wall Elapsed Ms",
+          "type": "number"
+        },
+        "inference_elapsed_ms": {
+          "title": "Inference Elapsed Ms",
+          "type": "number"
+        },
+        "model_calls": {
+          "title": "Model Calls",
+          "type": "integer"
+        },
+        "trace_ref": {
+          "title": "Trace Ref",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "const": "oracle_v1",
+          "default": "oracle_v1",
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "verified": {
+          "default": true,
+          "title": "Verified",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "episode_id",
+        "case_id",
+        "scenario_hash",
+        "source",
+        "policy",
+        "outcome",
+        "reason",
+        "task_success",
+        "constraint_violations",
+        "actions",
+        "recovery_attempts",
+        "sim_elapsed_ms",
+        "wall_elapsed_ms",
+        "inference_elapsed_ms",
+        "model_calls",
+        "trace_ref"
+      ],
+      "title": "CaseResult",
+      "type": "object"
+    },
+    "GateConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "minimum_cases": {
+          "default": 3,
+          "minimum": 1,
+          "title": "Minimum Cases",
+          "type": "integer"
+        },
+        "completion_threshold": {
+          "default": 0.8,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Completion Threshold",
+          "type": "number"
+        }
+      },
+      "title": "GateConfig",
+      "type": "object"
+    },
+    "Calibration": {
+      "additionalProperties": false,
+      "properties": {
+        "corners": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "title": "Corners",
+          "type": "array"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 5,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        },
+        "depth": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 5,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Depth"
+        }
+      },
+      "required": [
+        "corners"
+      ],
+      "title": "Calibration",
+      "type": "object"
+    }
+  }
+}
