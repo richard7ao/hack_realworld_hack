@@ -6,6 +6,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { SimWorld, Vec3, Zone } from "@/lib/faultline";
 import type { WorldProps } from "./world-view";
 import { YamRobot } from "./YamRobot";
+import { ReconstructedObject } from "./ReconstructedObject";
 
 type CameraShot = "overview" | "robot" | "target" | "top";
 type ControlsHandle = { preset: (shot: CameraShot) => void; reset: () => void; top: () => void; zoom: (factor: number) => void };
@@ -134,9 +135,9 @@ function RendererMonitor({ onReady, onUnavailable }: { onReady: (evidence: { fra
   });
   return null;
 }
-function Scene({ world, observed, targetId, controls, cinematic, reducedMotion, onManual, onShot, showColliders }: WorldProps & {
+function Scene({ world, observed, targetId, visualAssets, cameraSessionId, controls, cinematic, reducedMotion, onManual, onShot, showColliders, onAssetError }: WorldProps & {
   controls: RefObject<ControlsHandle | null>; cinematic: boolean; reducedMotion: boolean;
-  onManual: () => void; onShot: (shot: CameraShot) => void; showColliders: boolean;
+  onManual: () => void; onShot: (shot: CameraShot) => void; showColliders: boolean; onAssetError: (reason: string) => void;
 }) {
   const workspace = world?.workspace ?? observed?.workspace ?? [1, 1];
   const [width, depth] = workspace;
@@ -219,9 +220,12 @@ function Scene({ world, observed, targetId, controls, cinematic, reducedMotion, 
       // For P(x,y,z)=(x,z,y), rotations become P R P^-1. Quaternion vector
       // components transform as axial vectors: det(P)*P*[qx,qy,qz].
       const orientation: [number, number, number, number] | undefined = nativeQuaternion ? [-nativeQuaternion[0], -nativeQuaternion[2], -nativeQuaternion[1], nativeQuaternion[3]] : undefined;
+      const asset = visualAssets?.filter((entry) => entry.object_id === object.id && entry.camera_session === (cameraSessionId ?? observed?.session_id) && entry.status === "SUCCEEDED").at(-1);
+      const assetDimensions: Vec3 = asset ? size(asset.dimensions) : dimensions;
+      const boxVisual = <><Box at={[0, 0, 0]} size={dimensions} color={selected ? "#b2c87a" : COLORS[index % COLORS.length]!} opacity={object.visible ? 1 : .25} edges /><Box at={[0, dimensions[1] / 2 + .002, 0]} size={[dimensions[0] * .17, .004, dimensions[2] * .97]} color={selected ? "#e1edb8" : "#dfd1ae"} opacity={object.visible ? .95 : .2} /></>;
       return <group key={object.id} position={at} rotation={orientation ? undefined : [0, -object.yaw_rad, 0]} quaternion={orientation}>
-        <Box at={[0, 0, 0]} size={dimensions} color={selected ? "#b2c87a" : COLORS[index % COLORS.length]!} opacity={object.visible ? 1 : .25} edges />
-        <Box at={[0, dimensions[1] / 2 + .002, 0]} size={[dimensions[0] * .17, .004, dimensions[2] * .97]} color={selected ? "#e1edb8" : "#dfd1ae"} opacity={object.visible ? .95 : .2} />
+        {asset ? <ReconstructedObject asset={asset} dimensions={assetDimensions} visible={object.visible} fallback={boxVisual} onError={onAssetError} /> : boxVisual}
+        {asset && showColliders && <Box at={[0, 0, 0]} size={dimensions} color="#b58b3c" opacity={.12} edges />}
         {selected && <Label at={[0, dimensions[1] / 2 + .22, 0]} text={`${object.id}${!object.visible ? " · UNCERTAIN" : " · TARGET"}`} />}
         {selected && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -dimensions[1] / 2 + .009, 0]}><ringGeometry args={[Math.max(dimensions[0], dimensions[2]) * .62, Math.max(dimensions[0], dimensions[2]) * .66, 48]} /><meshBasicMaterial color="#608038" transparent opacity={.8} side={THREE.DoubleSide} /></mesh>}
       </group>;
@@ -257,6 +261,8 @@ export default function Warehouse3D(props: WorldProps & { onReady: (evidence: { 
   const [shot, setShot] = useState<CameraShot>("overview");
   const [showColliders, setShowColliders] = useState(false);
   const [rendererReady, setRendererReady] = useState(false);
+  const [assetError, setAssetError] = useState("");
+  const assetFailed = useCallback((reason: string) => setAssetError(reason), []);
   const reportReady = useCallback((evidence: { frames: number; drawCalls: number }) => { setRendererReady(true); props.onReady(evidence); }, [props.onReady]);
   const manual = useCallback(() => setCinematic(false), []);
   const shotChanged = useCallback((next: CameraShot) => setShot(next), []);
@@ -274,8 +280,9 @@ export default function Warehouse3D(props: WorldProps & { onReady: (evidence: { 
   }} aria-label="Interactive 3D warehouse. Drag to orbit, right drag to pan, scroll to zoom. R resets the camera.">
     <Canvas shadows frameloop="demand" dpr={[1, 1.5]} camera={{ fov: 38, near: .03, far: 160 }} gl={{ antialias: true, alpha: false, powerPreference: "default", failIfMajorPerformanceCaveat: false }} fallback={<span>Interactive warehouse geometry. Choose Plan for the accessible scene view.</span>}>
       <RendererMonitor onReady={reportReady} onUnavailable={props.onUnavailable} />
-      <Scene {...props} controls={controls} cinematic={cinematic} reducedMotion={reducedMotion} onManual={manual} onShot={shotChanged} showColliders={showColliders} />
+      <Scene {...props} controls={controls} cinematic={cinematic} reducedMotion={reducedMotion} onManual={manual} onShot={shotChanged} showColliders={showColliders} onAssetError={assetFailed} />
     </Canvas>
+    {assetError && <div className="fl3-fallback-note" role="status">Reconstructed visual could not load. Object bounds remain visible. <button type="button" onClick={() => setAssetError("")}>Dismiss</button><details><summary>Mesh error</summary><p>{assetError}</p></details></div>}
     {!rendererReady && <div className="fl3-renderer-starting" role="status">Starting the 3D view…</div>}
     <div className="fl3-shot-controls" aria-label="Camera shot presets">{(["overview", "robot", "target", "top"] as CameraShot[]).map((name) => <button type="button" key={name} aria-pressed={shot === name} disabled={!rendererReady} onClick={() => controls.current?.preset(name)}>{name === "robot" ? "Robot" : name[0]!.toUpperCase() + name.slice(1)}</button>)}</div>
     <div className="fl3-presentation-controls"><button type="button" aria-pressed={cinematic} disabled={reducedMotion || !rendererReady} onClick={() => setCinematic(!cinematic)}>{cinematic ? "Cinematic on" : "Cinematic off"}</button><button type="button" aria-pressed={showColliders} disabled={!rendererReady} onClick={() => setShowColliders(!showColliders)}>Collider bounds {showColliders ? "on" : "off"}</button></div>

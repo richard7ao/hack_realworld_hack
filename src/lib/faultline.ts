@@ -62,8 +62,12 @@ export type RobotDescriptor = {
   id: string; name: string; kind: string; dof: number; requires_metric?: boolean; coordinate_frames?: CoordinateFrame[];
   motion_validation?: string; scope?: string; implemented?: boolean;
 };
+export type EnvironmentDescriptor = { id: "camera" | "warehouse" | "physics"; name: string; purpose: string; engine: string; fidelity: string; workspace: string; units: string; robot: string; case_families: string[]; execution_backends: string[]; available: boolean };
+export type ExecutionBackend = { id: "local" | "modal_cpu"; name: string; available: boolean; verified: boolean; reason?: string | null; max_concurrency: number; supported_policies: string[]; supported_environments: string[] };
+export type ExecutionJob = { case_id: string; role: string; policy_id: string; scenario_hash: string; backend: string; status: "QUEUED" | "RUNNING" | "DONE" | "ERROR"; episode_id?: string; outcome?: string; started_at_ms?: number; finished_at_ms?: number; error_type?: string };
 export type Health = { ok: boolean; policies: PolicyOption[]; data_mode: string; execution: string;
   robosim?: { available: boolean; verified: boolean; reason?: string | null; engine?: string | null; status?: string };
+  environments?: EnvironmentDescriptor[]; execution_backends?: ExecutionBackend[];
   robots?: RobotDescriptor[]; jev?: { available: boolean; verified: boolean; model: string | null };
 };
 export type Gate = {
@@ -73,6 +77,7 @@ export type Gate = {
 };
 export type Benchmark = {
   id: string; status: string; baseline_policy: string; candidate_policy: string; total_executions: number;
+  execution_backend?: "local" | "modal_cpu"; concurrency?: number; active_executions?: number; peak_concurrency?: number; actual_worker_overlap?: number | null; jobs?: ExecutionJob[]; executions?: Record<string, unknown>[];
   completed_executions: number; results: CaseResult[]; errors: unknown[]; gate: Gate | null;
   cases: { case_id: string; source: string; scenario_hash: string }[];
 };

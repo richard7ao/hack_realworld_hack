@@ -19,8 +19,10 @@ export function ControllerPanel({ selectedPolicyId, selectedPolicyAvailable, fro
   const completed = result?.episode_id === episodeId ? result : null;
   const manifest = loaded?.manifest ?? completed?.policy ?? (typeof eventManifest?.policy_id === "string" ? eventManifest as PolicyManifest : null);
   const decision = currentEvents.filter((event) => event.kind === "policy.decision").at(-1);
+  const latestProviderEvent = currentEvents.filter((event) => event.data.provider_response).at(-1);
+  const latestError = currentEvents.filter((event) => ["policy.error", "policy.timeout"].includes(event.kind)).at(-1);
   const action = record(decision?.data.action);
-  const provider = record(decision?.data.provider_response);
+  const provider = record(latestProviderEvent?.data.provider_response);
   const responseModel = textField(provider?.response_model);
   const responseId = textField(provider?.response_id);
   const providerName = textField(provider?.provider);
@@ -47,17 +49,19 @@ export function ControllerPanel({ selectedPolicyId, selectedPolicyAvailable, fro
       <strong>{manifest ? `${running ? "Controlling" : "Executed controller"}: ${actualName}` : `Selected for next run: ${POLICY_NAMES[selectedPolicyId] ?? selectedPolicyId}`}</strong>
       {manifest && typeof actualCalls === "number" && <span className="fl-caption">{actualCalls} actual model calls</span>}
       {manifest && typeof actualInferenceMs === "number" && <span className="fl-caption">{(actualInferenceMs / 1000).toFixed(2)}s measured inference</span>}
-      <a className="fl-text-link" href="#fl-jev-title">Jev diagnosis</a>
+      <a className="fl-text-link" href="#fl-jev-title">Post-run diagnosis</a>
     </div>
-    {!manifest && <p className="fl-caption">{!configurationLoaded ? "Waiting for backend policy availability." : selectedPolicyAvailable ? "Waiting for explicit execution. No controller is loaded for this preview." : "This selected policy is unavailable in the backend; choose an available adapter."} {configurationLoaded && selectedPolicyId.startsWith("scripted_") && !frontierAvailable && "The selected controller is scripted; GPT 6.1 Sol is unavailable until its backend key is configured."}</p>}
+    {!manifest && <p className="fl-caption">{!configurationLoaded ? "Waiting for backend policy availability." : selectedPolicyAvailable ? "Waiting for explicit execution. No controller has executed in this scene." : "This selected policy is unavailable in the backend; choose an available adapter."} {configurationLoaded && selectedPolicyId.startsWith("scripted_") && !frontierAvailable && "The selected controller is scripted; GPT 6.1 Sol is unavailable until its backend key is configured."}</p>}
     {manifest && <p className="fl-caption">Actual policy ID: <code>{manifest.policy_id}</code> · version {manifest.version}{manifest.policy_id !== selectedPolicyId && ` · Next run selection: ${POLICY_NAMES[selectedPolicyId] ?? selectedPolicyId}`}{actualCalls === undefined && " · Model call counter not yet reported"}</p>}
+    {episodeId && <p className="fl-caption">{running ? "Running episode" : "Inspected episode"}: <code>{episodeId}</code>{runMode === "scenario_preview" ? " · Scene ready; no controller execution" : ""}</p>}
+    {latestError && <p className="fl-error" role="alert"><strong>{latestError.kind === "policy.timeout" ? "Controller request timed out" : "Controller request failed"}:</strong> {textField(latestError.data.error) ?? "Inspect the full event for error details."}</p>}
     {action && <p className="fl-caption"><strong>Latest recorded decision:</strong> <code>{textField(action.type) ?? "typed action"}</code>{textField(action.target_id) && ` · ${textField(action.target_id)}`}{textField(action.reason) && ` · ${textField(action.reason)}`}</p>}
-    {assistance ? <div aria-label="Recorded Jev manipulation feedback">
-      <p className="fl-caption"><strong>Jev recovery feedback:</strong> {jevModel ?? "response model not reported"}{jevElapsed !== null && ` · ${(jevElapsed / 1000).toFixed(2)}s measured request`}{jevCalls !== null && ` · ${jevCalls} Jev calls`}{frontierCalls !== null && ` · ${frontierCalls} frontier calls`}</p>
+    {assistance ? <div aria-label="Recorded Jev pre-action assistance">
+      <p className="fl-caption"><strong>Jev pre-action assistance:</strong> {latestProviderEvent?.kind !== "policy.decision" ? "Recorded before the failed controller request · " : ""}{jevModel ?? "response model not reported"}{jevElapsed !== null && ` · ${(jevElapsed / 1000).toFixed(2)}s measured request`}{jevCalls !== null && ` · ${jevCalls} Jev calls`}{frontierCalls !== null && ` · ${frontierCalls} frontier calls`}</p>
       {textField(cause?.choice) && <p className="fl-caption">Cause: <code>{textField(cause?.choice)}</code>{causeConfidence !== null && ` · ${Math.round(causeConfidence * 100)}% reported confidence`}</p>}
       {textField(intent?.choice) && <p className="fl-caption">Recommended intent: <code>{textField(intent?.choice)}</code>{intentConfidence !== null && ` · ${Math.round(intentConfidence * 100)}% reported confidence`}{repeatRisk !== null && ` · unsafe-to-repeat score ${repeatRisk.toFixed(2)}`}</p>}
     </div> : (guidedSelected || guidedLoaded) && <p className="fl-caption">{guidedLoaded ? "The guided controller is loaded; no Jev feedback is recorded for the current decision yet." : "Jev feedback is selected for the next explicit run. No Jev response is recorded for this selection yet."}</p>}
-    {provider && (responseModel || responseId || providerName) && <details><summary className="fl-caption">Provider evidence: {responseModel ?? "response model not reported"}{providerName ? ` · ${providerName}` : ""}</summary><p className="fl-caption">Response ID: <code>{responseId ?? "not reported"}</code>{textField(provider.requested_model) && ` · Requested model: ${textField(provider.requested_model)}`}</p></details>}
+    {provider && <details><summary className="fl-caption">Provider evidence: {responseModel ?? "response model not reported"}{providerName ? ` · ${providerName}` : ""}</summary><p className="fl-caption">Response ID: <code>{responseId ?? "not reported"}</code>{textField(provider.requested_model) && ` · Requested model: ${textField(provider.requested_model)}`}</p><details><summary className="fl-caption">Full recorded provider request and response</summary><pre>{JSON.stringify(provider, null, 2)}</pre></details></details>}
     <p className="fl-caption">Guided policies: the frontier model chooses motion; Jev supplies recovery advice. The independent evaluator determines results.</p>
   </section>;
 }

@@ -1,4 +1,4 @@
-# FAULTLINE Pick: executable demo and submission
+# FAULTLINE: workspace walkthrough and submission
 
 **Hack day: 17 October 2026. Submission: 16:00 Europe/London (BST). Freeze optional work by 15:15.** Reserve 15:15–16:00 for local recording, verification, packaging and submission. If the deadline is already close, cut Hyper3D, LiDAR, Jev, Modal and scenario count in that order.
 
@@ -18,7 +18,15 @@ Add actual keys to the ignored `backend/.env` using `backend/.env.example` as a 
 
 Mount the laptop webcam or Continuity Camera above a contrasting table. Put an unmarked chocolate bar/parcel, small opaque carton and highlighter in view. Connect the camera, confirm the image changes live, select the workspace corners clockwise (top-left, top-right, bottom-right, bottom-left), and optionally enter measured width/depth. Leave units normalized if the workspace has not been measured. Then draw a bounding box for each object and assign persistent IDs including `chocolate_A`. Move each item slightly, remove your hand, and verify identity and estimated pose update. Reseed a lost object before running.
 
-## Exact live loop
+## Robotics CI walkthrough
+
+Choose an environment → run a controller → inspect the actual episode → save a regression → execute baseline and candidate in fresh paired environments → inspect release checks. Lead with this complete workflow. Use native RoboSim physics when installed, the warehouse workcell for broader procedural coverage, or camera capture for a real observed disturbance. Scene preview and saved trace playback are useful navigation paths but do not count as fresh executions.
+
+During inspection, show the executed controller and episode ID, actual model calls and measured inference. Expand a controller decision to inspect its full provider response; expand observations/state only when needed. Guided controllers receive pre-action Jev advice; **Post-run diagnosis** is a separate request and cannot change the evaluator result. Missing credentials and downstream failures remain failures with recorded evidence.
+
+Local workers and any remote executor must be identified by their actual backend provenance. Do not describe Modal execution as verified without a completed remote report and worker evidence. Saved reports demonstrate only their recorded executions.
+
+## Physical capture loop
 
 1. With objects still, run `scripted_open_loop` once. The virtual manipulator must grasp and release the selected item, and the independent oracle must report its actual result.
 2. Reset to the tabletop scene. Start a new baseline episode with a visible action delay. After the first approach action, slide the physical target well away from its old position. Remove your hand before the next camera estimate. The unheld virtual target must move, and the grasp must be rejected with a logged cause such as `TARGET_DISPLACED`. If tracking is uncertain, correct/reseed and try again; do not relabel an operator-injected displacement as physical capture.
@@ -46,6 +54,9 @@ To execute only a saved physical case from the command line, use its actual file
 Rehearse the click order before recording; preselect a genuine already-executed suite if running it on camera would exceed the minute. Label it as a saved benchmark. Do not time-compress inference without a visible edit or claim a scripted trace came from a model.
 
 ## Record locally
+
+In the workspace, choose **Record session**, select the approved screen/tab, and stop when finished. Capture automatically ends after 60 seconds. Use **Download recording** and immediately verify the file plays. This is actual browser display capture; there is no generated substitute recording.
+
 
 Use **Shift–Command–5**, choose the application/selected portion, set a local save location and microphone under Options, then Record. Stop with the menu-bar control or Control–Command–Escape. Preview the saved file with audio immediately. These are Apple's [screen recording instructions](https://support.apple.com/en-us/102618). Capture a separate phone angle of the physical move if useful, keeping the final edit local. The browser's camera recording, when available, records camera video; OS capture records the workcell, logs and gate together.
 

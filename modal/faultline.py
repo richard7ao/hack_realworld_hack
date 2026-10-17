@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sys
 import tempfile
 import time
@@ -21,7 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 image = (modal.Image.debian_slim(python_version='3.12')
-         .pip_install('pydantic>=2.10,<3', 'httpx>=0.28,<1', 'python-dotenv>=1,<2')
+         .pip_install('pydantic>=2.10,<3', 'httpx>=0.28,<1', 'python-dotenv>=1,<2', 'numpy>=2,<3')
          .add_local_python_source('backend'))
 app = modal.App('faultline-pick', image=image)
 
@@ -33,9 +34,14 @@ def worker(scenario_payload: dict, policy_id: str) -> dict:
     from backend.runner import run_case
     from backend.storage import Storage
 
-    if policy_id not in ('scripted_open_loop', 'scripted_reobserve'):
+    if policy_id not in ('scripted_open_loop', 'scripted_reobserve', 'scripted_obstacle_aware'):
         raise ValueError('This cloud entrypoint accepts scripted policies only; frontier policies run locally with server keys')
     scenario = Scenario.model_validate(scenario_payload)
+    if scenario.source != "procedural" or scenario_payload.get("provenance", {}).get("execution_backend") == "robosimstudio_cpu":
+        raise ValueError("Cloud worker only accepts procedural kinematic scenes")
+    if scenario.initial_scene.sensor_mode != "PROCEDURAL" or scenario.initial_scene.frame_ref or any(d.frame_ref or d.source != "procedural" for d in scenario.disturbances):
+        raise ValueError("Camera-derived inputs are not accepted by the cloud worker")
+    started_at_ms = time.time() * 1000
     with tempfile.TemporaryDirectory(prefix='faultline-') as folder:
         storage = Storage(folder)
         result, _ = asyncio.run(run_case(scenario, policy_id, storage))
@@ -44,7 +50,12 @@ def worker(scenario_payload: dict, policy_id: str) -> dict:
                 'scenario': storage.load(f'{episode}/scenario.json'),
                 'trace_jsonl': storage.path(result.trace_ref).read_text(),
                 'final_world': storage.load(f'{episode}/final_world.json'),
-                'captured_disturbances': storage.load(f'{episode}/captured_disturbances.json')}
+                'captured_disturbances': storage.load(f'{episode}/captured_disturbances.json'),
+                'execution': {'backend': 'modal_cpu', 'started_at_ms': started_at_ms,
+                              'finished_at_ms': time.time() * 1000,
+                              'container_id': os.getenv('MODAL_TASK_ID'),
+                              'input_id': modal.current_input_id(),
+                              'function_call_id': modal.current_function_call_id()}}
 
 
 @app.local_entrypoint()
@@ -66,14 +77,15 @@ def main(count: int = 10, seed: int = 42017, data_dir: str = 'data'):
              'baseline_policy': policies[0], 'candidate_policy': policies[1],
              'total_executions': count * 2, 'completed_executions': 0,
              'cases': [{'case_id': c.case_id, 'scenario_hash': canonical_hash(c), 'source': c.source} for c in cases],
-             'results': [], 'errors': [], 'gate': None}
+             'results': [], 'errors': [], 'executions': [], 'gate': None}
     for case in cases:
         storage.save_scenario(case)
     storage.save(relative, bench)
     jobs = [(c.model_dump(mode='json'), p) for c in cases for p in policies]
     baseline, candidate = [], []
     # Preserve input order so even transport failures retain the exact case/policy identity.
-    for (payload, policy_id), output in zip(jobs, worker.starmap(jobs, order_outputs=True, return_exceptions=True)):
+    for index, output in enumerate(worker.starmap(jobs, order_outputs=True, return_exceptions=True)):
+        payload, policy_id = jobs[index]
         if isinstance(output, Exception):
             bench['errors'].append({'case_id': payload['case_id'], 'policy_id': policy_id,
                                     'error_type': type(output).__name__})
@@ -89,6 +101,7 @@ def main(count: int = 10, seed: int = 42017, data_dir: str = 'data'):
         storage.save(f'{episode}/captured_disturbances.json', output['captured_disturbances'])
         storage.path(result.trace_ref).write_text(output['trace_jsonl'])
         (baseline if policy_id == policies[0] else candidate).append(result)
+        bench['executions'].append({'case_id': payload['case_id'], 'policy_id': policy_id, **output['execution']})
         bench['results'].append(output['result'])
         bench['completed_executions'] += 1
         storage.save(relative, bench)

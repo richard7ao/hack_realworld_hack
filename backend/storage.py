@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import re
+import tempfile
 from pathlib import Path
 from .models import Event, Scenario
 
@@ -28,9 +29,15 @@ class Storage:
     def save(self, relative, data):
         p = self.path(relative)
         p.parent.mkdir(parents=True, exist_ok=True)
-        temp = p.with_suffix(".tmp")
-        temp.write_text(json.dumps(data, indent=2, allow_nan=False) + "\n")
-        os.replace(temp, p)
+        # Concurrent policy episodes may save the same immutable scenario.
+        # Each writer needs its own temporary file before the atomic replace.
+        with tempfile.NamedTemporaryFile(mode="w", dir=p.parent, prefix=p.name + ".", suffix=".tmp", delete=False) as handle:
+            temp = Path(handle.name)
+            handle.write(json.dumps(data, indent=2, allow_nan=False) + "\n")
+        try:
+            os.replace(temp, p)
+        finally:
+            temp.unlink(missing_ok=True)
 
     def load(self, relative):
         return json.loads(self.path(relative).read_text())

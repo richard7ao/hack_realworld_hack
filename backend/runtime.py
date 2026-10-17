@@ -200,37 +200,71 @@ class Runtime:
         self.publish(s, {"kind": "scenario.created", "data": {"case_id": case.case_id, "scenario_hash": scenario_hash}})
         return {"scenario": case.model_dump(mode="json"), "scenario_hash": scenario_hash}
 
-    def benchmark(self, s, cases, baseline, candidate, config=None):
+    def benchmark(self, s, cases, baseline, candidate, config=None, *, execution_backend="local", concurrency=2):
+        from .benchmark_dispatch import dispatch_cases, status as modal_status, validate_dispatch
+        if execution_backend not in ("local", "modal_cpu") or not 1 <= concurrency <= 4:
+            raise ValueError("Choose Local or Modal CPU and 1 to 4 simultaneous executions")
+        if baseline == candidate:
+            raise ValueError("Choose two different policies for a paired comparison")
         for policy_id in (baseline, candidate):
             make_policy(policy_id)
-        if not cases:
-            raise ValueError("Select at least one scenario")
+        if not cases or len({c.case_id for c in cases}) != len(cases):
+            raise ValueError("Select distinct scenarios for the comparison")
+        if execution_backend == "modal_cpu":
+            availability = modal_status(self.storage)
+            if not availability["available"]:
+                raise ValueError(availability.get("reason") or "Modal workers are unavailable")
+            if any(p not in availability["supported_policies"] for p in (baseline, candidate)):
+                raise ValueError("The deployed Modal image supports scripted policies; frontier and Jev calls run locally")
+            if any(c.source != "procedural" or c.initial_scene.frame_ref or c.initial_scene.sensor_mode != "PROCEDURAL" or c.provenance.get("execution_backend") == "robosimstudio_cpu" for c in cases):
+                raise ValueError("Modal accepts generated kinematic cases only; captured scenes and native physics stay local")
+        if execution_backend == "local" and any(c.provenance.get("execution_backend") == "robosimstudio_cpu" for c in cases):
+            concurrency = min(concurrency, 2)  # Bound native solver memory on the local workstation.
+        validate_dispatch(cases, baseline, candidate, execution_backend, concurrency)
+        for case in cases:
+            self.storage.save_scenario(case)
         run_id = "bench_" + uuid.uuid4().hex[:12]
+        jobs = [{"case_id": c.case_id, "scenario_hash": canonical_hash(c), "policy_id": policy,
+                 "role": role, "backend": execution_backend, "status": "QUEUED"}
+                for c in cases for role, policy in (("baseline", baseline), ("candidate", candidate))]
         bench = {"id": run_id, "status": "RUNNING", "created_at_ms": time.time() * 1000,
-            "baseline_policy": baseline, "candidate_policy": candidate, "total_executions": len(cases) * 2,
+            "baseline_policy": baseline, "candidate_policy": candidate, "total_executions": len(jobs),
+            "execution_backend": execution_backend, "concurrency": concurrency,
+            "active_executions": 0, "peak_concurrency": 0, "jobs": jobs, "executions": [],
             "completed_executions": 0, "results": [], "errors": [], "gate": None,
             "cases": [{"case_id": c.case_id, "source": c.source, "scenario_hash": canonical_hash(c)} for c in cases]}
         self.benchmarks[run_id] = bench
+        self.storage.save(f"benchmarks/{run_id}.json", bench)
+        def progress(event):
+            job = next(j for j in jobs if j["case_id"] == event["case_id"] and j["role"] == event["role"])
+            kind = event["type"]
+            job.update({k: v for k, v in event.items() if k not in ("type", "result", "active_executions")})
+            job["status"] = {"queued": "QUEUED", "started": "RUNNING", "completed": "DONE", "failed": "ERROR"}[kind]
+            if kind == "completed":
+                bench["results"].append(event["result"])
+                bench["completed_executions"] += 1
+                job["outcome"] = event["result"]["outcome"]
+            bench["active_executions"] = sum(j["status"] == "RUNNING" for j in jobs)
+            bench["peak_concurrency"] = max(bench["peak_concurrency"], bench["active_executions"])
+            self.storage.save(f"benchmarks/{run_id}.json", bench)
+            self.publish(s, {"kind": "benchmark.case_" + kind, "data": {"benchmark_id": run_id, **event}})
         async def execute():
-            a, b = [], []
-            # Bounded local execution. No synthetic sleeps, guessed outcome or count inflation.
             try:
-                for case in cases:
-                    self.storage.save_scenario(case)
-                    for policy_id, bucket in ((baseline, a), (candidate, b)):
-                        self.publish(s, {"kind": "benchmark.case_started", "data": {"case_id": case.case_id, "policy_id": policy_id}})
-                        result, _ = await run_case(case, policy_id, self.storage)
-                        bucket.append(result)
-                        bench["results"].append(result.model_dump(mode="json"))
-                        bench["completed_executions"] += 1
-                        self.storage.save(f"benchmarks/{run_id}.json", bench)
-                bench["gate"] = compare_results(a, b, config or GateConfig())
-                bench["status"] = "DONE"
+                dispatched = await dispatch_cases(cases, baseline, candidate, self.storage,
+                    backend=execution_backend, concurrency=concurrency, on_progress=progress)
+                bench["executions"] = dispatched["executions"]
+                bench["actual_worker_overlap"] = dispatched["actual_worker_overlap"]
+                bench["errors"] = dispatched["errors"]
+                bench["peak_concurrency"] = dispatched["peak_concurrency"]
+                bench["gate"] = compare_results(dispatched["baseline"], dispatched["candidate"], config or GateConfig())
+                bench["status"] = "ERROR" if bench["errors"] else "DONE"
                 self.publish(s, {"kind": "gate.updated", "data": bench["gate"]})
             except Exception as exc:
                 bench["status"] = "ERROR"
                 bench["errors"].append(str(exc)[:500])
-            self.storage.save(f"benchmarks/{run_id}.json", bench)
+            finally:
+                bench["active_executions"] = 0
+                self.storage.save(f"benchmarks/{run_id}.json", bench)
         task = asyncio.create_task(execute())
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)

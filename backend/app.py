@@ -15,17 +15,21 @@ from fastapi.responses import FileResponse
 from pydantic import Field
 
 from .generator import generate_cases, sanity_case
+from .environments import environment_catalog
+from .benchmark_dispatch import execution_backend_catalog
 from .models import Calibration, CaseResult, Disturbance, GateConfig, Model, Scenario
 from .oracle import compare_results
 from .policies import policy_catalog
 from .robots import robot_catalog, robot_config_for
 from .warehouse import warehouse_cases
-from . import jev
+from . import jev, hyper3d
+from .production import ProductionLine
 from .runtime import Runtime
 from .storage import Storage
 
 load_dotenv("backend/.env")
 runtime = Runtime(Storage(os.getenv("FAULTLINE_DATA_DIR", "data")))
+production_lines = {}
 app = FastAPI(title="FAULTLINE Pick", version="1.0", description="Real RGB estimates → simulated policies → independently verified regression results")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3300", "http://127.0.0.1:3300"],
                    allow_methods=["GET", "POST", "DELETE"], allow_headers=["*"])
@@ -68,8 +72,17 @@ def health():
     return {"ok": True, "schema_version": "1.0", "execution": "local_cartesian_or_six_joint_kinematics", "policies": policy_catalog(),
             "robots": [{**r, "requires_metric": "workcell_normalized" not in r["coordinate_frames"]} for r in robot_catalog()],
             "robosim": robosim_health(),
+            "environments": environment_catalog(robosim_health().get("available", False)),
+            "hyper3d": hyper3d.status(),
+            "execution_backends": execution_backend_catalog(runtime.storage),
             "jev": {"available": jev.available(), "verified": jev_verified, "model": jev.JEV_MODEL},
             "depth_available": False, "data_mode": "real_execution"}
+
+
+@app.get("/api/environments")
+def environments():
+    return {"environments": environment_catalog(robosim_health().get("available", False)),
+            "execution_backends": execution_backend_catalog(runtime.storage)}
 
 
 @app.post("/api/camera/session")
@@ -377,6 +390,8 @@ class BenchRequest(Model):
     baseline: str = "scripted_open_loop"
     candidate: str = "scripted_reobserve"
     gate: GateConfig = Field(default_factory=GateConfig)
+    execution_backend: Literal["local", "modal_cpu"] = "local"
+    concurrency: int = Field(default=2, ge=1, le=4)
 
 
 @app.post("/api/benchmarks/run")
@@ -388,7 +403,8 @@ async def benchmark(body: BenchRequest, authorization: str | None = Header(None)
         cases += warehouse_cases(body.warehouse_count)
     if len(cases) > 100 or len({c.case_id for c in cases}) != len(cases):
         raise ValueError("Choose up to 100 distinct cases")
-    return runtime.benchmark(s, cases, body.baseline, body.candidate, body.gate)
+    return runtime.benchmark(s, cases, body.baseline, body.candidate, body.gate,
+                             execution_backend=body.execution_backend, concurrency=body.concurrency)
 
 
 @app.get("/api/benchmarks")
@@ -499,3 +515,151 @@ async def camera_ws(ws: WebSocket, session_id: str):
         await ws.close(4400)
     except WebSocketDisconnect:
         pass
+
+
+class ReconstructionRequest(SessionRequest):
+    physical_footprint_m: tuple[float, float] | None = None
+    object_id: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
+
+
+@app.post("/api/assets/reconstruct")
+async def reconstruct_asset(body: ReconstructionRequest, authorization: str | None = Header(None)):
+    session = auth(body.session_id, authorization)
+    async with session.lock:
+        job = hyper3d.begin_job(runtime.storage, session, body.object_id, physical_footprint_m=body.physical_footprint_m)
+        if job["status"] == "QUEUED":
+            task = asyncio.create_task(hyper3d.execute_job(runtime.storage, job["job_id"]))
+            runtime.tasks.add(task)
+            task.add_done_callback(runtime.tasks.discard)
+    return job
+
+
+@app.get("/api/assets")
+def object_assets(session_id: str, authorization: str | None = Header(None)):
+    auth(session_id, authorization)
+    return {"assets": hyper3d.get_assets(runtime.storage, session_id)}
+
+
+@app.get("/api/assets/jobs/{job_id}")
+def asset_job(job_id: str, authorization: str | None = Header(None)):
+    try:
+        job = hyper3d.get_job(runtime.storage, job_id)
+    except FileNotFoundError:
+        raise HTTPException(404, "Object reconstruction does not exist")
+    auth(job["camera_session"], authorization)
+    return job
+
+
+@app.get("/api/assets/{job_id}/model.glb")
+def reconstructed_model(job_id: str):
+    # Same local evidence-read scope as persisted episode/scenario endpoints.
+    try:
+        job = hyper3d.get_job(runtime.storage, job_id)
+    except FileNotFoundError:
+        raise HTTPException(404, "Object reconstruction does not exist")
+    if job["status"] != "SUCCEEDED":
+        raise HTTPException(409, "Reconstruction is not complete")
+    return FileResponse(runtime.storage.path(f"reconstructions/{job_id}/model.glb"), media_type="model/gltf-binary", filename=f"{job_id}.glb")
+
+
+class ProductionRequest(SessionRequest):
+    policy_id: str = "jev_gpt-6.1-sol"
+    delay_seconds: float = Field(default=.7, ge=0, le=3)
+
+
+class ProductionChangeRequest(SessionRequest):
+    change: Literal["move_component", "reroute_next"]
+
+
+@app.post("/api/production/start")
+async def start_production(body: ProductionRequest, authorization: str | None = Header(None)):
+    session = auth(body.session_id, authorization)
+    if session.job and not session.job.done():
+        raise ValueError("Finish the current execution before starting a production batch")
+    if session.env and hasattr(session.env, "close"):
+        session.env.close()
+    session.env, session.latest_result, session.error = None, None, None
+    session.status, session.mode = "RUNNING", "production_workflow"
+    session.live_sync, session.paused, session.stop_requested = False, False, False
+    def bind(env):
+        session.env = env
+    async def checkpoint(env):
+        while session.paused and not session.stop_requested:
+            await asyncio.sleep(.1)
+        return "POLICY_ERROR:OPERATOR_STOPPED" if session.stop_requested else None
+    line = ProductionLine(runtime.storage, publish=lambda event: runtime.publish(session, event),
+                          on_env=bind, checkpoint=checkpoint)
+    job = line.create(session.id, body.policy_id, body.delay_seconds)
+    production_lines[job["job_id"]] = line
+    async def execute():
+        try:
+            final = await line.run(job["job_id"])
+            session.status = final["status"]
+            session.error = final.get("error")
+            completed = [stage["result"] for stage in final["stages"] if stage.get("result")]
+            if completed:
+                session.latest_result = CaseResult.model_validate(completed[-1])
+        except Exception as exc:
+            session.status, session.error = "ERROR", str(exc)[:500]
+    session.job = asyncio.create_task(execute())
+    return job
+
+
+def load_production(job_id):
+    line = production_lines.get(job_id)
+    if line:
+        return line, line.get(job_id)
+    if not __import__("re").fullmatch(r"production_[a-f0-9]{12}", job_id):
+        raise ValueError("Invalid production job ID")
+    try:
+        return None, runtime.storage.load(f"production/{job_id}.json")
+    except FileNotFoundError:
+        raise HTTPException(404, "Production batch does not exist")
+
+
+@app.get("/api/production/{job_id}")
+def production_job(job_id: str, authorization: str | None = Header(None)):
+    line, job = load_production(job_id)
+    session = auth(job["session_id"], authorization)
+    episode_ids = {stage.get("episode_id") for stage in job["stages"] if stage.get("episode_id")}
+    if session.env and session.env.scenario.provenance.get("workflow_id") == job_id:
+        episode_ids.add(session.env.episode_id)
+    return {**job, "events": [event for event in session.events if event.get("episode_id") in episode_ids or
+            (event["kind"].startswith("production.") and event["data"].get("job_id") == job_id)]}
+
+
+@app.post("/api/production/{job_id}/change")
+def change_production(job_id: str, body: ProductionChangeRequest, authorization: str | None = Header(None)):
+    line, job = load_production(job_id)
+    auth(body.session_id, authorization)
+    if job["session_id"] != body.session_id:
+        raise HTTPException(403, "Production batch belongs to a different session")
+    if not line:
+        raise ValueError("This saved batch is complete; start a fresh batch to introduce a change")
+    return line.change(job_id, body.change)
+
+
+@app.get("/api/production")
+def list_production():
+    """Saved local evidence has the same read scope as episode/benchmark evidence."""
+    records = [__import__('json').loads(path.read_text()) for path in runtime.storage.path('production').glob('production_*.json')]
+    return {"jobs": sorted(records, key=lambda job: job.get('created_at_ms', 0), reverse=True)}
+
+
+@app.get("/api/production/{job_id}/evidence")
+def production_evidence(job_id: str):
+    _, job = load_production(job_id)
+    events, last_result, last_case, world = [], None, None, None
+    for stage in job['stages']:
+        result = stage.get('result')
+        if not result:
+            continue
+        episode = get_episode(result['episode_id'])
+        events.extend(episode['events'])
+        last_result, last_case = result, episode['scenario']
+        world = runtime.storage.load(f"episodes/{result['episode_id']}/final_world.json")
+    return {**job, "events": events, "world": world, "result": last_result,
+            "task": last_case['task'] if last_case else None,
+            "controller": {"manifest": last_result['policy'], "model_calls": last_result['model_calls'],
+                           "inference_elapsed_ms": last_result['inference_elapsed_ms']} if last_result else None,
+            "evidence_mode": "saved_execution"}

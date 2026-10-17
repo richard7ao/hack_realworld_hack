@@ -1,0 +1,46 @@
+.fl-parallel .fl-header nav a { display: flex; align-items: center; border-bottom: 2px solid transparent; padding: 0 15px; }
+.fl-parallel .fl-header nav a[aria-current="page"] { border-color: #416c37; color: #294724; font-weight: 600; }
+.fl-parallel-setup { padding: 22px; }
+.fl-parallel-setup-heading h2 { font-size: 17px; font-weight: 550; margin: 0 0 7px; }
+.fl-parallel-setup-heading p { font-size: 12px; line-height: 1.6; color: #64715b; margin: 0; }
+.fl-parallel-controls { display: grid; grid-template-columns: 1fr 1.2fr 1.2fr .85fr auto; align-items: end; gap: 15px; margin-top: 12px; }
+.fl-parallel-controls > button { margin-bottom: 12px; }
+.fl-parallel-setup > .fl-caption:last-child { margin-bottom: 0; }
+.fl-parallel-saved { display: flex; align-items: end; gap: 15px; margin: 20px 0; }
+.fl-parallel-saved .fl-field { flex: 1; max-width: 700px; }
+.fl-parallel-saved > button { margin-bottom: 12px; }
+.fl-parallel-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; padding: 21px 0; border-top: 1px solid #d8ddd1; border-bottom: 1px solid #d8ddd1; }
+.fl-parallel-metrics span { display: block; font-size: 11px; color: #68765f; margin-bottom: 10px; }
+.fl-parallel-metrics strong { display: block; font-size: 30px; letter-spacing: -.025em; font-weight: 550; line-height: 1.2; font-variant-numeric: tabular-nums; color: #294025; }
+.fl-parallel-metrics strong small { font-size: 15px; color: #7a876f; font-weight: 400; }
+.fl-parallel-progress-note { color: #6d7b64; font-size: 11px; line-height: 1.6; margin: 15px 0 9px; }
+.fl-parallel-progress { display: block; width: 100%; accent-color: #4c733f; height: 7px; margin-bottom: 26px; }
+.fl-parallel .fl-gate h2 { font-size: 20px; font-weight: 550; margin: 0 0 8px; }
+.fl-parallel-grid-layout { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: start; }
+.fl-parallel-grid-layout.has-inspector { grid-template-columns: minmax(0, 1.3fr) minmax(400px, 1fr); }
+.fl-parallel-grid-heading { margin-bottom: 16px; }
+.fl-parallel-grid-heading h2 { font-size: 20px; font-weight: 550; margin: 0 0 7px; }
+.fl-parallel-grid-heading p { font-size: 11px; line-height: 1.6; color: #66755d; margin: 0; }
+.fl-parallel-case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 9px; }
+.fl-parallel-case { text-align: left; padding: 14px; border: 1px solid #d3dccb; border-radius: 9px; background: #fff; cursor: pointer; color: #3c5133; min-width: 0; }
+.fl-parallel-case:hover:not(:disabled), .fl-parallel-case[aria-pressed="true"] { background: #edf4e5; border-color: #668557; }
+.fl-parallel-case:disabled { cursor: default; }
+.fl-parallel-case > strong { display: block; font-size: 13px; font-weight: 550; }
+.fl-parallel-case > small { display: block; color: #74816a; font-size: 9px; margin: 6px 0 12px; }
+.fl-parallel-case > span { display: flex; justify-content: space-between; gap: 9px; color: #796c5b; font: 9px/1.8 ui-monospace, monospace; }
+.fl-parallel-case > span.is-pass { color: #3a6730; }
+.fl-parallel-case b { font-weight: 500; overflow-wrap: anywhere; text-align: right; }
+.fl-parallel-case > code { display: block; margin-top: 10px; font: 8px/1.5 ui-monospace, monospace; color: #87917e; overflow-wrap: anywhere; }
+.fl-parallel-inspector { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+.fl-parallel-inspector .fl-pad { padding: 16px; }
+.fl-parallel-inspector-meta > strong { font-size: 14px; font-weight: 550; }
+.fl-parallel-inspector-meta p { color: #6a785f; font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.fl-parallel-inspector .fl3-viewport { height: 300px; }
+.fl-parallel-inspector .fl-trace { max-height: 400px; }
+.fl-parallel-inspector details > summary { cursor: pointer; color: #526b44; font-size: 11px; }
+.fl-parallel-empty { padding: 50px 0 70px; border-top: 1px solid #d8ddd1; }
+.fl-parallel-empty h2 { font-size: 24px; font-weight: 500; margin: 0 0 10px; }
+.fl-parallel-empty p { max-width: 65ch; color: #6a785f; font-size: 13px; line-height: 1.7; }
+@media (max-width: 1150px) { .fl-parallel-controls { grid-template-columns: 1fr 1fr 1fr; } .fl-parallel-grid-layout.has-inspector { grid-template-columns: minmax(0, 1fr) 400px; } .fl-parallel-metrics { gap: 15px; } .fl-parallel-metrics strong { font-size: 25px; } }
+@media (max-width: 850px) { .fl-parallel-grid-layout.has-inspector { grid-template-columns: 1fr; } .fl-parallel-inspector { position: static; max-height: none; } .fl-parallel-metrics { grid-template-columns: repeat(3, 1fr); gap: 22px; } .fl-parallel .fl-header nav a { min-height: 40px; padding: 0 8px; } }
+@media (max-width: 600px) { .fl-parallel-controls { grid-template-columns: 1fr 1fr; gap: 4px 12px; } .fl-parallel-controls > button { grid-column: 1 / -1; } .fl-parallel-setup { padding: 18px; } .fl-parallel-metrics { grid-template-columns: 1fr 1fr; } .fl-parallel-case-grid { grid-template-columns: 1fr 1fr; gap: 8px; } .fl-parallel-saved { align-items: center; } .fl-parallel-inspector .fl3-viewport { height: 320px; } }

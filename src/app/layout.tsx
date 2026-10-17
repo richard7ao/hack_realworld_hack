@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Forkbench",
-  description: "Drop an environment and a task. Run a hundred simulations. Gate the policy like CI.",
+  title: "FAULTLINE Pick",
+  description: "Capture failures, reproduce robot-policy tests, and gate releases with independently verified execution.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -6,6 +6,7 @@ export function Recorder() {
   const recorder = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const [seconds, setSeconds] = useState(0);
+  const [starting, setStarting] = useState(false);
   const [recording, setRecording] = useState(false);
   const [error, setError] = useState("");
   const [download, setDownload] = useState<string | null>(null);
@@ -18,7 +19,7 @@ export function Recorder() {
   useEffect(() => () => { stream.current?.getTracks().forEach((t) => t.stop()); }, []);
   useEffect(() => () => { if (download) URL.revokeObjectURL(download); }, [download]);
   async function start() {
-    setError("");
+    setError(""); setStarting(true);
     try {
       if (!navigator.mediaDevices?.getDisplayMedia || typeof MediaRecorder === "undefined") throw new Error("Screen recording requires Chrome/Edge or a supported desktop browser.");
       const capture = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true });
@@ -33,11 +34,12 @@ export function Recorder() {
       };
       capture.getVideoTracks()[0]?.addEventListener("ended", () => { if (mediaRecorder.state === "recording") mediaRecorder.stop(); });
       recorder.current = mediaRecorder; setSeconds(0); setRecording(true); mediaRecorder.start(1000);
-    } catch (err) { setError(errorMessage(err)); stream.current?.getTracks().forEach((t) => t.stop()); }
+    } catch (err) { setError(errorMessage(err)); setRecording(false); stream.current?.getTracks().forEach((t) => t.stop()); } finally { setStarting(false); }
   }
   return <div className="fl-recording">
-    <button className="fl-button fl-button-secondary" onClick={() => recording ? recorder.current?.stop() : void start()}>{recording ? `Stop recording · ${seconds}s / 60s` : "Record 60-second demo"}</button>
-    {download && <a className="fl-text-link" href={download} download={`faultline-demo-${Date.now()}.${recorder.current?.mimeType.includes("mp4") ? "mp4" : "webm"}`}>Download actual recording</a>}
+    <button className="fl-button fl-button-secondary" disabled={starting} onClick={() => recording ? recorder.current?.stop() : void start()}>{recording ? `Stop recording · ${seconds}s / 60s` : starting ? "Choose a screen…" : "Record session"}</button>
+    <span className="fl-caption">Screen capture · stops after 60 seconds</span>
+    {download && <a className="fl-text-link" href={download} download={`faultline-session-${Date.now()}.${recorder.current?.mimeType.includes("mp4") ? "mp4" : "webm"}`}>Download recording</a>}
     {error && <p className="fl-error" role="alert">{error}</p>}
   </div>;
 }
