@@ -1,0 +1,15 @@
+# Isolated CPU runtime for unchanged RoboSimStudio source at commit
+# 73739abe212f963e8a9f5862b27bca370df091a7. Do not install into the main venv.
+newton[sim]==1.6.1
+mujoco~=3.12.0
+numpy
+scipy>=1.11.0
+imageio[ffmpeg]
+viser>=1.0.30
+coacd==1.0.11
+fast_simplification
+pyroki @ git+https://github.com/chungmin99/pyroki.git@95afccc22658c461ab1042a048ae4e9c24bc2a47
+
+# PyRoKi names jaxls by mutable git HEAD. Freeze the exact tested full dependency.
+# setup_robosim.sh uses this file for uv overrides as well as requirements.
+jaxls @ git+https://github.com/brentyi/jaxls.git@50a58be88c5ef74532f09e3f55268b4f02c490e3

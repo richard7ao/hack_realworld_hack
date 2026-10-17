@@ -33,6 +33,13 @@ class ScriptedPolicy:
         self.phase = "approach"
         self.task = task
         self.capabilities = capabilities
+        # The new native embodiment declares a reachable travel height. Keep
+        # existing captured/kinematic policy behavior and manifests unchanged.
+        native = capabilities.get("execution_backend") == "robosimstudio_cpu"
+        self.travel_height = capabilities.get("safe_travel_height", .25) if native else .25
+        if native:
+            self.manifest = self.manifest.model_copy(update={"version": "1.1.0-native-capabilities",
+                "parameters": {"travel_height_source": "public_robot_capability"}})
 
     async def predict(self, obs):
         target = next((o for o in obs.detected_objects if o.id == obs.task.target_id), None)
@@ -60,10 +67,10 @@ class ScriptedPolicy:
             return PolicyAction(type="GRASP", target_id=target.id, position=target.position, reason="Close at estimated target pose")
         if self.phase == "lift":
             self.phase = "travel"
-            return PolicyAction(type="MOVE_TO", position=(*obs.robot.position[:2], 0.25), reason="Lift to travel height")
+            return PolicyAction(type="MOVE_TO", position=(*obs.robot.position[:2], self.travel_height), reason="Lift to travel height")
         if self.phase == "travel":
             self.phase = "lower"
-            return PolicyAction(type="MOVE_TO", position=(*obs.destination.center[:2], 0.25), reason="Travel above outbound bin")
+            return PolicyAction(type="MOVE_TO", position=(*obs.destination.center[:2], self.travel_height), reason="Travel above outbound bin")
         if self.phase == "lower":
             self.phase = "place"
             return PolicyAction(type="MOVE_TO", position=obs.destination.center, reason="Lower to observed destination")
@@ -287,10 +294,14 @@ class FrontierPlanner:
         return action
 
 
-POLICY_IDS = ["scripted_open_loop", "scripted_reobserve", "scripted_obstacle_aware", "gpt-6.1-sol", "gpt-6-astra", "claude-opus-5-5"]
+POLICY_IDS = ["scripted_open_loop", "scripted_reobserve", "scripted_obstacle_aware", "gpt-6.1-sol", "gpt-6-astra", "claude-opus-5-5",
+              "jev_gpt-6.1-sol", "jev_gpt-6-astra", "jev_claude-opus-5-5"]
 
 
 def make_policy(policy_id):
+    if policy_id.startswith("jev_"):
+        from .jev_policy import JevAssistedPolicy
+        return JevAssistedPolicy(policy_id)
     if policy_id == "scripted_obstacle_aware":
         return ObstacleAwarePolicy()
     if policy_id in ("scripted_open_loop", "scripted_reobserve"):
@@ -302,5 +313,8 @@ def make_policy(policy_id):
 
 def policy_catalog():
     reload_config()
-    return [{"id": p, "available": p.startswith("scripted_") or bool(os.getenv("ANTHROPIC_API_KEY" if p.startswith("claude") else "OPENAI_API_KEY")),
-             "kind": "scripted" if p.startswith("scripted_") else "frontier"} for p in POLICY_IDS]
+    jev_key_available = bool(os.getenv("JEV_API_KEY") or os.getenv("TYPESAFE_API_KEY"))
+    return [{"id": p, "available": p.startswith("scripted_") or (
+                bool(os.getenv("ANTHROPIC_API_KEY" if "claude" in p else "OPENAI_API_KEY")) and
+                (not p.startswith("jev_") or jev_key_available)),
+             "kind": "scripted" if p.startswith("scripted_") else "jev_assisted" if p.startswith("jev_") else "frontier"} for p in POLICY_IDS]

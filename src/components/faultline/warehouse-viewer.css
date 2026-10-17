@@ -26,3 +26,10 @@
 .fl3-presentation-controls { position: absolute; left: 14px; bottom: 14px; display: flex; flex-wrap: wrap; gap: 5px; max-width: calc(100% - 210px); }
 .fl3-presentation-controls button:disabled { opacity: .5; cursor: not-allowed; }
 @media (max-width: 600px) { .fl3-shot-controls { top: 10px; left: 10px; gap: 3px; } .fl3-shot-controls button { padding: 6px 9px; } .fl3-presentation-controls { left: 10px; bottom: 56px; max-width: calc(100% - 20px); } .fl3-presentation-controls button { min-height: 28px; padding: 5px 8px; font-size: 9px; } }
+.fl3-renderer-starting { position: absolute; inset: 0; display: grid; place-items: center; color: #49603d; font-size: 13px; background: #edf1e7; pointer-events: none; }
+.fl3-camera-controls button:disabled, .fl3-shot-controls button:disabled { opacity: .45; cursor: not-allowed; }
+.fl3-fallback-note { line-height: 1.6; background: #f6f9ef; }
+.fl3-fallback-note > button { margin-left: 8px; color: #33582a; background: #fff; border: 1px solid #a8b69a; border-radius: 5px; padding: 5px 9px; cursor: pointer; }
+.fl3-fallback-note details { margin-top: 5px; font-size: 10px; color: #5c6c50; }
+.fl3-fallback-note summary { cursor: pointer; }
+.fl3-fallback-note details p { margin: 5px 0 0; overflow-wrap: anywhere; }

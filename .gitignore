@@ -4,6 +4,7 @@ out
 .env
 .env.local
 .venv/
+.venv-robosim/
 **/.env
 **/.env.local
 __pycache__/

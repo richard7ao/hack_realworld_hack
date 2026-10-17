@@ -1,33 +1,39 @@
 "use client";
 import dynamic from "next/dynamic";
-import { Component, useEffect, useState, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 import type { Vec3 } from "@/lib/faultline";
 import { sceneProvenance, type WorldProps } from "./world-view";
 import "./warehouse-viewer.css";
 
 const Warehouse3D = dynamic(() => import("./Warehouse3D"), { ssr: false, loading: () => <div className="fl3-loading">Loading 3D warehouse…</div> });
-class ViewerBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+type RenderEvidence = { frames: number; drawCalls: number };
+class ViewerBoundary extends Component<{ children: ReactNode; fallback: ReactNode; onError: (reason: string) => void }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(error: Error) { this.props.onError(error.message || "The 3D renderer could not start."); }
   render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
 export function World(props: WorldProps) {
   const [view, setView] = useState<"3d" | "plan">("plan");
-  const [available, setAvailable] = useState<boolean | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [evidence, setEvidence] = useState<RenderEvidence | null>(null);
   const provenance = sceneProvenance(props);
   useEffect(() => {
-    const canvas = document.createElement("canvas");
-    let capable = false;
-    try { const context = canvas.getContext("webgl2"); capable = !!context; context?.getExtension("WEBGL_lose_context")?.loseContext(); } catch { /* Keep an executable SVG view if WebGL cannot start. */ }
-    setAvailable(capable);
-    if (capable && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) setView("3d");
+    // Let the real renderer establish its own context. A probe both allocates a
+    // second context and cannot establish that the actual scene rendered.
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setView("3d");
   }, []);
-  const fallback = <><div className="fl3-fallback-note">3D unavailable in this browser. Showing exact backend geometry in the plan view.</div><PlanWorld {...props} /></>;
+  const unavailable = useCallback((reason: string) => { setFailure(reason); setEvidence(null); setView("plan"); }, []);
+  const rendered = useCallback((actual: RenderEvidence) => { setEvidence(actual); setFailure(null); }, []);
+  const request3D = () => { setFailure(null); setEvidence(null); setAttempt((current) => current + 1); setView("3d"); };
+  const fallback = <PlanWorld {...props} />;
   const robot = props.world?.robot as (NonNullable<WorldProps["world"]>["robot"] & { kinematics_kind?: string; joint_angles?: number[] | null }) | undefined;
-  return <div className="fl3-viewer">
-    <div className="fl3-toolbar"><div><span>{provenance.label}</span><small>{provenance.detail}</small></div><div className="fl3-tabs" role="group" aria-label="Warehouse view"><button type="button" aria-pressed={view === "3d"} disabled={available === false} onClick={() => setView("3d")}>3D</button><button type="button" aria-pressed={view === "plan"} onClick={() => setView("plan")}>Plan</button></div></div>
-    {view === "3d" && available ? <ViewerBoundary fallback={fallback}><Warehouse3D {...props} /><div className="fl-world-footer"><span>{props.world ? `Action ${props.world.step} · ${(props.world.sim_elapsed_ms / 1000).toFixed(1)}s simulated` : `${props.observed?.objects.length ?? 0} objects estimated`}</span><span>{robot?.holding_id ? `Held: ${robot.holding_id}` : robot?.kinematics_kind === "six_dof_kinematic" ? "6 DOF · backend forward kinematics" : "Cartesian gantry · backend pose"}</span></div></ViewerBoundary> : <PlanWorld {...props} />}
-    {robot?.joint_angles?.length === 6 && <div className="fl3-joints" aria-label="Actual robot joint angles">{robot.joint_angles.map((angle, i) => <span key={i}>J{i + 1} {(angle * 180 / Math.PI).toFixed(1)}°</span>)}</div>}
+  return <div className="fl3-viewer" data-renderer-state={view === "3d" ? evidence ? "rendered" : "starting" : failure ? "plan-fallback" : "plan"} data-rendered-frames={evidence?.frames} data-rendered-draw-calls={evidence?.drawCalls}>
+    <div className="fl3-toolbar"><div><span>{provenance.label}</span><small>{provenance.detail}</small></div><div className="fl3-tabs" role="group" aria-label="Warehouse view"><button type="button" aria-pressed={view === "3d"} onClick={() => { if (view !== "3d") request3D(); }}>{failure ? "Retry 3D" : "3D"}</button><button type="button" aria-pressed={view === "plan"} onClick={() => setView("plan")}>Plan</button></div></div>
+    {failure && <div className="fl3-fallback-note" role="status">The 3D view could not continue. The plan below still shows the actual backend scene. <button type="button" onClick={request3D}>Retry 3D</button><details><summary>View renderer detail</summary><p>{failure}</p></details></div>}
+    {view === "3d" ? <ViewerBoundary key={attempt} fallback={fallback} onError={unavailable}><Warehouse3D {...props} onReady={rendered} onUnavailable={unavailable} /><div className="fl-world-footer"><span>{props.world ? `Action ${props.world.step} · ${(props.world.sim_elapsed_ms / 1000).toFixed(1)}s simulated` : `${props.observed?.objects.length ?? 0} objects estimated`}</span><span>{robot?.holding_id ? `Held: ${robot.holding_id}` : robot?.kinematics_kind === "robosim_physics" ? "I2RT YAM · native physics pose" : robot?.kinematics_kind === "six_dof_kinematic" ? "6 DOF · backend forward kinematics" : "Cartesian gantry · backend pose"}</span></div></ViewerBoundary> : fallback}
+    {!!robot?.joint_angles?.length && <div className="fl3-joints" aria-label="Actual robot joint angles">{robot.joint_angles.map((angle, i) => <span key={i}>J{i + 1} {(angle * 180 / Math.PI).toFixed(1)}°</span>)}</div>}
   </div>;
 }
 
@@ -58,7 +64,7 @@ function PlanWorld(props: WorldProps) {
     </g>;
   }
   const robot = world?.robot as (NonNullable<WorldProps["world"]>["robot"] & { kinematics_kind?: string; link_positions?: Vec3[] | null }) | undefined;
-  const chain = robot?.kinematics_kind === "six_dof_kinematic" ? robot.link_positions : null;
+  const chain = ["six_dof_kinematic", "robosim_physics"].includes(robot?.kinematics_kind ?? "") ? robot?.link_positions : null;
   return <div className="fl-world-wrap">
     <svg viewBox="0 0 850 480" className="fl-world" role="img" aria-label={world ? `Backend world, ${world.state}, ${world.step} executed actions` : "Observed camera estimates awaiting simulation"}>
       <defs><pattern id="fl-floor" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#d8dfd4" /></pattern></defs>
@@ -70,7 +76,7 @@ function PlanWorld(props: WorldProps) {
       {world?.obstacles.map((o) => box(o.id, o.center, o.size, "#cf8073", o.id))}
       {[...objects].sort((a, b) => a.position[0] + a.position[1] - b.position[0] - b.position[1]).map((o, i) => box(o.id, o.position, o.dimensions, COLORS[i % COLORS.length]!, o.id + (!o.visible ? " · uncertain" : ""), o.id === targetId, o.visible ? 1 : .35, o.yaw_rad))}
       {robot && <g>
-        {chain && chain.length > 1 ? chain.map((joint, index) => <g key={index}>{index > 0 && <line {...line(chain[index - 1]!, joint)} stroke={index % 2 ? "#8b9f68" : "#4a5c47"} strokeWidth="10" strokeLinecap="round" />}<circle cx={project(joint)[0]} cy={project(joint)[1]} r="6" fill="#50654b" /></g>) : <><line {...line([0, 0, .52 * unit], [workspace[0], 0, .52 * unit])} stroke="#4a5650" strokeWidth="11" strokeLinecap="round" />
+        {chain && chain.length > 1 ? chain.map((joint, index) => <g key={index}>{index > 0 && <line {...line(chain[index - 1]!, joint)} stroke={index % 2 ? "#8b9f68" : "#4a5c47"} strokeWidth="10" strokeLinecap="round" />}<circle cx={project(joint)[0]} cy={project(joint)[1]} r="6" fill="#50654b" /></g>) : robot.kinematics_kind === "robosim_physics" ? null : <><line {...line([0, 0, .52 * unit], [workspace[0], 0, .52 * unit])} stroke="#4a5650" strokeWidth="11" strokeLinecap="round" />
         <line {...line([robot.position[0], 0, .52 * unit], [robot.position[0], workspace[1], .52 * unit])} stroke="#66756b" strokeWidth="8" strokeLinecap="round" />
         <line {...line([robot.position[0], robot.position[1], .52 * unit], robot.position)} stroke="#334137" strokeWidth="7" /></>}
         <circle cx={project(robot.position)[0]} cy={project(robot.position)[1]} r="9" fill={robot.holding_id ? "#336138" : "#fff"} stroke="#26332a" strokeWidth="3" />
@@ -79,6 +85,6 @@ function PlanWorld(props: WorldProps) {
       <text x="24" y="32" fill="#44513e" fontSize="12" fontFamily="monospace">{world ? `SIMULATOR · ${world.state} · v${world.version}` : "OBSERVED ESTIMATES · AWAITING RUN"}</text>
       <text x="24" y="454" fill="#44513e" fontSize="12" fontFamily="monospace">{world?.coordinate_frame === "workcell_m" || observed?.coordinate_frame === "workcell_m" ? "METRES ·" : "NORMALIZED UNITS ·"} {provenance.label}</text>
     </svg>
-    <div className="fl-world-footer"><span>{world ? `Action ${world.step} · ${(world.sim_elapsed_ms / 1000).toFixed(1)}s simulated` : `${objects.length} objects estimated`}</span><span>{robot?.holding_id ? `Held: ${robot.holding_id} · simulator authority` : chain ? "6 DOF · backend forward kinematics" : "Virtual Cartesian gripper"}</span></div>
+    <div className="fl-world-footer"><span>{world ? `Action ${world.step} · ${(world.sim_elapsed_ms / 1000).toFixed(1)}s simulated` : `${objects.length} objects estimated`}</span><span>{robot?.holding_id ? `Held: ${robot.holding_id} · simulator authority` : robot?.kinematics_kind === "robosim_physics" ? "I2RT YAM · native physics pose" : chain ? "6 DOF · backend forward kinematics" : "Virtual Cartesian gripper"}</span></div>
   </div>;
 }

@@ -11,13 +11,16 @@ export type ObservedScene = {
   coordinate_frame: CoordinateFrame; sensor_mode: string; camera_source: string;
   frame_ref: string | null; objects: ObjectEstimate[]; workspace: [number, number]; depth_available: boolean;
 };
+export type RobotMeshPose = { name: string; mesh: string; position: Vec3; quaternion: [number, number, number, number] };
 export type Zone = { id: string; center: Vec3; size: Vec3 };
 export type SimWorld = {
   episode_id: string; version: number; coordinate_frame: CoordinateFrame; workspace: [number, number];
-  objects: (ObjectEstimate & { authority: "camera" | "simulator" })[];
+  objects: (ObjectEstimate & { authority: "camera" | "simulator"; orientation_quaternion?: [number, number, number, number] | null })[];
   robot: { position: Vec3; gripper_state: string; holding_id: string | null;
-    kinematics_kind?: "cartesian" | "six_dof_kinematic"; joint_angles?: number[] | null;
-    joint_limits?: [number, number][] | null; link_positions?: Vec3[] | null; tool_rotation?: number[][] | null;
+    kinematics_kind?: "cartesian" | "six_dof_kinematic" | "robosim_physics"; joint_angles?: number[] | null;
+    joint_limits?: [number, number][] | null; link_positions?: Vec3[] | null; tool_rotation?: number[][] | null; visual_model_id?: string | null; mesh_poses?: RobotMeshPose[] | null;
+    native_contacts?: { body_a: string; body_b: string; distance_m?: number | null; normal_force_n?: number | null }[];
+    native_physics?: { engine?: string; device?: string; sim_time?: number; contact_count?: number; jaw_closed_fraction?: number; active_arm?: string; idle_arm?: string };
   };
   destination: Zone; obstacles: Zone[]; step: number; sim_elapsed_ms: number; state: string;
 };
@@ -35,9 +38,14 @@ export type Scenario = {
   initial_scene: ObservedScene; destination: Zone; obstacles: Zone[];
   disturbances: Disturbance[]; limits?: { max_actions: number; max_sim_seconds: number }; provenance: Record<string, unknown>;
 };
+export type PolicyManifest = {
+  policy_id: string; model: string | null; version: string; prompt_hash: string | null;
+  adapter_type?: string; parameters?: Record<string, unknown>;
+};
+export type ControllerState = { manifest: PolicyManifest; model_calls: number; inference_elapsed_ms: number };
 export type CaseResult = {
   episode_id: string; case_id: string; scenario_hash: string; source: string;
-  policy: { policy_id: string; model: string | null; version: string; prompt_hash: string | null };
+  policy: PolicyManifest;
   outcome: string; reason: string; task_success: boolean; constraint_violations: string[];
   actions: number; recovery_attempts: number; sim_elapsed_ms: number; wall_elapsed_ms: number;
   inference_elapsed_ms: number; model_calls: number; trace_ref: string; verified: boolean;
@@ -47,7 +55,7 @@ export type SessionState = {
   session_id: string; status: string; error: string | null; camera_status: string;
   last_frame_age_ms: number | null; calibrated: boolean; observed: ObservedScene;
   world: SimWorld | null; result: CaseResult | null; events: TraceEvent[]; running: boolean;
-  live_disturbances?: Disturbance[]; case_id?: string; task?: Scenario["task"];
+  live_disturbances?: Disturbance[]; case_id?: string; task?: Scenario["task"]; controller?: ControllerState | null;
 };
 export type PolicyOption = { id: string; available: boolean; kind: string };
 export type RobotDescriptor = {
@@ -55,6 +63,7 @@ export type RobotDescriptor = {
   motion_validation?: string; scope?: string; implemented?: boolean;
 };
 export type Health = { ok: boolean; policies: PolicyOption[]; data_mode: string; execution: string;
+  robosim?: { available: boolean; verified: boolean; reason?: string | null; engine?: string | null; status?: string };
   robots?: RobotDescriptor[]; jev?: { available: boolean; verified: boolean; model: string | null };
 };
 export type Gate = {
@@ -73,6 +82,9 @@ export const POLICY_NAMES: Record<string, string> = {
   scripted_open_loop: "Scripted · open loop",
   scripted_reobserve: "Scripted · reobserve",
   scripted_obstacle_aware: "Scripted · obstacle aware",
+  "jev_gpt-6.1-sol": "GPT 6.1 Sol + Jev feedback",
+  "jev_gpt-6-astra": "GPT 6 Astra + Jev feedback",
+  "jev_claude-opus-5-5": "Claude Opus 5.5 + Jev feedback",
   "gpt-6.1-sol": "GPT 6.1 Sol",
   "gpt-6-astra": "GPT 6 Astra",
   "claude-opus-5-5": "Claude Opus 5.5",

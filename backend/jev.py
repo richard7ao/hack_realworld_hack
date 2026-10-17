@@ -21,6 +21,27 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 JEV_MODEL = "jev-1.14.0"
 JEV_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
+MANIPULATION_GUIDANCE_VERSION = "manipulation_guidance_v1"
+MANIPULATION_CAUSES = {
+    "nominal": "No rejection or observed uncertainty requires a recovery step.",
+    "stale_pose": "A displacement/stale-pose rejection or stale target estimate requires fresh sensing.",
+    "uncertain_target": "Target is absent, invisible, or below confident localization.",
+    "contact_uncertain": "Gripper closure/contact/holding feedback does not establish a stable target grasp.",
+    "obstructed_route": "Observed obstacle geometry or contact feedback makes the proposed travel route unsafe.",
+    "invalid_action_or_reach": "Pose, orientation, reach or action preconditions caused rejection.",
+    "insufficient_evidence": "Current permitted observations do not establish another cause.",
+}
+MANIPULATION_INTENTS = {
+    "REOBSERVE": "Refresh object and obstacle estimates before planning another interaction.",
+    "APPROACH_TARGET": "Move to the currently observed target pose while avoiding observed obstacles.",
+    "GRASP_TARGET": "Close on the target only if TCP alignment, visibility and fresh sensing support it.",
+    "LIFT": "Raise a securely held target to the declared safe travel height.",
+    "CARRY_TO_DESTINATION": "Route a securely held target above the observed destination.",
+    "LOWER": "Lower above the observed destination to its release pose.",
+    "RELEASE": "Release the held target at the observed destination; evaluator will verify it.",
+    "REQUEST_HELP": "Stop and request help when sensing, contacts or observed geometry do not support a safe step.",
+    "FINISH": "Finish the sequence after release; never claim verified success.",
+}
 CAUSES = {
     "stale_target_pose": "The controller acted on an old pose after a visible target displacement.",
     "target_uncertain_or_occluded": "The camera could not confidently localize the target, including occlusion.",
@@ -230,6 +251,63 @@ async def triage_episode(scenario: dict, result: dict, events: list[dict], *, cl
         "scope": {"case_id": scenario["case_id"], "episode_id": result["episode_id"], "scenario_sha256": state["scenario_sha256"],
                   "event_count_sent": len(state["execution_events"]), "image_sent": False},
         **provenance, "answers": answers, "raw_validated_response": raw}
+
+
+def manipulation_state(observation, last_action=None, capabilities=None):
+    """Compact, explicitly selected policy-visible evidence; never accepts an env."""
+    from .models import PolicyObservation, PolicyAction
+    obs = PolicyObservation.model_validate(observation)
+    robot = obs.robot
+    physics = robot.native_physics or {}
+    # native_physics also carries initial object poses and renderer metadata;
+    # those are deliberately not input to the assistance model.
+    robot_state = {"tcp_position": robot.position, "gripper_state": robot.gripper_state,
+        "holding_id": robot.holding_id, "joint_angles": robot.joint_angles,
+        "joint_limits": robot.joint_limits, "kinematics_kind": robot.kinematics_kind,
+        "jaw_closed_fraction": physics.get("jaw_closed_fraction"),
+        "jaw_joint_positions_m": physics.get("jaw_joint_positions_m"),
+        "contact_summary": {"native_contact_count": len(robot.native_contacts),
+            "reported_contact_count": physics.get("contact_count")}}
+    allowed_capabilities = {key: value for key, value in (capabilities or {}).items() if key in {
+        "action_space", "coordinate_frame", "workspace", "safe_travel_height", "max_height", "grasp_tolerance",
+        "max_actions", "execution_backend", "orientation_control", "grasp_validation", "robot_model"}}
+    previous = PolicyAction.model_validate(last_action).model_dump(mode="json") if last_action is not None else None
+    return _safe({"scope": "Pre-action manipulation advice from the current permitted policy observation only. No hidden world, future disturbances, evaluator result or images.",
+        "episode_id": obs.episode_id, "step": obs.step, "observed_at_step": obs.observed_at_step,
+        "coordinate_frame": obs.coordinate_frame, "workspace": obs.workspace,
+        "task": obs.task.model_dump(mode="json"), "robot": robot_state,
+        "observed_objects": [{k: obj.model_dump(mode="json")[k] for k in ("id", "label", "position", "dimensions", "yaw_rad", "visible", "confidence")} for obj in obs.detected_objects],
+        "observed_destination": obs.destination.model_dump(mode="json"),
+        "observed_obstacles": [z.model_dump(mode="json") for z in obs.observed_obstacles],
+        "last_action_result": {"status": obs.last_action_result.status, "reason": obs.last_action_result.reason,
+                               "action_type": obs.last_action_result.action_type},
+        "last_action": previous, "public_capabilities": allowed_capabilities})
+
+
+async def advise_manipulation(observation, last_action=None, capabilities=None, *, client=None) -> dict:
+    """Typed pre-action recovery guidance. The frontier model still chooses motion."""
+    state = manipulation_state(observation, last_action, capabilities)
+    payload = {"model": JEV_MODEL, "state": state, "questions": {
+        "cause": {"type": "choice", "instructions": "Classify the current manipulation risk or reason for recovery, using only current sampled estimates and robot feedback. A held object needs real holding/contact evidence; stale observations cannot establish a changed pose.", "criteria": MANIPULATION_CAUSES},
+        "recommended_intent": {"type": "choice", "instructions": "Recommend the next manipulation intent for a frontier controller. Reobserve after a rejected grasp or stale pose; request help for persistent uncertainty. Before grasp, align TCP to a fresh visible target. While holding, lift to public safe_travel_height before carrying, travel above destination, lower, release, then finish. Advice cannot certify success or override the executor.", "criteria": MANIPULATION_INTENTS},
+        "unsafe_to_repeat": {"type": "noul", "instructions": "Would repeating the previous action without refreshed sensing or a changed plan be unsafe or likely to fail given the observed rejection, confidence, contacts or obstacles?", "criteria": {"true": "Current evidence supports changing the plan or refreshing sensing before repetition.", "false": "Current evidence supports ordinary continuation, or no previous action exists."}},
+    }}
+    raw, provenance = await _call(payload, client=client)
+    try:
+        if set(raw["answers"]) != set(payload["questions"]):
+            raise ValueError("Unexpected manipulation answer names")
+        cause = Choice.model_validate(raw["answers"]["cause"])
+        intent = Choice.model_validate(raw["answers"]["recommended_intent"])
+        risk = Noul.model_validate(raw["answers"]["unsafe_to_repeat"])
+        if set(cause.probabilities) != set(MANIPULATION_CAUSES) or set(intent.probabilities) != set(MANIPULATION_INTENTS):
+            raise ValueError("Manipulation response must retain all requested choices")
+    except (ValueError, KeyError, TypeError):
+        raise JevError("Jev manipulation guidance invalid; no action guidance established") from None
+    return {"kind": "jev.manipulation_guidance", "guidance_version": MANIPULATION_GUIDANCE_VERSION,
+        "advisory_only": True, "changes_oracle": False, "changes_motion_directly": False,
+        "scope": {"episode_id": state["episode_id"], "step": state["step"], "observed_at_step": state["observed_at_step"], "image_sent": False},
+        **provenance, "answers": {"cause": cause.model_dump(), "recommended_intent": intent.model_dump(), "unsafe_to_repeat": risk.model_dump()},
+        "request": payload, "raw_validated_response": raw}
 
 
 def crop_tabletop(jpeg: bytes, pixel_bounds: tuple[int, int, int, int]):

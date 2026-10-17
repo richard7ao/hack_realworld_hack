@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera } from "@/components/faultline/Camera";
+import { ControllerPanel } from "@/components/faultline/ControllerPanel";
 import { World } from "@/components/faultline/World";
 import { Result, Trace } from "@/components/faultline/Trace";
 import { Recorder } from "@/components/faultline/Recorder";
@@ -19,13 +20,15 @@ export default function LiveLab() {
   const sessionRef = useRef<SessionCredentials | null>(null);
   const creating = useRef<Promise<SessionCredentials> | null>(null);
   const [state, setState] = useState<LiveState | null>(null);
-  const [viewMode, setViewMode] = useState<"camera" | "warehouse">("camera");
+  const [viewMode, setViewMode] = useState<"camera" | "warehouse" | "physics">("camera");
   const [cameraRobotId, setCameraRobotId] = useState("cartesian");
   const [warehouseRobotId, setWarehouseRobotId] = useState("industrial_6r");
   const [focusStage, setFocusStage] = useState(false);
   const [health, setHealth] = useState<Health | null>(null);
   const [error, setError] = useState(""); const [notice, setNotice] = useState(""); const [pending, setPending] = useState("");
   const [targetId, setTargetId] = useState(""); const [policyId, setPolicyId] = useState("scripted_open_loop");
+  const policyDefaultApplied = useRef(false);
+  const policyManuallySelected = useRef(false);
   const [pace, setPace] = useState("1.5"); const [caseName, setCaseName] = useState("Tabletop target displacement");
   const [confirmed, setConfirmed] = useState(false);
   const [scenarios, setScenarios] = useState<Scenario[]>([]); const [selectedCase, setSelectedCase] = useState("");
@@ -71,6 +74,15 @@ export default function LiveLab() {
     void status(); const timer = setInterval(() => void status(), 10_000);
     return () => { active = false; clearInterval(timer); };
   }, []);
+  useEffect(() => {
+    if (!health || policyDefaultApplied.current) return;
+    policyDefaultApplied.current = true;
+    if (!policyManuallySelected.current) {
+      if (health.policies.some((policy) => policy.id === "jev_gpt-6.1-sol" && policy.available)) setPolicyId("jev_gpt-6.1-sol");
+      else if (health.policies.some((policy) => policy.id === "gpt-6.1-sol" && policy.available)) setPolicyId("gpt-6.1-sol");
+    }
+  }, [health]);
+  const choosePolicy = (value: string) => { policyManuallySelected.current = true; setPolicyId(value); };
   const loadBenchmarks = useCallback(async () => {
     const saved = await faultline<{ benchmarks: Benchmark[] }>("benchmarks");
     setSavedBenchmarks(saved.benchmarks);
@@ -100,9 +112,10 @@ export default function LiveLab() {
   useEffect(() => { if (!targetId && state?.observed.objects[0]) setTargetId(state.observed.objects[0].id); }, [targetId, state?.observed.objects]);
   useEffect(() => { setConfirmed(false); }, [state?.episode_id, state?.world?.episode_id]);
   useEffect(() => {
-    if (state?.run_mode === "scenario_preview" || (state?.run_mode === "scenario_rerun" && state.scenario_source === "procedural")) setViewMode("warehouse");
+    if (state?.world?.robot.kinematics_kind === "robosim_physics") setViewMode("physics");
+    else if (state?.run_mode === "scenario_preview" || (state?.run_mode === "scenario_rerun" && state.scenario_source === "procedural")) setViewMode("warehouse");
     if (state?.case_id && ["scenario_preview", "scenario_rerun"].includes(state.run_mode ?? "")) setSelectedCase(state.case_id);
-  }, [state?.run_mode, state?.case_id, state?.scenario_source]);
+  }, [state?.run_mode, state?.case_id, state?.scenario_source, state?.world?.robot.kinematics_kind]);
   useEffect(() => {
     if (state?.observed.coordinate_frame !== "workcell_m") setCameraRobotId("cartesian");
   }, [state?.observed.coordinate_frame]);
@@ -137,13 +150,24 @@ export default function LiveLab() {
     await loadScenarios(); await refresh();
     setNotice(`Loaded warehouse preview and saved ${response.scenarios.length} reproducible scenario definitions. No policy execution has started.`);
   }
+  async function loadRoboSim() {
+    const credentials = await ensureSession();
+    const response = await faultline<{ scenarios: Scenario[]; preview_case_id: string; executed: false }>("workcells/robosim", {
+      session: credentials, body: { session_id: credentials.session_id, count: 2, seed: 42017 },
+    });
+    setViewMode("physics"); setSelectedCase(response.preview_case_id);
+    const preview = response.scenarios.find((saved) => saved.case_id === response.preview_case_id);
+    if (preview) setTargetId(preview.task.target_id);
+    await loadScenarios(); await refresh();
+    setNotice(`Loaded ${response.scenarios.length} native-physics scenario definitions. Preview only; no policy episode has executed.`);
+  }
   async function loadScenarioPreview(caseId: string) {
     if (!caseId) return;
     const credentials = await ensureSession();
     const response = await faultline<{ scenario: Scenario; executed: false }>("workcells/scenario", {
       session: credentials, body: { session_id: credentials.session_id, case_id: caseId },
     });
-    setViewMode("warehouse"); setSelectedCase(response.scenario.case_id); setTargetId(response.scenario.task.target_id);
+    setViewMode(response.scenario.provenance.execution_backend === "robosimstudio_cpu" ? "physics" : "warehouse"); setSelectedCase(response.scenario.case_id); setTargetId(response.scenario.task.target_id);
     await refresh();
     setNotice(`Previewing ${response.scenario.name}. Its saved geometry, robot and disturbances are unchanged; no inference has run.`);
   }
@@ -156,7 +180,7 @@ export default function LiveLab() {
     const credentials = await ensureSession();
     if (!selectedCase) throw new Error("Load the warehouse preview or select a saved scenario first.");
     await faultline(`replays/${selectedCase}/rerun`, { session: credentials, body: { session_id: credentials.session_id, policy_id: policyId, delay_seconds: Number(pace) } });
-    setNotice("Fresh warehouse execution started using the saved robot, geometry, seed and disturbance schedule."); await refresh();
+    setNotice("Fresh scenario execution started using its saved execution backend, robot, geometry, seed and disturbance schedule."); await refresh();
   }
   async function control(command: "pause" | "resume" | "stop") {
     if (!session) return;
@@ -216,8 +240,9 @@ export default function LiveLab() {
   const robotId = viewMode === "warehouse" ? warehouseRobotId : cameraRobotId;
   const robots = health?.robots ?? [];
   const robotDescriptor = robots.find((robot) => robot.id === robotId);
-  const warehouseScenarios = scenarios.filter((saved) => saved.source === "procedural" && (saved.family.startsWith("warehouse_") || saved.case_id.startsWith("WAREHOUSE-") || !!saved.provenance.warehouse));
-  const stageObjects = viewMode === "warehouse" ? stageScenario?.initial_scene.objects ?? state?.world?.objects ?? [] : state?.observed.objects ?? [];
+  const physicsScenarios = scenarios.filter((saved) => saved.provenance.execution_backend === "robosimstudio_cpu");
+  const warehouseScenarios = scenarios.filter((saved) => saved.provenance.execution_backend !== "robosimstudio_cpu" && saved.source === "procedural" && (saved.family.startsWith("warehouse_") || saved.case_id.startsWith("WAREHOUSE-") || !!saved.provenance.warehouse));
+  const stageObjects = viewMode !== "camera" ? stageScenario?.initial_scene.objects ?? state?.world?.objects ?? [] : state?.observed.objects ?? [];
   const policies = health?.policies ?? [];
   const policyAvailable = (id: string) => policies.some((p) => p.id === id && p.available);
   const worlds = playback?.events.filter((e) => e.kind === "sim.state").map((e) => e.data as unknown as SimWorld) ?? [];
@@ -238,32 +263,36 @@ export default function LiveLab() {
       <div className="fl-title-row"><div><h1>Turn a physical failure into a regression test.</h1><p>Track real objects. Run a virtual pick. Preserve the disturbance and verify another policy.</p></div><Recorder /></div>
       {error && <div className="fl-error fl-banner" role="alert"><strong>Action needs attention.</strong> {error}<button className="fl-text-link" onClick={() => setError("")}>Dismiss</button></div>}
       {notice && <div className="fl-notice" role="status">{notice}</div>}
-      <div className="fl-session-strip"><span>{session ? `Session ${session.session_id}` : "No local session yet"}</span><span>{viewMode === "warehouse" ? state?.world ? `Warehouse geometry · ${state.world.workspace.map((value) => value.toFixed(1)).join(" × ")}m` : "Warehouse not loaded" : state?.calibrated ? state.observed.coordinate_frame === "workcell_m" ? `Calibrated · ${state.observed.workspace.map((value) => value.toFixed(2)).join(" × ")}m` : "Calibrated · normalized coordinates" : "Workspace not calibrated"}</span><span>{viewMode === "warehouse" ? "PROCEDURAL SCENE" : state?.camera_status ?? "CAMERA DISCONNECTED"}</span><span>{viewMode === "warehouse" ? "Declared geometry · no physical capture" : "Depth unavailable · RGB estimate"}</span></div>
+      <div className="fl-session-strip"><span>{session ? `Session ${session.session_id}` : "No local session yet"}</span><span>{viewMode !== "camera" ? state?.world ? `${viewMode === "physics" ? "Physics" : "Warehouse"} geometry · ${state.world.workspace.map((value) => value.toFixed(1)).join(" × ")}m` : "Scene not loaded" : state?.calibrated ? state.observed.coordinate_frame === "workcell_m" ? `Calibrated · ${state.observed.workspace.map((value) => value.toFixed(2)).join(" × ")}m` : "Calibrated · normalized coordinates" : "Workspace not calibrated"}</span><span>{viewMode === "physics" ? "ROBOSIM NATIVE PHYSICS" : viewMode === "warehouse" ? "PROCEDURAL KINEMATICS" : state?.camera_status ?? "CAMERA DISCONNECTED"}</span><span>{viewMode !== "camera" ? "Declared geometry · no physical capture" : "Depth unavailable · RGB estimate"}</span></div>
       <div className="fl-workcell-toolbar">
-        <div className="fl-workcell-tabs" role="group" aria-label="Workcell view mode"><button type="button" aria-pressed={viewMode === "warehouse"} disabled={busy || state?.running} onClick={() => void action("Loading warehouse", loadWarehouse)}>Warehouse demo</button><button type="button" aria-pressed={viewMode === "camera"} disabled={busy || state?.running} onClick={() => void action("Camera workcell", switchToCamera)}>Camera workcell</button></div>
-        <p>{viewMode === "warehouse" ? "Saved procedural warehouse · camera movement is isolated from the scenario." : "Real camera estimates · calibrate the table and select unmarked objects."}</p>
+        <div className="fl-workcell-tabs" role="group" aria-label="Workcell view mode"><button type="button" aria-pressed={viewMode === "warehouse"} disabled={busy || state?.running} onClick={() => void action("Loading warehouse", loadWarehouse)}>Warehouse demo</button><button type="button" aria-pressed={viewMode === "camera"} disabled={busy || state?.running} onClick={() => void action("Camera workcell", switchToCamera)}>Camera workcell</button><button type="button" aria-pressed={viewMode === "physics"} disabled={busy || state?.running || !health?.robosim?.available} title={health?.robosim?.reason ?? undefined} onClick={() => void action("Loading RoboSim physics", loadRoboSim)}>RoboSim physics{!health?.robosim?.available ? " · unavailable" : ""}</button></div>
+        <p>{viewMode === "physics" ? `${health?.robosim?.engine ?? "Native CPU physics"} · saved scenarios, native joint/object state.` : viewMode === "warehouse" ? "Saved procedural warehouse · camera movement is isolated from the scenario." : "Real camera estimates · calibrate the table and select unmarked objects."}</p>
         <button className="fl-button fl-button-secondary" aria-pressed={focusStage} onClick={() => setFocusStage(!focusStage)}>{focusStage ? "Show camera & trace" : "Focus 3D stage"}</button>
       </div>
       <div id="capture" className={`fl-live-grid fl-stage-layout ${focusStage ? "is-focused-stage" : ""}`}>
         <section className="fl-panel fl-simulation-panel">
-          <div className="fl-panel-heading"><h2>{viewMode === "warehouse" ? "Warehouse workcell" : "Camera workcell twin"}</h2><span className="fl-status">{state?.run_mode === "scenario_preview" ? "SCENARIO PREVIEW · NOT EXECUTED" : "SIMULATED EXECUTION"}</span></div>
-          <World world={state?.world ?? null} observed={viewMode === "camera" ? state?.observed : undefined} targetId={stageTargetId} source={state?.world ? state.scenario_source : viewMode === "camera" ? "live_rgb" : "simulation"} provenance={{ source: state?.scenario_source, run_mode: state?.run_mode }} cinematicDefault />
+          <div className="fl-panel-heading"><h2>{viewMode === "physics" ? "RoboSim physics workcell" : viewMode === "warehouse" ? "Warehouse workcell" : "Camera workcell twin"}</h2><span className="fl-status">{state?.run_mode === "scenario_preview" ? "SCENARIO PREVIEW · NOT EXECUTED" : "SIMULATED EXECUTION"}</span></div>
+          <World world={state?.world ?? null} observed={viewMode === "camera" ? state?.observed : undefined} targetId={stageTargetId} source={state?.world ? state.scenario_source : viewMode === "camera" ? "live_rgb" : "simulation"} provenance={{ ...stageScenario?.provenance, source: state?.scenario_source, run_mode: state?.run_mode }} cinematicDefault />
+          <ControllerPanel selectedPolicyId={policyId} selectedPolicyAvailable={policyAvailable(policyId)} frontierAvailable={policyAvailable("gpt-6.1-sol")} configurationLoaded={!!health} controller={state?.controller} events={liveTraceEvents} episodeId={currentEpisode} runMode={state?.run_mode} running={state?.running ?? false} result={state?.result} />
           <div className="fl-run-controls">
-            {viewMode === "warehouse" && <label className="fl-field" htmlFor="fl-warehouse-case">Warehouse scenario · preview only<select id="fl-warehouse-case" value={stageScenario?.case_id ?? selectedCase} disabled={busy || state?.running} onChange={(event) => void action("Loading scenario preview", () => loadScenarioPreview(event.target.value))}><option value="">Load a warehouse or choose a saved warehouse case</option>{warehouseScenarios.map((saved) => <option key={saved.case_id} value={saved.case_id}>{saved.name} · {saved.case_id}</option>)}</select></label>}
+            {viewMode !== "camera" && <label className="fl-field" htmlFor="fl-warehouse-case">{viewMode === "physics" ? "Native physics scenario · preview only" : "Warehouse scenario · preview only"}<select id="fl-warehouse-case" value={stageScenario?.case_id ?? selectedCase} disabled={busy || state?.running} onChange={(event) => void action("Loading scenario preview", () => loadScenarioPreview(event.target.value))}><option value="">Load a warehouse or choose a saved warehouse case</option>{(viewMode === "physics" ? physicsScenarios : warehouseScenarios).map((saved) => <option key={saved.case_id} value={saved.case_id}>{saved.name} · {saved.case_id}</option>)}</select></label>}
             <div className="fl-stage-control-grid">
-              <label className="fl-field" htmlFor="fl-robot">Robot configuration<select id="fl-robot" value={robotId} disabled={busy || state?.running} onChange={(event) => viewMode === "warehouse" ? setWarehouseRobotId(event.target.value) : setCameraRobotId(event.target.value)}>{robots.length ? robots.map((robot) => <option key={robot.id} value={robot.id} disabled={viewMode === "camera" && (robot.requires_metric ?? robot.kind !== "cartesian") && state?.observed.coordinate_frame !== "workcell_m"}>{robot.name} · {robot.dof} DOF{viewMode === "camera" && (robot.requires_metric ?? robot.kind !== "cartesian") && state?.observed.coordinate_frame !== "workcell_m" ? " · measured calibration required" : ""}</option>) : <option value={robotId}>{robotId === "industrial_6r" ? "Generic industrial 6R arm" : "Cartesian gripper"}</option>}</select></label>
-              <label className="fl-field" htmlFor="fl-policy">Policy adapter{policySelect(policyId, setPolicyId, "fl-policy")}</label>
-              <label className="fl-field" htmlFor="fl-target">{viewMode === "warehouse" ? "Manifest target" : "Target object"}<select id="fl-target" value={viewMode === "warehouse" ? stageTargetId : targetId} onChange={(event) => setTargetId(event.target.value)} disabled={state?.running || viewMode === "warehouse"}><option value="">Select an object</option>{stageObjects.map((object) => <option key={object.id} value={object.id}>{object.id} · {object.label}{!object.visible ? " · uncertain" : ""}</option>)}</select></label>
+              {viewMode === "physics" ? <label className="fl-field">Native robot model<input readOnly value={`I2RT YAM · ${state?.world?.robot.joint_angles?.length ? `${state.world.robot.joint_angles.length} native joints` : "bimanual native model"}`} /></label> : <label className="fl-field" htmlFor="fl-robot">Robot configuration<select id="fl-robot" value={robotId} disabled={busy || state?.running} onChange={(event) => viewMode === "warehouse" ? setWarehouseRobotId(event.target.value) : setCameraRobotId(event.target.value)}>{robots.length ? robots.map((robot) => <option key={robot.id} value={robot.id} disabled={viewMode === "camera" && (robot.requires_metric ?? robot.kind !== "cartesian") && state?.observed.coordinate_frame !== "workcell_m"}>{robot.name} · {robot.dof} DOF{viewMode === "camera" && (robot.requires_metric ?? robot.kind !== "cartesian") && state?.observed.coordinate_frame !== "workcell_m" ? " · measured calibration required" : ""}</option>) : <option value={robotId}>{robotId === "industrial_6r" ? "Generic industrial 6R arm" : "Cartesian gripper"}</option>}</select></label>}
+              <label className="fl-field" htmlFor="fl-policy">Policy adapter{policySelect(policyId, choosePolicy, "fl-policy")}</label>
+              <label className="fl-field" htmlFor="fl-target">{viewMode !== "camera" ? "Manifest target" : "Target object"}<select id="fl-target" value={viewMode !== "camera" ? stageTargetId : targetId} onChange={(event) => setTargetId(event.target.value)} disabled={state?.running || viewMode !== "camera"}><option value="">Select an object</option>{stageObjects.map((object) => <option key={object.id} value={object.id}>{object.id} · {object.label}{!object.visible ? " · uncertain" : ""}</option>)}</select></label>
             </div>
             <div className="fl-toolbar">
+              {viewMode === "physics" && <button className="fl-button fl-button-secondary" disabled={busy || state?.running || !health?.robosim?.available} onClick={() => void action("Loading RoboSim physics", loadRoboSim)}>Load native physics scene</button>}
               {viewMode === "warehouse" && <button className="fl-button fl-button-secondary" disabled={busy || state?.running} onClick={() => void action("Loading warehouse", loadWarehouse)}>{pending === "Loading warehouse" ? "Loading…" : "Load warehouse"}</button>}
-              <button className="fl-button fl-button-primary" disabled={busy || state?.running || !policyAvailable(policyId) || (viewMode === "camera" ? !state?.calibrated || !targetId : !selectedCase || !state?.world)} onClick={() => void action("Starting execution", viewMode === "warehouse" ? startWarehouse : startLive)}>{pending === "Starting execution" ? "Starting…" : viewMode === "warehouse" ? "Run saved warehouse scenario" : "Start live pick"}</button>
+              <button className="fl-button fl-button-primary" disabled={busy || state?.running || !policyAvailable(policyId) || (viewMode === "camera" ? !state?.calibrated || !targetId : !selectedCase || !state?.world)} onClick={() => void action("Starting execution", viewMode !== "camera" ? startWarehouse : startLive)}>{pending === "Starting execution" ? "Starting…" : viewMode === "physics" ? "Run saved physics scenario" : viewMode === "warehouse" ? "Run saved warehouse scenario" : "Start live pick"}</button>
               <label className="fl-inline-label">Action pace<select aria-label="Action pace" value={pace} onChange={(event) => setPace(event.target.value)} disabled={state?.running}><option value="1.5">1.5s</option><option value="2.5">2.5s</option><option value="4">4s · demo</option></select></label>
               {state?.running && <><button className="fl-button fl-button-secondary" disabled={busy} onClick={() => void action("Control", () => control(state.paused ? "resume" : "pause"))}>{state.paused ? "Resume policy" : "Pause policy"}</button><button className="fl-button fl-button-secondary" disabled={busy} onClick={() => void action("Stop", () => control("stop"))}>Stop</button></>}
             </div>
-            <p className="fl-caption">{viewMode === "warehouse" ? "Robot selection applies when loading a new warehouse. Saved scenarios keep their robot configuration, seed and disturbance boundary. Loading a preview does not execute a test." : "During a live run, move the real target after approach begins. Camera updates affect unheld objects; virtually grasped objects remain simulator-owned."}</p>
-            <div className="fl-execution-scope"><span>{state?.world?.robot.kinematics_kind === "six_dof_kinematic" ? "6R: analytic IK + joint limits + rigid-link collision proxies" : "Cartesian: swept collision proxy"}</span><span>{stageScenario?.limits ? `Limits: ${stageScenario.limits.max_actions} actions / ${stageScenario.limits.max_sim_seconds}s simulated` : "Bounded action and simulation budgets"}</span><span>Kinematics only · no contact dynamics or hardware certification</span></div>
-            {robotDescriptor?.motion_validation && <p className="fl-caption">Selected profile: {robotDescriptor.motion_validation}. {robotDescriptor.scope}</p>}
+            <p className="fl-caption">{viewMode === "physics" ? "This scene uses RoboSimStudio’s imported YAM robot and the native CPU physics worker. Loading a scene is a preview; Run executes a fresh policy episode. Saved definitions retain their original backend and seeds." : viewMode === "warehouse" ? "Robot selection applies when loading a new warehouse. Saved scenarios keep their robot configuration, seed and disturbance boundary. Loading a preview does not execute a test." : "During a live run, move the real target after approach begins. Camera updates affect unheld objects; virtually grasped objects remain simulator-owned."}</p>
+            <div className="fl-execution-scope"><span>{state?.world?.robot.kinematics_kind === "robosim_physics" ? `${health?.robosim?.engine ?? "Native CPU physics"} · actual native body and joint state` : state?.world?.robot.kinematics_kind === "six_dof_kinematic" ? "6R: analytic IK + joint limits + rigid-link collision proxies" : "Cartesian: swept collision proxy"}</span><span>{stageScenario?.limits ? `Limits: ${stageScenario.limits.max_actions} actions / ${stageScenario.limits.max_sim_seconds}s simulated` : "Bounded action and simulation budgets"}</span><span>{viewMode === "physics" ? "Native simulation · not a hardware certification" : "Kinematics only · no contact dynamics or hardware certification"}</span></div>
+            {viewMode === "physics" && state?.world?.robot.native_physics && <div className="fl-execution-scope"><span>Engine: {state.world.robot.native_physics.engine ?? health?.robosim?.engine ?? "native CPU worker"}</span>{state.world.robot.native_physics.device && <span>Device: {state.world.robot.native_physics.device}</span>}{typeof state.world.robot.native_physics.sim_time === "number" && <span>Native simulation time: {state.world.robot.native_physics.sim_time.toFixed(3)}s</span>}{typeof state.world.robot.native_physics.contact_count === "number" && <span>Native contacts: {state.world.robot.native_physics.contact_count}</span>}{state.world.robot.native_physics.active_arm && <span>Active arm: {state.world.robot.native_physics.active_arm} · idle arm: {state.world.robot.native_physics.idle_arm ?? "unspecified"}</span>}</div>}
+            {viewMode === "physics" && !!state?.world?.robot.native_contacts?.length && <details><summary>Inspect actual native contact rows</summary><pre>{JSON.stringify(state.world.robot.native_contacts, null, 2)}</pre></details>}
+            {viewMode !== "physics" && robotDescriptor?.motion_validation && <p className="fl-caption">Selected profile: {robotDescriptor.motion_validation}. {robotDescriptor.scope}</p>}
             <div className="fl-toolbar"><button className="fl-text-link" disabled={!session || busy || !state?.observed.objects.length} onClick={() => void action("Snapshot", async () => { const snapshot = await faultline("scenes/snapshot", { session, body: { session_id: session!.session_id } }); downloadJson(snapshot, "faultline-scene-snapshot.json"); setNotice("Downloaded the actual observed scene snapshot."); })}>Download camera scene snapshot</button><button className="fl-text-link" disabled={!state?.running || !["live_capture", "operator_injected"].includes(state?.run_mode ?? "") || busy} onClick={() => void action("Injecting", inject)}>Inject labelled virtual displacement</button></div>
           </div>
           {state?.result && <div className="fl-result-wrap"><Result result={state.result} /><button className="fl-text-link" disabled={busy} onClick={() => void action("Loading trace", () => loadEpisode(state.result!.episode_id))}>Open persisted execution trace</button></div>}

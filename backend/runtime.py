@@ -8,7 +8,8 @@ import uuid
 from dataclasses import dataclass, field
 
 from .capture import Tracker
-from .engine import Environment, collider_dimensions
+from .engine import collider_dimensions
+from .robosim import environment_for
 from .generator import generate_cases
 from .models import CaseResult, Disturbance, GateConfig, Scenario, Task, Zone
 from .oracle import compare_results
@@ -79,6 +80,9 @@ class Runtime:
             "last_frame_age_ms": (time.time() - tracker.received_at) * 1000 if tracker.received_at else None,
             "calibrated": tracker.calibration is not None, "observed": tracker.scene().model_dump(mode="json"),
             "world": s.env.world.model_dump(mode="json") if s.env else None,
+            "controller": {"manifest": getattr(s.env, "controller_manifest", None),
+                "model_calls": getattr(s.env, "model_calls", 0),
+                "inference_elapsed_ms": getattr(s.env, "inference_elapsed_ms", 0.)} if s.env else None,
             "episode_id": s.env.episode_id if s.env else None,
             "case_id": s.env.scenario.case_id if s.env else None,
             "task": s.env.scenario.task.model_dump(mode="json") if s.env else None,
@@ -89,19 +93,29 @@ class Runtime:
             "result": s.latest_result.model_dump(mode="json") if s.latest_result else None,
             "events": s.events[-100:], "running": bool(s.job and not s.job.done())}
 
-    def preview(self, s, case):
+    def preview(self, s, case, notify=None):
         if s.job and not s.job.done():
             raise ValueError("Finish the current episode before changing the workcell")
-        env = Environment("preview_" + uuid.uuid4().hex[:12])
-        env.reset(case, case.seed)
+        if s.env and hasattr(s.env, "close"):
+            s.env.close()
+        env = environment_for(case, "preview_" + uuid.uuid4().hex[:12])
+        try:
+            env.reset(case, case.seed)
+        except BaseException:
+            if hasattr(env, "close"):
+                env.close()
+            raise
         env.world.state = "IDLE"
         s.env, s.latest_result, s.status = env, None, "PREVIEW"
         s.error, s.paused, s.live_sync, s.mode = None, False, False, "scenario_preview"
-        self.publish(s, {"kind": "workcell.previewed", "data": {"case_id": case.case_id, "executed": False}})
+        event = {"kind": "workcell.previewed", "data": {"case_id": case.case_id, "executed": False}}
+        notify(event) if notify else self.publish(s, event)
 
     def camera_workcell(self, s):
         if s.job and not s.job.done():
             raise ValueError("Finish the current episode before changing the workcell")
+        if s.env and hasattr(s.env, "close"):
+            s.env.close()
         s.env, s.latest_result, s.error = None, None, None
         s.status, s.mode, s.live_sync, s.paused = "IDLE", "idle", False, False
 
@@ -137,6 +151,8 @@ class Runtime:
         if s.job and not s.job.done():
             raise ValueError("An episode is already running in this session")
         make_policy(policy_id)  # Validate availability before scheduling.
+        if s.env and hasattr(s.env, "close"):
+            s.env.close()
         s.latest_result, s.error, s.status = None, None, "RUNNING"
         s.live_sync, s.paused, s.stop_requested = live_sync, False, False
         s.mode = "live_capture" if live_sync else "scenario_rerun"

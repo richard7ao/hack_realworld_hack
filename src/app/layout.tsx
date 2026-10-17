@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { LegacyNotice } from "@/components/LegacyNotice";
 import "./globals.css";
 
 /*
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}>{children}</body>
+      <body style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}><LegacyNotice synthetic={(process.env.DATA_MODE ?? "fixture") !== "live"} />{children}</body>
     </html>
   );
 }

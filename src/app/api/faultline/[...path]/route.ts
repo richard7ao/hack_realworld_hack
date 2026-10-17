@@ -17,7 +17,9 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
     if (value) headers.set(key, value);
   }
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30_000);
+  // Native physics preparation can compile CPU kernels on the first load.
+  const preparingWorkcell = path[0] === "workcells" && ["robosim", "scenario"].includes(path[1] ?? "");
+  const timeout = setTimeout(() => controller.abort(), preparingWorkcell ? 120_000 : 30_000);
   try {
     const body = request.method === "GET" ? undefined : await request.arrayBuffer();
     if (body && body.byteLength > 1_600_000) return Response.json({ error: "Request exceeds 1.6 MB" }, { status: 413 });
@@ -30,7 +32,7 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
     return new Response(response.body, { status: response.status, headers: responseHeaders });
   } catch (err) {
     const timedOut = err instanceof Error && err.name === "AbortError";
-    return Response.json({ error: timedOut ? "Local backend timed out. Check its terminal." : "Local backend is unavailable. Start backend.app on port 8787." }, { status: timedOut ? 504 : 503 });
+    return Response.json({ error: timedOut ? preparingWorkcell ? "Workcell preparation timed out. Check the backend terminal; the first native physics load may compile CPU kernels." : "Local backend timed out. Check its terminal." : "Local backend is unavailable. Start backend.app on port 8787." }, { status: timedOut ? 504 : 503 });
   } finally { clearTimeout(timeout); }
 }
 export const GET = forward;

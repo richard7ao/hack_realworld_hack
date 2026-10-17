@@ -73,15 +73,20 @@ class Robot(Model):
     position: Vec3 = (0.1, 0.1, 0.25)
     gripper_state: Literal["open", "closed"] = "open"
     holding_id: str | None = None
-    kinematics_kind: Literal["cartesian", "six_dof_kinematic"] = "cartesian"
+    kinematics_kind: Literal["cartesian", "six_dof_kinematic", "robosim_physics"] = "cartesian"
     joint_angles: list[float] | None = None
     joint_limits: list[tuple[float, float]] | None = None
     link_positions: list[Vec3] | None = None
     tool_rotation: list[list[float]] | None = None
+    visual_model_id: str | None = None
+    mesh_poses: list[dict[str, Any]] = Field(default_factory=list)
+    native_contacts: list[dict[str, Any]] = Field(default_factory=list)
+    native_physics: dict[str, Any] | None = None
 
 
 class SimObject(ObjectEstimate):
     authority: Literal["camera", "simulator"] = "camera"
+    orientation_quaternion: tuple[float, float, float, float] | None = None
 
 
 class SimWorld(Model):

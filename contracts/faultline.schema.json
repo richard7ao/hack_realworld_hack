@@ -467,7 +467,8 @@
           "default": "cartesian",
           "enum": [
             "cartesian",
-            "six_dof_kinematic"
+            "six_dof_kinematic",
+            "robosim_physics"
           ],
           "title": "Kinematics Kind",
           "type": "string"
@@ -557,6 +558,47 @@
           ],
           "default": null,
           "title": "Tool Rotation"
+        },
+        "visual_model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Visual Model Id"
+        },
+        "mesh_poses": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Mesh Poses",
+          "type": "array"
+        },
+        "native_contacts": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Native Contacts",
+          "type": "array"
+        },
+        "native_physics": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Native Physics"
         }
       },
       "title": "Robot",
@@ -689,6 +731,34 @@
           ],
           "title": "Authority",
           "type": "string"
+        },
+        "orientation_quaternion": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Orientation Quaternion"
         }
       },
       "required": [
@@ -750,7 +820,8 @@
               "default": "cartesian",
               "enum": [
                 "cartesian",
-                "six_dof_kinematic"
+                "six_dof_kinematic",
+                "robosim_physics"
               ],
               "title": "Kinematics Kind",
               "type": "string"
@@ -840,6 +911,47 @@
               ],
               "default": null,
               "title": "Tool Rotation"
+            },
+            "visual_model_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Visual Model Id"
+            },
+            "mesh_poses": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "title": "Mesh Poses",
+              "type": "array"
+            },
+            "native_contacts": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "title": "Native Contacts",
+              "type": "array"
+            },
+            "native_physics": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Native Physics"
             }
           },
           "title": "Robot",
@@ -972,6 +1084,34 @@
               ],
               "title": "Authority",
               "type": "string"
+            },
+            "orientation_quaternion": {
+              "anyOf": [
+                {
+                  "maxItems": 4,
+                  "minItems": 4,
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Orientation Quaternion"
             }
           },
           "required": [
@@ -1527,7 +1667,8 @@
               "default": "cartesian",
               "enum": [
                 "cartesian",
-                "six_dof_kinematic"
+                "six_dof_kinematic",
+                "robosim_physics"
               ],
               "title": "Kinematics Kind",
               "type": "string"
@@ -1617,6 +1758,47 @@
               ],
               "default": null,
               "title": "Tool Rotation"
+            },
+            "visual_model_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Visual Model Id"
+            },
+            "mesh_poses": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "title": "Mesh Poses",
+              "type": "array"
+            },
+            "native_contacts": {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "title": "Native Contacts",
+              "type": "array"
+            },
+            "native_physics": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Native Physics"
             }
           },
           "title": "Robot",

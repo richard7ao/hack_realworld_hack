@@ -17,6 +17,20 @@ def distance(a, b):
 
 
 def collider_dimensions(obj):
+    quaternion = getattr(obj, "orientation_quaternion", None)
+    if quaternion is not None:
+        # Native physics can roll or pitch a parcel. Use the actual 3D box
+        # orientation for independent destination containment, not yaw alone.
+        norm = math.sqrt(sum(float(v) ** 2 for v in quaternion))
+        if len(quaternion) != 4 or not math.isfinite(norm) or norm < 1e-12:
+            raise ValueError("Invalid native object orientation")
+        x, y, z, w = (float(v) / norm for v in quaternion)
+        rotation = (
+            (1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)),
+            (2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)),
+            (2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)),
+        )
+        return tuple(sum(abs(rotation[i][j]) * obj.dimensions[j] for j in range(3)) for i in range(3))
     c, s = abs(math.cos(obj.yaw_rad)), abs(math.sin(obj.yaw_rad))
     return (c * obj.dimensions[0] + s * obj.dimensions[1],
             s * obj.dimensions[0] + c * obj.dimensions[1], obj.dimensions[2])
@@ -235,9 +249,9 @@ class Environment:
         robot = self.world.robot
         ok = ActionResult(action_type=a.type)
         if a.type == "OBSERVE":
-            self.belief_objects = [ObjectEstimate(**o.model_dump(exclude={"authority"}))
+            self.belief_objects = [ObjectEstimate(**o.model_dump(exclude={"authority", "orientation_quaternion"}))
                 if o.authority == "simulator" else next((s.model_copy(deep=True) for s in self.sensor.objects if s.id == o.id),
-                    ObjectEstimate(**o.model_dump(exclude={"authority"}))) for o in self.world.objects]
+                    ObjectEstimate(**o.model_dump(exclude={"authority", "orientation_quaternion"}))) for o in self.world.objects]
             self.belief_destination = deepcopy(self.world.destination)
             self.belief_obstacles = deepcopy(self.world.obstacles)
             self.observed_at_step = self.world.step + 1

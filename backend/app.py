@@ -45,12 +45,29 @@ def auth(session_id, authorization):
         raise HTTPException(401, str(exc))
 
 
+def robosim_health():
+    """Optional native runtime availability; the core executor stays independent."""
+    try:
+        from .robosim import status
+    except ImportError:
+        return {"available": False, "verified": False,
+                "reason": "Optional RoboSim Studio runtime is not installed"}
+    return status()
+
+
+async def prepare_native_preview(session, case):
+    loop = asyncio.get_running_loop()
+    await asyncio.to_thread(runtime.preview, session, case,
+        notify=lambda event: loop.call_soon_threadsafe(runtime.publish, session, event))
+
+
 @app.get("/api/health")
 def health():
     evidence = jev_evidence()
     jev_verified = all(evidence.get(kind, {}).get("status") == "response_validated" for kind in ("triage", "grounding"))
     return {"ok": True, "schema_version": "1.0", "execution": "local_cartesian_or_six_joint_kinematics", "policies": policy_catalog(),
             "robots": [{**r, "requires_metric": "workcell_normalized" not in r["coordinate_frames"]} for r in robot_catalog()],
+            "robosim": robosim_health(),
             "jev": {"available": jev.available(), "verified": jev_verified, "model": jev.JEV_MODEL},
             "depth_available": False, "data_mode": "real_execution"}
 
@@ -201,6 +218,32 @@ async def warehouse(body: WarehouseRequest, authorization: str | None = Header(N
     return {"scenarios": [c.model_dump(mode="json") for c in cases], "preview_case_id": cases[0].case_id, "executed": False}
 
 
+class RoboSimRequest(SessionRequest):
+    count: int = Field(default=2, ge=1, le=4)
+    seed: int = Field(default=42017, ge=0, le=2_147_483_647)
+
+
+@app.post("/api/workcells/robosim")
+async def robosim_workcell(body: RoboSimRequest, authorization: str | None = Header(None)):
+    s = auth(body.session_id, authorization)
+    if s.job and not s.job.done():
+        raise ValueError("Finish the current episode before changing the workcell")
+    availability = robosim_health()
+    if not availability.get("available"):
+        raise HTTPException(503, availability.get("reason", "RoboSim Studio runtime is unavailable"))
+    from .robosim import make_robosim_cases
+    cases = make_robosim_cases(body.count, body.seed)
+    async with s.lock:
+        for case in cases:
+            runtime.storage.save_scenario(case)
+        # First native imports and physics compilation may take several seconds.
+        # Keep the API and original executor responsive while preparing the view.
+        await prepare_native_preview(s, cases[0])
+    return {"scenarios": [c.model_dump(mode="json") for c in cases],
+            "preview_case_id": cases[0].case_id, "executed": False,
+            "execution_backend": "robosimstudio_cpu"}
+
+
 @app.post("/api/workcells/camera")
 async def camera_workcell(body: SessionRequest, authorization: str | None = Header(None)):
     s = auth(body.session_id, authorization)
@@ -219,7 +262,14 @@ async def preview_scenario(body: PreviewRequest, authorization: str | None = Hea
         case = Scenario.model_validate(runtime.storage.load(f"scenarios/{body.case_id}.json"))
     except FileNotFoundError:
         raise HTTPException(404, "Saved scenario does not exist")
-    runtime.preview(s, case)
+    if case.provenance.get("execution_backend") == "robosimstudio_cpu":
+        availability = robosim_health()
+        if not availability.get("available"):
+            raise HTTPException(503, availability.get("reason", "RoboSim Studio runtime is unavailable"))
+        async with s.lock:
+            await prepare_native_preview(s, case)
+    else:
+        runtime.preview(s, case)
     return {"scenario": case.model_dump(mode="json"), "executed": False}
 
 

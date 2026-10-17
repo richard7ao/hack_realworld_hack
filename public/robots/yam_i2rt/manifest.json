@@ -1,0 +1,319 @@
+{
+  "schema_version": "1.0",
+  "upstream_repository": "https://github.com/robosimstudio/robosimstudio",
+  "upstream_commit": "73739abe212f963e8a9f5862b27bca370df091a7",
+  "upstream_model_origin": "i2rt-robotics/i2rt @ c40b4125 (as recorded in RoboSimStudio assets/PROVENANCE.md)",
+  "asset_license": "MIT, Copyright (c) I2RT Robotics",
+  "upstream_project_license": "Apache-2.0, Copyright 2026 Kaiyuan Chen",
+  "presentation_change": "FAULTLINE overrides materials to white/graphite; mesh vertices, units and source files are unchanged",
+  "transforms": "Backend mesh_poses contain world-space position and xyzw quaternion INCLUDING the MJCF mesh geom-local transform. The browser must not apply geom offsets again.",
+  "assets": [
+    {
+      "file": "base.stl",
+      "bytes": 400084,
+      "sha256": "7d57efce4cd31db5e461e1bc83362943a7dbe0e8e101cdb94c29de0a72f3ff0f",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          0.11440084129571915,
+          -0.053599465638399124,
+          0.0024965861812233925
+        ],
+        "max": [
+          0.18750084936618805,
+          0.1464005410671234,
+          0.07249658554792404
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/base.stl",
+      "modified": false
+    },
+    {
+      "file": "gripper.stl",
+      "bytes": 400084,
+      "sha256": "d949c401186197d842ca8f9b23bfcbf24bed8461b421df06093c65e4ead21f5d",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          -0.01850000023841858,
+          -0.004600526299327612,
+          -0.13660000264644623
+        ],
+        "max": [
+          0.04650000110268593,
+          0.09739947319030762,
+          -0.06260000169277191
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/gripper.stl",
+      "modified": false
+    },
+    {
+      "file": "link1.stl",
+      "bytes": 400084,
+      "sha256": "2283bab1300cfdd1a04aaf09503093d7d6d19bf2144abf3429d563b596920903",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          0.056500840932130814,
+          -0.0005000000237487257,
+          -3.1859315186011372e-06
+        ],
+        "max": [
+          0.11950084567070007,
+          0.08730000257492065,
+          0.056496813893318176
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/link1.stl",
+      "modified": false
+    },
+    {
+      "file": "link2.stl",
+      "bytes": 400084,
+      "sha256": "4fd4df2916be71391c6c6ea6ffbdb3c270ce67c71c2bb7d42d44736c0be2af98",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          0.04300011321902275,
+          0.013500000350177288,
+          -0.013502315618097782
+        ],
+        "max": [
+          0.10500051826238632,
+          0.08019895106554031,
+          0.3124978840351105
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/link2.stl",
+      "modified": false
+    },
+    {
+      "file": "link3.stl",
+      "bytes": 400084,
+      "sha256": "5b51658509771514738d0f2271df5f271cd8ae0b6a4bf3787d8463d5ab582593",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          -0.01720000058412552,
+          0.001449999981559813,
+          0.00800000037997961
+        ],
+        "max": [
+          0.10548463463783264,
+          0.09130000323057175,
+          0.3129909634590149
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/link3.stl",
+      "modified": false
+    },
+    {
+      "file": "link4.stl",
+      "bytes": 232084,
+      "sha256": "f6e980b8064a1396b17e87065de50286abf616f94b55e1ccff92e889218de220",
+      "triangles": 4640,
+      "bounds_original_units": {
+        "min": [
+          -0.08420000225305557,
+          -0.0005000000237487257,
+          -0.06582455337047577
+        ],
+        "max": [
+          0.03150026127696037,
+          0.08550000190734863,
+          0.05399894341826439
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/link4.stl",
+      "modified": false
+    },
+    {
+      "file": "link5.stl",
+      "bytes": 70484,
+      "sha256": "b32ece2e963cd028d68290a904223826070be52ce8f0988e3ad36bf75be3582f",
+      "triangles": 1408,
+      "bounds_original_units": {
+        "min": [
+          -0.026499999687075615,
+          0.017899474129080772,
+          -0.0731000006198883
+        ],
+        "max": [
+          0.042500000447034836,
+          0.07489947229623795,
+          -0.004000000189989805
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/link5.stl",
+      "modified": false
+    },
+    {
+      "file": "tip_left.stl",
+      "bytes": 400084,
+      "sha256": "03d94f53d7b5e9e1871ea6f3925c68d7a2f894b08e0c575fa0b9ed4024684ff7",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          -0.019999999552965164,
+          0.02317601628601551,
+          -0.2199425995349884
+        ],
+        "max": [
+          0.04800000041723251,
+          0.09474682062864304,
+          -0.12610000371932983
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/tip_left.stl",
+      "modified": false
+    },
+    {
+      "file": "tip_right.stl",
+      "bytes": 400084,
+      "sha256": "8f620aae9c15e00e2ea4e5bf5e9a49e7edb2d23128b8955cfacc0da8da45c72f",
+      "triangles": 8000,
+      "bounds_original_units": {
+        "min": [
+          -0.019999999552965164,
+          -0.0019478697795420885,
+          -0.2199425995349884
+        ],
+        "max": [
+          0.04800000041723251,
+          0.0696229338645935,
+          -0.12610000371932983
+        ]
+      },
+      "units": "metres (upstream MJCF convention)",
+      "source_path": "assets/embodiments/yam_i2rt/assets/tip_right.stl",
+      "modified": false
+    }
+  ],
+  "right_arm_visual_origins": [
+    {
+      "body": "right_base",
+      "parent": null,
+      "body_pos_m": "0 -0.31 0",
+      "body_quat_wxyz": "1 0 0 0",
+      "mesh": "base",
+      "geom_pos_m": "-0.0374966 -0.0464005 0.187501",
+      "geom_quat_wxyz": "0.707105 0 0.707108 0",
+      "upstream_rgba": "0.317647 0.121569 0.498039 1"
+    },
+    {
+      "body": "right_link1",
+      "parent": "right_base",
+      "body_pos_m": "0 0 0.067",
+      "body_quat_wxyz": "0.707105 0 0 -0.707108",
+      "mesh": "link1",
+      "geom_pos_m": "-0.0464 0.0374968 0.119501",
+      "geom_quat_wxyz": "0.499998 0.5 0.5 -0.500002",
+      "upstream_rgba": "0.72549 0.45098 0.317647 1"
+    },
+    {
+      "body": "right_link2",
+      "parent": "right_link1",
+      "body_pos_m": "-0.0329 0.02 0.0455",
+      "body_quat_wxyz": "0.499998 0.5 -0.500002 -0.5",
+      "mesh": "link2",
+      "geom_pos_m": "-0.0174977 -0.0740001 -0.07925",
+      "geom_quat_wxyz": "0.499998 0.5 0.500002 0.5",
+      "upstream_rgba": "0 0.4 0.6 1"
+    },
+    {
+      "body": "right_link3",
+      "parent": "right_link2",
+      "body_pos_m": "0.264 4.08431e-07 -0.06375",
+      "body_quat_wxyz": "9.38184e-07 -0.707105 -0.707108 9.38187e-07",
+      "mesh": "link3",
+      "geom_pos_m": "0.0740003 -0.281499 -0.0813",
+      "geom_quat_wxyz": "9.38184e-07 9.38187e-07 -0.707108 -0.707105",
+      "upstream_rgba": "0.552941 0.580392 0.203922 1"
+    },
+    {
+      "body": "right_link4",
+      "parent": "right_link3",
+      "body_pos_m": "0.0600003 -0.244999 -0.00205",
+      "body_quat_wxyz": "1.32679e-06 0 0 -1",
+      "mesh": "link4",
+      "geom_pos_m": "-0.0138003 0.0364989 -0.0787882",
+      "geom_quat_wxyz": "0.707105 0.707108 0 0",
+      "upstream_rgba": "0.545098 0.52549 0.419608 1"
+    },
+    {
+      "body": "right_link5",
+      "parent": "right_link4",
+      "body_pos_m": "-0.0403003 0.0703851 -0.0323887",
+      "body_quat_wxyz": "9.38184e-07 -0.707105 -9.38187e-07 -0.707108",
+      "mesh": "link5",
+      "geom_pos_m": "-0.0463995 0.0311519 0.0265",
+      "geom_quat_wxyz": "0.499998 -0.5 -0.5 -0.500002",
+      "upstream_rgba": "0.827451 0.623529 0.784314 1"
+    },
+    {
+      "body": "right_gripper",
+      "parent": "right_link6",
+      "body_pos_m": "0 0 0",
+      "body_quat_wxyz": "1 0 0 0",
+      "mesh": "gripper",
+      "geom_pos_m": "-0.014 -0.0463995 0.0731",
+      "geom_quat_wxyz": "1 0 0 0",
+      "upstream_rgba": "0.109804 0.286275 0.0117647 1"
+    },
+    {
+      "body": "right_tip_left",
+      "parent": "right_gripper",
+      "body_pos_m": "-0.0238981 0.0450619 -0.0545599",
+      "body_quat_wxyz": "0.499998 -0.5 -0.5 -0.500002",
+      "mesh": "tip_left",
+      "geom_pos_m": "0.129783 0.00999321 -0.0914614",
+      "geom_quat_wxyz": "0.499998 0.5 0.500002 0.5",
+      "upstream_rgba": "0.596078 0.788235 0.921569 1"
+    },
+    {
+      "body": "right_tip_right",
+      "parent": "right_gripper",
+      "body_pos_m": "0.0238981 -0.0450619 -0.0545599",
+      "body_quat_wxyz": "0.707105 0.707108 0 0",
+      "mesh": "tip_right",
+      "geom_pos_m": "-0.0379932 0.129783 0.00133753",
+      "geom_quat_wxyz": "0.707105 -0.707108 0 0",
+      "upstream_rgba": "0.596078 0.788235 0.921569 1"
+    }
+  ],
+  "source_documents": [
+    {
+      "path": "LICENSE",
+      "sha256": "243b5de614a38e490ec5de01fce7bb73d84cd0bb1f8f32b0bca12cd1b58714a1"
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "c1ae73a7d00715788a1e43728aa687d3f2c6930d9722eada429e28c704f132e5"
+    },
+    {
+      "path": "assets/PROVENANCE.md",
+      "sha256": "19d18a082196b96f52ef27949b1518bd5453268b785adf749ede2389df65fc97"
+    },
+    {
+      "path": "assets/embodiments/yam_i2rt/LICENSE",
+      "sha256": "7cd0a0224a287ebd6c45703eb6623d264c7810f8958d65de8f99e87ccd9f4891"
+    },
+    {
+      "path": "assets/embodiments/yam_i2rt/yam_i2rt_arms.xml",
+      "sha256": "6146bec6973fb9b450c233b9297c76d0951182aee4883d673573127ea951bf4c"
+    },
+    {
+      "path": "assets/embodiments/yam_i2rt/yam_i2rt_arm.urdf",
+      "sha256": "e8ea471e2c615f6e3f712bb83c786bd82637b8b115e874e1a2261bd021b3bb52"
+    }
+  ]
+}

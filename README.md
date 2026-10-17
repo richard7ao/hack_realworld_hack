@@ -4,7 +4,7 @@
 
 Laptop RGB camera → selected unmarked objects → warehouse twin → policy adapter → validated simulated action → independent evaluator → saved case → fresh paired execution and release gate.
 
-The main warehouse uses a **simulated six-revolute-joint arm** with actual FK/IK, joint limits and arm-link obstacle checks. A legacy Cartesian gripper and a shorter generic six-joint profile remain available independently of policy selection. RGB supplies estimated positions and assumed object geometry. Virtual grasping does not establish physical robot grasp success; there are no contact dynamics, self-collision checks, torque models or hardware drivers. No invented benchmark outcomes or model traces are used in the live Lab.
+The Lab offers three complementary views: **Camera workcell** captures the physical failure; **Warehouse demo** expands procedural kinematic test coverage; **RoboSim physics** runs the original I2RT YAM model through actual native simulated contacts, grasp, lift and release. Robot and policy choices stay separate. RGB supplies estimated positions and assumed geometry; it does not automatically reconstruct the native physics scene. No invented benchmark outcomes or model traces are used in the live Lab. No physical robot is controlled.
 
 ## Run locally
 
@@ -45,16 +45,28 @@ Robot profiles come from `backend/robots.py`: `industrial_6r` is the main generi
 
 The 3D renderer draws articulated links from backend FK positions, with real scenario colliders available as an overlay. Orbit/pan/zoom, overview/robot/target/top views and optional cinematic camera motion change presentation only. They do not change actions, state, collisions or results. Reduced-motion preferences disable automatic camera motion.
 
+## Native RoboSim contact physics
+
+```bash
+bash scripts/setup_robosim.sh
+.venv/bin/python scripts/smoke_robosim.py --count 2
+```
+
+Select **RoboSim physics** in `/lab`, choose the native displacement scenario, and explicitly run a policy. The pinned RoboSim Studio core runs Newton/MuJoCo on CPU in an isolated `.venv-robosim`; the browser draws original YAM meshes at measured native poses. The active right arm and its gripper execute real simulated dynamics; the second arm remains idle. Grasp verification uses bilateral contact and measured object lift, without attachment constraints. Release and placement are independently checked from actual final state. Original kinematic/camera executors remain available without this optional installation.
+
+The native regression has actual baseline FAIL and assisted frontier PASS results for Sol, Astra and Opus. These small procedural checks do not establish hardware reliability or Jev's causal advantage over an unassisted frontier model. Full setup, licences, exact evidence references and limitations are in [RoboSim integration](docs/ROBOSIM.md).
+
 ## Frontier policies
 
 Add keys to **`backend/.env`**, ignored by git. Never put keys in frontend variables or commit them.
 
 - `gpt-6.1-sol` and `gpt-6-astra`: OpenAI Responses API, typed JSON actions, low reasoning effort.
 - `claude-opus-5-5`: Anthropic Messages API, JSON schema via `output_config.format`, low effort, no disabled thinking or forced tool choice.
+- `jev_gpt-6.1-sol`, `jev_gpt-6-astra`, `jev_claude-opus-5-5`: actual Jev 1.14 typed feedback before each frontier decision. Jev receives only current permitted observations and feedback; its advice reaches the frontier prompt. The frontier chooses actions, and the executor/evaluator retain authority. Both providers' calls and exact responses are recorded.
 
 Missing keys prevent launch; API failures produce UNKNOWN/TIMEOUT evidence. There is no silent scripted fallback. Traces retain policy IDs, prompt hashes, configuration, actual response model/ID, token usage, observations, returned actions and measured inference latency. Policy-provider calls send symbolic observations and action history, not camera image bytes.
 
-Camera frames are stored locally by default. The explicit Jev enhancement is an exception: an operator-approved saved log and inspected tabletop-only crop can be sent to TypeSafe. Two actual `jev-1.14.0` calls are recorded in `data/jev-verification.json`; the red parcel box was correctly withheld because its confidence was 0.44, below the local 0.6 threshold. Jev suggestions remain advisory and require operator confirmation; they do not change tracker state or the independent oracle. See [Jev evidence and data boundaries](docs/JEV.md).
+Camera frames are stored locally by default. Explicit post-run Jev diagnosis and experimental grounding can send an approved saved log and inspected tabletop-only crop to TypeSafe. Their two original calls are recorded in `data/jev-verification.json`; the red parcel box was withheld at confidence 0.44, below the local 0.6 suggestion threshold. Grounding suggestions require operator confirmation. Assisted manipulation policies separately send symbolic observations and action feedback; they send no camera image bytes. All Jev output remains advisory and cannot set the independent oracle's result. See [Jev evidence and data boundaries](docs/JEV.md).
 
 ## Verify and execute
 
