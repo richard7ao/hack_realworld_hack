@@ -1,37 +1,35 @@
-import type { Sim } from "./contract";
-import { phaseAt } from "./sim/arm";
+import type { BenchmarkCase, Outcome } from "./contract";
 
 /**
- * What a cell should show right now.
+ * What a CI Bench tile shows at a given instant of the run clock.
  *
- * The run clock is the client's, not the server's: a complete run (fixture mode, or a run opened
- * after it finished) is replayed from t=0 against each rollout's own window, so the grid animates
- * identically whether the data came from disk or from Modal. The backend's `status` is consulted
- * only once the clock says the episode is over, because that is the first moment a verdict is
- * meaningful -- and a rollout the backend still calls "running" past its estimate is an overrun,
- * not a pass.
+ * PRD tile states are pending, running and the five outcomes. A finished run is replayed from
+ * t=0 against each case's own window, so the grid animates the same way whether the data came from
+ * a fixture or a live backend. A result is only shown once the clock reaches the case's finish,
+ * because before that the UI has no business knowing it.
  */
-export type CellState = "queued" | "booting" | "running" | "passed" | "failed";
+export type CellState = "pending" | "running" | Outcome;
 
-export function cellStateAt(sim: Sim, elapsedMs: number): CellState {
-  const phase = phaseAt(sim, elapsedMs);
-  if (phase !== "settled") return phase;
-  return sim.status === "passed" || sim.status === "failed" ? sim.status : "running";
+export function cellStateAt(c: BenchmarkCase, elapsedMs: number): CellState {
+  if (c.started_at_ms === null || elapsedMs < c.started_at_ms) return "pending";
+  if (c.finished_at_ms === null || elapsedMs < c.finished_at_ms || !c.result) return "running";
+  return c.result.outcome;
 }
 
+/** The whole run's wall clock in ms: the latest finish, or the latest start while still running. */
+export function runLengthMs(cases: readonly BenchmarkCase[]): number {
+  return Math.max(0, ...cases.map((c) => c.finished_at_ms ?? c.started_at_ms ?? 0));
+}
 
-/** When this rollout's verdict lands, in ms since run start. Drives the settle flash. */
-export const settlesAt = (sim: Sim) => sim.startOffsetMs + sim.durationMs;
-
-/** The whole fan-out's wall clock, in ms. */
-export const runLengthMs = (sims: readonly Sim[]) => Math.max(0, ...sims.map(settlesAt));
-
-/** The rollouts as the clock currently sees them, for any tally or gate computed during replay. */
-export function simsAt(sims: readonly Sim[], elapsedMs: number): Sim[] {
-  return sims.map((s) => {
-    const state = cellStateAt(s, elapsedMs);
-    if (state === s.status) return s;
-    const revealed = s.failAt !== null && elapsedMs >= s.startOffsetMs + s.failAt * s.durationMs;
-    return { ...s, status: state, failMode: revealed ? s.failMode : null, failAt: revealed ? s.failAt : null };
+/**
+ * The cases as the clock currently sees them. Any figure computed during a replay must come from
+ * this projection, never from the raw run, which already knows how every case ends.
+ */
+export function casesAt(cases: readonly BenchmarkCase[], elapsedMs: number): BenchmarkCase[] {
+  return cases.map((c) => {
+    const state = cellStateAt(c, elapsedMs);
+    if (state === "pending") return c.status === "pending" && c.result === null ? c : { ...c, status: "pending", result: null };
+    if (state === "running") return c.status === "running" && c.result === null ? c : { ...c, status: "running", result: null };
+    return c;
   });
 }
