@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/*
+ * Design system ported from forkcast (github.com/richard7ao/forkcast): oklch tokens, a light
+ * "theme-e" surface with a pistachio wash and dot grid, mono caps labels, and the fk-* motion
+ * set. Retuned for a robot-policy eval bench, so the semantic colours are pass / fail / run
+ * rather than good / bad.
+ */
+@theme {
+  --color-bg: oklch(0.16 0.01 260);
+  --color-panel: oklch(0.21 0.012 260);
+  --color-edge: oklch(0.31 0.015 260);
+  --color-ink: oklch(0.96 0.005 260);
+  --color-muted: oklch(0.70 0.015 260);
+  --color-accent: oklch(0.72 0.16 250);
+
+  --color-pistachio: #C2E773;
+  --color-lime: #B6F000;
+  --color-forest: #336138;
+  --color-run: #6D3FD9;
+  --color-run-mark: #9A66FF;
+  --color-pass: #2BA84A;
+  --color-fail: #D7263D;
+  --color-warn: #E08700;
+  --color-track: #EDEDED;
+  --color-line: rgb(29 29 29 / 0.12);
+  --color-steel: #4A5568;
+}
+
+body { background: var(--color-bg); color: var(--color-ink); }
+
+/* The bench surface: white, a pistachio corner wash, and a 22px dot grid. */
+.theme-e {
+  --color-bg: #FFFFFF;
+  --color-panel: #FFFFFF;
+  --color-edge: rgb(29 29 29 / 0.18);
+  --color-ink: #1D1D1D;
+  --color-muted: #555555;
+  --color-accent: #6D3FD9;
+  min-height: 100vh;
+  color: var(--color-ink);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #FFFFFF;
+  background-image: radial-gradient(circle 900px at 100% 0, rgb(194 231 115 / 0.28), rgb(194 231 115 / 0) 70%),
+    radial-gradient(#E3E3E8 1.2px, transparent 1.2px);
+  background-size: auto, 22px 22px;
+}
+body:has(.theme-e) { background: #FFFFFF; }
+
+@layer components {
+  .e-h { font-weight: 400; letter-spacing: -0.045em; line-height: 1.06; }
+  .e-mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  /* Mono caps label with a pistachio square, e.g. "Domain randomisation". */
+  .e-lbl { display: inline-flex; align-items: center; gap: 10px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .e-lbl::before { content: ""; width: 8px; height: 8px; background: var(--color-pistachio); flex: none; }
+  .e-pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1.5px solid transparent; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+  .e-pill:disabled { opacity: 0.45; cursor: not-allowed; }
+  .e-lime { background: linear-gradient(90deg, #B6F000, #2BA84A); color: #1D1D1D; }
+  .e-outline { background: #FFFFFF; border-color: var(--color-forest); color: var(--color-forest); }
+  .e-ghost { background: #FFFFFF; border-color: var(--color-edge); color: var(--color-ink); }
+  .e-tile { background: #FFFFFF; border-radius: 16px; border: 1px solid var(--color-edge); }
+  .e-chip { background: #FFFFFF; border: 1px solid var(--color-edge); border-radius: 999px; padding: 6px 14px; font-size: 14px; line-height: 1.3; }
+  /* Sim cell: the frame around one simulation's viewport. */
+  .e-cell { background: #FBFBFC; border-radius: 10px; border: 1px solid var(--color-line); overflow: hidden; position: relative; }
+  .theme-e :focus-visible { outline: 2px solid var(--color-run); outline-offset: 2px; }
+}
+
+/*
+ * Run and reveal motion, ported from forkcast: shimmer placeholders, a scan band, titles that blur
+ * into focus and cells that pop in one by one. Stagger with --d (a delay) on the element.
+ */
+@keyframes fk-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@keyframes fk-scan { from { transform: translateY(-100%); } to { transform: translateY(400%); } }
+@keyframes fk-blur-in { from { opacity: 0; filter: blur(12px); translate: 0 6px; } }
+@keyframes fk-pop { from { opacity: 0; filter: blur(8px); translate: 0 14px; scale: 0.98; } }
+@keyframes fk-float { 50% { translate: 0 -10px; } }
+
+.fk-shimmer { background: linear-gradient(100deg, #EFEFEF 30%, #F9F9F9 50%, #EFEFEF 70%) 0 0 / 200% 100%; animation: fk-shimmer 1.4s linear infinite; animation-delay: var(--d, 0ms); }
+.fk-scan { background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 0.75)); border-bottom: 2px solid #FFFFFF; box-shadow: 0 6px 14px rgb(0 0 0 / 0.06); animation: fk-scan 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.fk-blur-in { animation: fk-blur-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.fk-pop { animation: fk-pop 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+.fk-float { animation: fk-float 6s ease-in-out infinite; animation-delay: var(--d, 0ms); }
+
+/*
+ * Bench-specific motion. A cell flashes once at the moment it settles, so a wall of 100 reads as a
+ * stream of verdicts rather than a static grid; the gate badge pops and the winning row glows.
+ */
+@keyframes fk-badge { from { opacity: 0; scale: 0.4; } 60% { opacity: 1; scale: 1.15; } }
+@keyframes fk-glow { from { box-shadow: 0 0 0 0 rgb(182 240 0 / 0), 0 14px 36px rgb(0 0 0 / 0.10); } }
+@keyframes fk-flash-pass { from { background: rgb(43 168 74 / 0.42); } to { background: rgb(43 168 74 / 0); } }
+@keyframes fk-flash-fail { from { background: rgb(215 38 61 / 0.42); } to { background: rgb(215 38 61 / 0); } }
+@keyframes fk-breathe { 50% { opacity: 0.45; } }
+/* The live dot: a filled core with a ring expanding out of it. */
+@keyframes fk-ping { from { transform: scale(0.6); opacity: 0.7; } to { transform: scale(2.4); opacity: 0; } }
+
+.fk-badge { animation: fk-badge 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.fk-glow { box-shadow: 0 0 0 2px #B6F000, 0 0 32px rgb(182 240 0 / 0.55), 0 14px 36px rgb(0 0 0 / 0.10); animation: fk-glow 0.6s ease-out both; }
+.fk-flash-pass { animation: fk-flash-pass 0.7s ease-out both; }
+.fk-flash-fail { animation: fk-flash-fail 0.7s ease-out both; }
+.fk-breathe { animation: fk-breathe 2s ease-in-out infinite; }
+.fk-ping { animation: fk-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fk-shimmer, .fk-float, .fk-blur-in, .fk-pop, .fk-badge, .fk-glow, .fk-breathe { animation: none; }
+  .fk-scan, .fk-flash-pass, .fk-flash-fail, .fk-ping { display: none; }
+}
+
+/* Detail drawer: fades the backdrop and slides the panel in. */
+@keyframes fk-fade-kf { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fk-slide-kf { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .fk-fade { animation: fk-fade-kf 180ms ease-out both; }
+  .fk-slide-in { animation: fk-slide-kf 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+}
