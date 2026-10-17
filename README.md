@@ -55,6 +55,11 @@ The result looks live, stays deterministic, and behaves identically against comm
 
 The floor check uses the lower bound rather than the point estimate so a run cannot go green on noise: the point estimate answers "what did we measure", the lower bound answers "what do we know is true", and a merge gate should only pass on the second. The interval is Wilson rather than the normal approximation because it stays inside [0, 1] and behaves at the small sample sizes you have while a run is still filling up.
 
+The gate only decides once every rollout in the fan-out has settled. Until then it reports
+pending, and the figures on screen are the running numbers, not a verdict. There is one exception:
+if the floor has become unreachable, meaning even a pass on every outstanding rollout would leave
+the lower bound short, the gate fails immediately rather than spending the remaining compute.
+
 ## The fallback engine
 
 `src/lib/sim/generate.ts` builds a complete, plausible eval from a single seed. This is synthetic data. It is a stand-in for real rollouts until the Modal backend lands, and it is clearly labelled as such here so nobody mistakes a fixture for a measurement.
@@ -89,7 +94,8 @@ src/lib/
 
 src/app/
   page.tsx           The drop screen.
-  runs/[id]/         The run dashboard: SimGrid, Aggregate, Breakdown, Verdict, SimDrawer.
+  runs/[id]/         The run dashboard: RunHeader, Sidebar and AgentLog, Aggregate, SimGrid,
+                     Verdict, Breakdown, SimDrawer. stage.ts narrates which step the run is on.
   api/[...path]/     The DATA_MODE seam.
 
 src/components/      Shared UI, the logo, and the standalone sim canvas.
@@ -114,7 +120,7 @@ docs/
 | `pnpm build` | Production build. |
 | `pnpm start` | Serves the production build on port 3300. |
 | `pnpm typecheck` | `tsc --noEmit` over the whole project. |
-| `pnpm test` | Node's built-in test runner over `src/lib/score.test.ts`, `src/lib/sim/arm.test.ts`, and `src/lib/sim/generate.test.ts`. 37 tests, all passing. |
+| `pnpm test` | Node's built-in test runner over every `src/**/*.test.ts`, discovered by glob so a new test file cannot be silently left out. |
 | `pnpm check` | `typecheck`, then `test`, then `fixtures:validate`. The gate to run before pushing. |
 | `pnpm fixtures:validate` | Parses every fixture against the contract and asserts coverage: a green gate, a red gate, a run in flight, and every failure mode reachable. |
 | `pnpm fixtures:build` | Regenerates `fixtures/*.json` from the generator. Run it whenever the contract or the generator changes, then commit the output. |

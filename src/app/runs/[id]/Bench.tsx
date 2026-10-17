@@ -75,12 +75,13 @@ function Loaded({ run }: { run: Run }) {
   return (
     <Shell run={run} progress={lengthMs > 0 ? shown / lengthMs : 0} running={!clock.done}>
       <div className="grid gap-4 pb-16 lg:grid-cols-[316px_minmax(0,1fr)]">
-        <aside className="lg:row-span-2">
+        {/* After the main column on phones, so the outcome and counter are the first thing seen. */}
+        <aside className="order-last lg:order-none lg:row-span-2">
           <Sidebar run={run} tally={t} hero={hero} />
         </aside>
 
         <div className="flex min-w-0 flex-col gap-4">
-          <RunHeader run={run} tally={t} elapsedMs={shown} />
+          <RunHeader run={run} tally={t} verdict={verdict} elapsedMs={shown} />
 
           <p className="sr-only" aria-live="polite">
             {t.settled} of {run.fanout} rollouts settled.

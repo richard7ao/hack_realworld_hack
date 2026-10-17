@@ -26,7 +26,7 @@ export function Stat({ label, value, sub, tone = "ink", delay = 0 }: {
  */
 export function Counter({ done, total, caption }: { done: number; total: number; caption: string }) {
   return (
-    <div className="shrink-0 text-right">
+    <div className="shrink-0 text-left sm:text-right">
       <p className="mono text-[42px] leading-none tracking-[-0.045em] md:text-[56px]" aria-label={`${done} of ${total} ${caption}`}>
         <span className="font-semibold text-ink">{String(done).padStart(2, "0")}</span>
         <span className="text-[#C8CDD6]">/{total}</span>

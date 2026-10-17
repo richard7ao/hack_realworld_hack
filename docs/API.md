@@ -108,6 +108,11 @@ Both `runId` and `error` must be present as keys. Use `null`, not omission. Reje
 HTTP 200 and `{"ok": false, "runId": null, "error": "..."}`, since the client reads `error` and shows
 it on the drop screen. Non-200 responses surface as a thrown error instead.
 
+An `environmentId` that is not in your `GET /environments` catalogue must be rejected this way,
+never replaced with a default. The run page titles itself from the run's own `environmentName`,
+so a silent substitution shows the user a run in an environment they never chose. The fixture
+server behaves the same way: it answers `{"ok": false, "runId": null, "error": "Unknown environment \"<id>\"."}`.
+
 ### 2.3 `GET /runs/:id`
 
 The whole run, polled while it is in flight. Returns a `Run` object at the top level, not wrapped.
@@ -267,7 +272,9 @@ that window. Between polls nothing from the backend is consulted. That is what k
 smooth. Pick values that reflect real wall-clock behaviour, because the user is watching them play
 out in real time.
 
-**The client polls `GET /runs/:id` roughly every second.** Every poll returns the full run. Keep the
+**The client polls `GET /runs/:id` roughly every second, and stops when `stage` is `"done"`.** Set
+`"done"` once every rollout has settled. A backend that never sends it is polled for as long as the
+tab stays open. Every poll returns the full run. Keep the
 response cheap enough to serve at that rate. Values may change between polls, but `sim.id` ordering
 and identity must not.
 
