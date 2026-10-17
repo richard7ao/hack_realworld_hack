@@ -17,3 +17,6 @@ next-env.d.ts
 # QA screenshots
 .playwright-mcp
 .impeccable/review/
+
+# Local reference recordings, never committed
+*.mov

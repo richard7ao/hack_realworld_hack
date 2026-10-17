@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreateRunRequest, endpoints, type EndpointName } from "../../../lib/contract";
-import { createRun, getRun, readFixture } from "../../../lib/server/store";
+import { createRun, getRun, readFixture, UnknownEnvironment } from "../../../lib/server/store";
 
 /**
  * The single seam between the two halves of the app.
@@ -33,17 +33,25 @@ function match(method: string, segments: string[]) {
 
 async function live(req: NextRequest, path: string[], search: string) {
   const base = (process.env.API_URL ?? "http://localhost:8787").replace(/\/$/, "");
+  // Attached here, on the server, so the shared token is never shipped to the browser.
+  const token = process.env.API_TOKEN;
   try {
     const res = await fetch(`${base}/${path.join("/")}${search}`, {
       method: req.method,
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
       body: req.method === "GET" ? undefined : await req.text(),
       cache: "no-store",
     });
     return new NextResponse(await res.text(), { status: res.status, headers: { "content-type": "application/json" } });
   } catch (err) {
-    // A dead backend must say so plainly rather than surfacing as a parse error three components deep.
-    return json({ error: `Could not reach the backend at ${base}. ${err instanceof Error ? err.message : String(err)}` }, 502);
+    // A dead backend must say so plainly rather than surfacing as a parse error three components
+    // deep. The detail stays on the server though: API_URL is an internal deployment address and
+    // the client has no use for it.
+    console.error(`[forkbench] backend unreachable at ${base}:`, err);
+    return json({ error: "The evaluation backend is unavailable. Check API_URL, or unset DATA_MODE to use fixtures." }, 502);
   }
 }
 
@@ -60,7 +68,12 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ path: string[] 
     if (hit.name === "createRun") {
       const parsed = CreateRunRequest.safeParse(await req.json());
       if (!parsed.success) return json({ ok: false, runId: null, error: parsed.error.issues[0]?.message ?? "Invalid request." });
-      return json({ ok: true, runId: createRun(parsed.data).id, error: null });
+      try {
+        return json({ ok: true, runId: createRun(parsed.data).id, error: null });
+      } catch (err) {
+        if (err instanceof UnknownEnvironment) return json({ ok: false, runId: null, error: err.message });
+        throw err;
+      }
     }
     return json({ error: `unhandled endpoint ${hit.name}` }, 500);
   } catch (err) {

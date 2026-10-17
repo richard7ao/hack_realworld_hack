@@ -3,9 +3,17 @@ import { useEffect } from "react";
 import { FAIL_LABEL, type Sim } from "../../../lib/contract";
 import type { CellState } from "../../../lib/replay";
 import { SimCanvas } from "../../../components/SimCanvas";
+import { Glyph } from "../../../components/ui";
+
+const WORD: Record<CellState, string> = { queued: "Queued", booting: "Booting", running: "Running", passed: "Passed", failed: "Failed" };
 
 /** One rollout, big enough to see what went wrong, with the exact conditions that produced it. */
-export function SimDrawer({ sim, state, onClose }: { sim: Sim; state: CellState; onClose: () => void }) {
+export function SimDrawer({ sim, state, clockRef, onClose }: {
+  sim: Sim;
+  state: CellState;
+  clockRef: React.RefObject<number>;
+  onClose: () => void;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
@@ -13,45 +21,42 @@ export function SimDrawer({ sim, state, onClose }: { sim: Sim; state: CellState;
   }, [onClose]);
 
   const settled = state === "passed" || state === "failed";
-  const badge = state === "passed"
-    ? { ink: "text-pass-ink", bg: "bg-pass", glyph: "✓", word: "Passed" }
-    : state === "failed"
-      ? { ink: "text-fail", bg: "bg-fail", glyph: "✕", word: "Failed" }
-      : { ink: "text-run", bg: "bg-run", glyph: "·", word: state === "running" ? "Running" : state === "booting" ? "Booting" : "Queued" };
+  const glyph = state === "passed" ? "pass" : state === "failed" ? "fail" : "idle";
+  const ink = state === "passed" ? "text-pass" : state === "failed" ? "text-fail" : "text-brand";
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label={`Rollout ${sim.id}`}>
-      <button type="button" aria-label="Close details" onClick={onClose} className="fk-fade absolute inset-0 cursor-default bg-black/25" />
-      <aside className="fk-slide-in relative flex h-full w-full max-w-[420px] flex-col overflow-y-auto bg-white shadow-[-20px_0_60px_rgb(0_0_0/0.18)]">
+      <button type="button" aria-label="Close details" onClick={onClose} className="a-fade absolute inset-0 cursor-default bg-ink/25 backdrop-blur-[2px]" />
+      <aside className="a-slide relative flex h-full w-full max-w-[420px] flex-col overflow-y-auto bg-surface shadow-[-24px_0_64px_rgb(11_14_20/0.22)]">
         <header className="flex items-start justify-between gap-3 border-b border-line p-5">
           <div>
-            <span className="e-mono text-[12px] uppercase tracking-[0.06em] text-muted">Rollout</span>
-            <h2 className="e-h mt-1 text-[28px]">{sim.id}</h2>
-            <p className={`mt-2 inline-flex items-center gap-2 text-[14px] ${badge.ink}`}>
-              <span aria-hidden className={`grid size-5 place-items-center rounded-full text-[11px] font-bold text-white ${badge.bg}`}>{badge.glyph}</span>
-              {badge.word}
-              {sim.failMode && ` · ${FAIL_LABEL[sim.failMode]}`}
+            <span className="label">Rollout</span>
+            <h2 className="h2 mono mt-1.5 text-[26px]">{sim.id}</h2>
+            <p className={`mt-2 inline-flex items-center gap-2 text-[14px] font-semibold ${ink}`}>
+              <Glyph state={glyph} />
+              {WORD[state]}
+              {sim.failMode && <span className="font-normal text-muted">{FAIL_LABEL[sim.failMode]}</span>}
             </p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="e-pill e-ghost min-h-0 px-3 py-1.5 text-[16px] leading-none">&times;</button>
+          <button type="button" onClick={onClose} aria-label="Close" className="pill pill-ghost size-9 shrink-0 p-0 text-[17px] leading-none">&times;</button>
         </header>
 
-        <div className="border-b border-line bg-[#FBFBFC] p-4">
-          <SimCanvas sim={{ ...sim, startOffsetMs: 0 }} loop className="block aspect-[5/4] w-full rounded-lg bg-white" />
-          <p className="mt-2 text-center text-[12px] text-muted">Replaying the recorded episode on a loop.</p>
+        <div className="border-b border-line bg-[#FAFBFC] p-4">
+          <SimCanvas sim={sim} loop={settled} follow={settled ? undefined : clockRef} ring={false} className="block aspect-[5/4] w-full rounded-[10px] bg-surface shadow-[0_1px_2px_rgb(11_14_20/0.05)]" />
+          <p className="mt-2.5 text-center text-[12px] text-muted">{settled ? "Replaying the recorded episode on a loop." : "Live. Following the run as it plays."}</p>
         </div>
 
         <div className="flex flex-col gap-6 p-5">
           <Section title="Domain randomisation">
             <Row k="Lighting" v={sim.variant.lighting.toFixed(2)} />
             <Row k="Surface friction" v={sim.variant.friction.toFixed(2)} />
-            <Row k="Object offset" v={`${sim.variant.objectDx >= 0 ? "+" : ""}${sim.variant.objectDx.toFixed(2)}, ${sim.variant.objectDy >= 0 ? "+" : ""}${sim.variant.objectDy.toFixed(2)}`} />
+            <Row k="Object offset" v={`${fixed(sim.variant.objectDx)}, ${fixed(sim.variant.objectDy)}`} />
             <Row k="Distractors" v={String(sim.variant.distractors)} />
             <Row k="Camera jitter" v={sim.variant.cameraJitter.toFixed(2)} />
           </Section>
 
           <Section title="Episode">
-            <Row k="Reward" v={settled ? sim.metrics.reward.toFixed(3) : "—"} />
+            <Row k="Reward" v={settled ? sim.metrics.reward.toFixed(3) : "–"} />
             <Row k="Steps" v={String(sim.metrics.steps)} />
             <Row k="Grasp attempts" v={String(sim.metrics.graspAttempts)} />
             <Row k="Duration" v={`${(sim.durationMs / 1000).toFixed(1)}s`} />
@@ -61,7 +66,7 @@ export function SimDrawer({ sim, state, onClose }: { sim: Sim; state: CellState;
 
           <Section title="Reproduce">
             <Row k="Seed" v={String(sim.seed)} />
-            <p className="e-mono mt-2 overflow-x-auto whitespace-nowrap rounded-lg bg-[#F6F6F7] px-3 py-2.5 text-[11px] text-ink">
+            <p className="mono mt-2.5 overflow-x-auto whitespace-nowrap rounded-[10px] bg-[#0B0E14] px-3.5 py-3 text-[11.5px] text-[#C8E6FF]">
               forkbench replay --seed {sim.seed}
             </p>
           </Section>
@@ -71,20 +76,22 @@ export function SimDrawer({ sim, state, onClose }: { sim: Sim; state: CellState;
   );
 }
 
+const fixed = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}`;
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h3 className="e-lbl mb-3">{title}</h3>
-      <dl className="flex flex-col gap-1.5">{children}</dl>
+      <h3 className="label mb-3">{title}</h3>
+      <dl className="flex flex-col gap-2">{children}</dl>
     </section>
   );
 }
 
 function Row({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-line/60 pb-1.5 text-[14px]">
+    <div className="flex items-baseline justify-between gap-4 border-b border-line-soft pb-2 text-[13.5px]">
       <dt className="text-muted">{k}</dt>
-      <dd className="e-mono tabular-nums">{v}</dd>
+      <dd className="mono text-ink">{v}</dd>
     </div>
   );
 }

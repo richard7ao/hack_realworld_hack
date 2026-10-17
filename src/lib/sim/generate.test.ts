@@ -99,7 +99,7 @@ test("freeze past the end is the completed run", () => {
   const run = generateRun(base);
   const frozen = freeze(run, 1e9);
   assert.deepEqual(frozen.sims, run.sims);
-  assert.equal(frozen.stage, "scoring");
+  assert.equal(frozen.stage, "done", "a client polls until done, so a finished run must say so");
 });
 
 test("an unknown environment falls back rather than throwing mid-demo", () => {

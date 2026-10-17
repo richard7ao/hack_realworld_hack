@@ -1,4 +1,4 @@
-import { FAIL_MODES, type FailMode, type Run, type RunStage, type Sim, type Variant } from "../contract";
+import { type FailMode, type Run, type RunStage, type Sim, type Variant } from "../contract";
 import { between, hashSeed, intBetween, mulberry32, pickWeighted } from "../rng";
 import { environmentById, ENVIRONMENTS } from "./environments";
 
@@ -107,11 +107,12 @@ export function generateRun(opts: GenerateOpts): Run {
   const meanWeight = spread.reduce((s, d) => s + weight(d), 0) / Math.max(1, spread.length);
 
   // Container cold start, per worker: most are warm, a tail is not. Paid once, not per rollout.
-  const freeAt = Array.from({ length: Math.max(1, Math.min(concurrency, fanout)) }, () =>
+  const coldStarts: readonly number[] = Array.from({ length: Math.max(1, Math.min(concurrency, fanout)) }, () =>
     between(rnd, 120, 900) + (rnd() < 0.2 ? between(rnd, 600, 2100) : 0),
   );
 
-  const sims: Sim[] = drafts.map(({ i, variant, difficulty, seed }) => {
+  const { sims } = drafts.reduce<{ sims: readonly Sim[]; freeAt: readonly number[] }>((acc, { i, variant, difficulty, seed }) => {
+    const { freeAt } = acc;
     const pFail = Math.min(0.95, (targetFail * weight(difficulty)) / meanWeight);
     const fails = rnd() < pFail;
     const failMode = fails ? failModeFor(rnd, variant) : null;
@@ -123,16 +124,15 @@ export function generateRun(opts: GenerateOpts): Run {
       : Math.round(between(rnd, 4200, 6400) + difficulty * 2200);
     // Schedule onto the first free worker. With fewer workers than rollouts the fan-out lands in
     // waves, which is both what Modal actually does and why the grid has a queue to drain.
-    let worker = 0;
-    for (let w = 1; w < freeAt.length; w++) if (freeAt[w]! < freeAt[worker]!) worker = w;
+    const worker = freeAt.reduce((best, t, w) => (t < freeAt[best]! ? w : best), 0);
     const startOffsetMs = Math.round(freeAt[worker]!);
-    freeAt[worker] = startOffsetMs + durationMs + TEARDOWN_MS;
+    const nextFreeAt = freeAt.map((t, w) => (w === worker ? startOffsetMs + durationMs + TEARDOWN_MS : t));
 
     const reward = failMode
       ? Number((0.04 + (failAt ?? 0) * 0.42 + between(rnd, -0.03, 0.03)).toFixed(3))
       : Number(between(rnd, 0.72, 0.98).toFixed(3));
 
-    return {
+    const sim: Sim = {
       id: `sim-${String(i).padStart(3, "0")}`,
       seed,
       variant,
@@ -147,8 +147,9 @@ export function generateRun(opts: GenerateOpts): Run {
         steps: Math.round(durationMs / 50),
         graspAttempts: failMode === "grasp_slip" || failMode === "missed_approach" ? intBetween(rnd, 2, 3) : 1,
       },
-    } satisfies Sim;
-  });
+    };
+    return { sims: [...acc.sims, sim], freeAt: nextFreeAt };
+  }, { sims: [], freeAt: coldStarts });
 
   const run: Run = {
     id,
@@ -161,7 +162,7 @@ export function generateRun(opts: GenerateOpts): Run {
     concurrency: Math.max(1, Math.min(concurrency, fanout)),
     stage: "done",
     progress: { label: `Scored ${fanout} rollouts`, done: fanout, total: fanout },
-    sims,
+    sims: [...sims],
     gate: { metric: "pass_rate", threshold: 0.8, regressionTolerancePp: 2, baseline },
   };
 
@@ -186,7 +187,7 @@ export function freeze(run: Run, atMs: number): Run {
     };
   });
   const done = sims.filter((s) => s.status === "passed" || s.status === "failed").length;
-  const stage: RunStage = done === sims.length ? "scoring" : done > 0 ? "rollout" : atMs > 0 ? "booting" : "provisioning";
+  const stage: RunStage = done === sims.length ? "done" : done > 0 ? "rollout" : atMs > 0 ? "booting" : "provisioning";
   return {
     ...run,
     stage,
@@ -202,6 +203,3 @@ export const STAGE_LABEL: Record<RunStage, string> = {
   scoring: "Scoring episodes",
   done: "Complete",
 };
-
-/** Exported for the fixture validator, which asserts every mode is reachable. */
-export const ALL_FAIL_MODES = FAIL_MODES;

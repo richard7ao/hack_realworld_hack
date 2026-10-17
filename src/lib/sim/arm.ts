@@ -10,13 +10,13 @@ import { mulberry32 } from "../rng";
  */
 export type Pt = { x: number; y: number };
 
-export const BASE: Pt = { x: 0.18, y: 0.78 };
+export const BASE: Pt = { x: 0.22, y: 0.78 };
 export const L1 = 0.34;
 export const L2 = 0.30;
 export const FLOOR_Y = 0.80;
 /** Object radius, in unit coords. */
 export const OBJ_R = 0.045;
-export const BIN = { x: 0.72, y: 0.66, w: 0.20, h: 0.14 };
+export const BIN = { x: 0.60, y: 0.66, w: 0.19, h: 0.14 };
 /** Unit-space gravity, tuned so a slipped object falls to the floor in roughly half a second. */
 const G = 3.0;
 
@@ -33,7 +33,7 @@ export function scene(sim: Sim): Scene {
   const pick = { x: 0.50 + sim.variant.objectDx * 0.09, y: FLOOR_Y - OBJ_R };
   const place = { x: BIN.x + BIN.w / 2, y: BIN.y + 0.02 };
   const distractors = Array.from({ length: sim.variant.distractors }, () => ({
-    x: clamp(0.34 + rnd() * 0.42, 0.30, 0.78),
+    x: clamp(0.33 + rnd() * 0.23, 0.32, 0.56),
     y: FLOOR_Y - 0.018 - rnd() * 0.012,
   }));
   return { pick, place, distractors };
@@ -50,7 +50,7 @@ const SCRIPT: Phase[] = [
   { t: 0.28, at: (s) => s.pick, grip: 1, hold: false },
   { t: 0.38, at: (s) => s.pick, grip: 0, hold: true },
   { t: 0.50, at: (s) => ({ x: s.pick.x, y: 0.44 }), grip: 0, hold: true },
-  { t: 0.70, at: (s) => ({ x: s.place.x, y: 0.40 }), grip: 0, hold: true },
+  { t: 0.70, at: (s) => ({ x: s.place.x, y: 0.46 }), grip: 0, hold: true },
   { t: 0.84, at: (s) => s.place, grip: 0, hold: true },
   { t: 0.90, at: (s) => s.place, grip: 1, hold: false },
   { t: 1.00, at: () => HOME, grip: 1, hold: false },

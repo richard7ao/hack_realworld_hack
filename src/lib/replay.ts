@@ -19,7 +19,6 @@ export function cellStateAt(sim: Sim, elapsedMs: number): CellState {
   return sim.status === "passed" || sim.status === "failed" ? sim.status : "running";
 }
 
-export const isSettled = (state: CellState): state is "passed" | "failed" => state === "passed" || state === "failed";
 
 /** When this rollout's verdict lands, in ms since run start. Drives the settle flash. */
 export const settlesAt = (sim: Sim) => sim.startOffsetMs + sim.durationMs;
