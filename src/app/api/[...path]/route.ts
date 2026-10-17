@@ -33,17 +33,25 @@ function match(method: string, segments: string[]) {
 
 async function live(req: NextRequest, path: string[], search: string) {
   const base = (process.env.API_URL ?? "http://localhost:8787").replace(/\/$/, "");
+  // Attached here, on the server, so the shared token is never shipped to the browser.
+  const token = process.env.API_TOKEN;
   try {
     const res = await fetch(`${base}/${path.join("/")}${search}`, {
       method: req.method,
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
       body: req.method === "GET" ? undefined : await req.text(),
       cache: "no-store",
     });
     return new NextResponse(await res.text(), { status: res.status, headers: { "content-type": "application/json" } });
   } catch (err) {
-    // A dead backend must say so plainly rather than surfacing as a parse error three components deep.
-    return json({ error: `Could not reach the backend at ${base}. ${err instanceof Error ? err.message : String(err)}` }, 502);
+    // A dead backend must say so plainly rather than surfacing as a parse error three components
+    // deep. The detail stays on the server though: API_URL is an internal deployment address and
+    // the client has no use for it.
+    console.error(`[forkbench] backend unreachable at ${base}:`, err);
+    return json({ error: "The evaluation backend is unavailable. Check API_URL, or unset DATA_MODE to use fixtures." }, 502);
   }
 }
 

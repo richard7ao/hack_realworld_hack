@@ -51,7 +51,7 @@ export function SimDrawer({ sim, state, onClose }: { sim: Sim; state: CellState;
           </Section>
 
           <Section title="Episode">
-            <Row k="Reward" v={settled ? sim.metrics.reward.toFixed(3) : "—"} />
+            <Row k="Reward" v={settled ? sim.metrics.reward.toFixed(3) : "–"} />
             <Row k="Steps" v={String(sim.metrics.steps)} />
             <Row k="Grasp attempts" v={String(sim.metrics.graspAttempts)} />
             <Row k="Duration" v={`${(sim.durationMs / 1000).toFixed(1)}s`} />

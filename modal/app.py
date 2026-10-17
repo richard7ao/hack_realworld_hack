@@ -26,10 +26,11 @@ import os
 import random
 import time
 import uuid
+import hmac
 from typing import Callable, Literal, Optional
 
 import modal
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Header
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
@@ -593,6 +594,41 @@ def create_run(body: CreateRunRequest) -> str:
 
 web_app = FastAPI(title="Forkbench API (scaffold)")
 
+#: Name of the environment variable holding the shared bearer token. Supply it through a
+#: ``modal.Secret`` so it never lands in source control:
+#:     modal secret create forkbench-api-token FORKBENCH_API_TOKEN=<a long random string>
+#: then attach ``secrets=[modal.Secret.from_name("forkbench-api-token")]`` to the ``api``
+#: function below. Put the same value in the repo root ``.env`` as ``API_TOKEN``, and the
+#: Next.js proxy will attach it server side so it never reaches the browser.
+TOKEN_ENV = "FORKBENCH_API_TOKEN"
+
+
+def require_token(authorization: Optional[str] = Header(default=None)) -> None:
+    """Guard the endpoints that spend money.
+
+    ``POST /runs`` spawns GPU containers, so an open endpoint is a billing and abuse
+    vector rather than merely an information leak. This fails CLOSED: if no token is
+    configured the endpoint refuses rather than silently running unauthenticated, so a
+    deployment cannot accidentally go public without one.
+
+    Reads stay open, because they only return placeholder scaffold data. Guard them the
+    same way once the backend serves anything real.
+    """
+    expected = os.environ.get(TOKEN_ENV, "")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"{TOKEN_ENV} is not set, so run creation is disabled. Create a Modal "
+                "secret holding it and attach it to the api function. See modal/README.md."
+            ),
+        )
+    scheme, _, presented = (authorization or "").partition(" ")
+    # Constant time, so the comparison cannot be used to recover the token byte by byte.
+    if scheme.lower() != "bearer" or not hmac.compare_digest(presented, expected):
+        raise HTTPException(status_code=401, detail="Invalid or missing bearer token.")
+
+
 
 @web_app.get("/environments", response_model=EnvironmentsResponse)
 def get_environments() -> EnvironmentsResponse:
@@ -600,7 +636,7 @@ def get_environments() -> EnvironmentsResponse:
     return EnvironmentsResponse(environments=ENVIRONMENTS)
 
 
-@web_app.post("/runs", response_model=CreateRunResponse)
+@web_app.post("/runs", response_model=CreateRunResponse, dependencies=[Depends(require_token)])
 def post_runs(body: CreateRunRequest) -> CreateRunResponse:
     """Create a run and kick off its rollouts.
 

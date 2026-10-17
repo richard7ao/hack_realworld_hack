@@ -4,7 +4,7 @@ import type { Sim } from "../lib/contract";
 import type { CellState } from "../lib/replay";
 import { cellStateAt } from "../lib/replay";
 import { scene } from "../lib/sim/arm";
-import { drawCell, sizeCanvas } from "../lib/sim/draw";
+import { drawCell, FLASH_MS, sizeCanvas } from "../lib/sim/draw";
 
 /**
  * One simulation, animated on its own clock. Used where there are a handful on screen -- the
@@ -41,9 +41,10 @@ export function SimCanvas({ sim, loop = false, speed = 1, className = "", paused
     const frame = (now: number) => {
       const size = sizeCanvas(canvas, dpr);
       if (size) {
-        // A still render shows the finished episode, which is the informative frame.
-        const run = still || paused ? span : ((now - t0) * speed) % (loop ? cycle : Number.MAX_SAFE_INTEGER);
-        const elapsedMs = Math.min(run, loop ? span : Math.min(run, span));
+        // A still render shows the finished episode, which is the informative frame. It lands past
+        // the flash window, because settling instant plus zero elapsed is peak flash.
+        const run = still || paused ? span + FLASH_MS : ((now - t0) * speed) % (loop ? cycle : Number.MAX_SAFE_INTEGER);
+        const elapsedMs = loop ? run : Math.min(run, span + FLASH_MS);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         const state: CellState = cellStateAt(sim, elapsedMs);
         drawCell({ ctx, w: size.w, h: size.h, sim, scene: sc, state, elapsedMs });

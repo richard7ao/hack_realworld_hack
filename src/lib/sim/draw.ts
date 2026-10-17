@@ -161,7 +161,8 @@ export function drawCell({ ctx, w, h, sim, scene: sc, state, elapsedMs }: DrawAr
     // Build the colour in one piece: ctx.fillStyle validates on assignment, so feeding it a
     // partial "rgba(r,g,b," is silently dropped and leaves the previous opaque colour in place.
     const rgb = state === "passed" ? "43,168,74" : "215,38,61";
-    ctx.fillStyle = `rgba(${rgb},${((1 - sinceSettled / FLASH_MS) * 0.32).toFixed(3)})`;
+    // Four places, not three: at the tail of the window three rounds the alpha to a literal 0.000.
+    ctx.fillStyle = `rgba(${rgb},${((1 - sinceSettled / FLASH_MS) * 0.32).toFixed(4)})`;
     ctx.fillRect(0, 0, w, h);
   }
 

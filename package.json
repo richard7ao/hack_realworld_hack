@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p 3300",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test src/lib/score.test.ts src/lib/sim/arm.test.ts src/lib/sim/generate.test.ts",
+    "test": "node --import tsx --test 'src/**/*.test.ts'",
     "check": "pnpm typecheck && pnpm test && pnpm fixtures:validate",
     "fixtures:validate": "tsx fixtures/validate.ts",
     "fixtures:build": "tsx fixtures/build.ts"

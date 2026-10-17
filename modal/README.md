@@ -83,7 +83,10 @@ curl "$API_URL/runs/<runId from the response>"
 - **Exceptions from a rollout are recorded as a `timeout` failure at `failAt` 1.0.**
   That is a fallback, not a real classification. Return a real failure mode where you
   can.
-- **No authentication, no rate limiting, no run cancellation.**
+- **No rate limiting and no run cancellation.** `POST /runs` is guarded by a bearer token
+  but nothing caps how many runs one caller may start.
+- **Reads are unauthenticated.** `GET /environments` and `GET /runs/{run_id}` are open,
+  which is fine while they return scaffold data. Guard them the same way once they do not.
 
 ## Timing contract, worth reading before you change anything
 
@@ -96,3 +99,25 @@ episode, not container lifetime.
 mid-episode, not only at completion. `report(fail_mode, fail_at)` inside
 `run_rollout` does this. If a doomed rollout stays clean until it finishes, the grid
 animates it as a success and then snaps on the next poll.
+
+## Authentication
+
+`POST /runs` spawns GPU containers, so it is guarded and fails closed: with no token
+configured it refuses rather than running unauthenticated.
+
+```bash
+# 1. Create the secret. Use a long random value.
+modal secret create forkbench-api-token FORKBENCH_API_TOKEN=$(openssl rand -hex 32)
+```
+
+2. Attach it to the `api` function in `app.py`:
+
+```python
+@app.function(secrets=[modal.Secret.from_name("forkbench-api-token")])
+@modal.asgi_app()
+def api() -> FastAPI:
+    return web_app
+```
+
+3. Put the same value in the repo root `.env` as `API_TOKEN`. The Next.js proxy attaches
+   it server side, so it never reaches the browser.

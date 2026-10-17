@@ -38,7 +38,7 @@ export function Aggregate({ run, verdict, clock, elapsedMs, lengthMs }: {
           label="Pass rate"
           hero
           tone={verdict.status === "pending" ? "ink" : verdict.status === "pass" ? "pass" : "fail"}
-          value={t.settled === 0 ? "—" : pct(verdict.passRate, 0)}
+          value={t.settled === 0 ? "–" : pct(verdict.passRate, 0)}
           sub={t.settled === 0 ? "waiting for the first verdict" : `90% CI ${pct(verdict.lo, 0)}–${pct(verdict.hi, 0)} · n ${verdict.n}`}
         />
         <Stat label="Passed" tone="pass" value={t.passed} sub={`of ${run.fanout} rollouts`} delay={40} />
@@ -50,7 +50,7 @@ export function Aggregate({ run, verdict, clock, elapsedMs, lengthMs }: {
           sub={<span className="inline-flex items-center gap-1.5">{t.inFlight > 0 && <LiveDot />}{t.queued} queued</span>}
           delay={120}
         />
-        <Stat label="Median reward" value={rewards.length ? median(rewards).toFixed(2) : "—"} sub="passing rollouts" delay={160} />
+        <Stat label="Median reward" value={rewards.length ? median(rewards).toFixed(2) : "–"} sub="passing rollouts" delay={160} />
         <Stat label="Wall clock" value={`${(elapsedMs / 1000).toFixed(1)}s`} sub={`${run.concurrency} workers · ${(lengthMs / 1000).toFixed(0)}s total`} delay={200} />
       </div>
 

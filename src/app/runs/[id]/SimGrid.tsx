@@ -29,6 +29,9 @@ export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
   useEffect(() => {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const drawn: (CellState | null)[] = sims.map(() => null);
+    // Whether the last frame painted for this cell included the settle flash. The flash lives in
+    // the canvas, so the cell needs one more repaint after it ends or the tint is frozen in.
+    const tinted: boolean[] = sims.map(() => false);
     let raf = 0;
     let forceAll = true;
 
@@ -53,8 +56,9 @@ export function SimGrid({ sims, clockRef, onOpen, dimmed }: {
         // if the layout changed underneath us.
         const settledFor = elapsedMs - (sim.startOffsetMs + sim.durationMs);
         const flashing = settledFor >= 0 && settledFor < FLASH_MS;
-        if (forceAll || state !== drawn[i] || state === "running" || state === "booting" || flashing) {
+        if (forceAll || state !== drawn[i] || state === "running" || state === "booting" || flashing || tinted[i]) {
           paint(i, state, elapsedMs);
+          tinted[i] = flashing;
         }
       }
       forceAll = false;
