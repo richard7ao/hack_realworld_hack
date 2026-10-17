@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** The forkbench mark: an arm reaching for a target, set in a dark rounded tile. */
+/** The FAULTLINE mark: an arm reaching for a target, set in a dark rounded tile. */
 export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2.5 text-[17px] font-bold tracking-[-0.03em] text-ink">
@@ -10,7 +10,7 @@ export function Logo() {
           <circle cx="18" cy="17" r="2.6" fill="#1C64F2" />
         </svg>
       </span>
-      forkbench
+      faultline
     </Link>
   );
 }

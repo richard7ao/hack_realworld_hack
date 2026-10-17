@@ -1,205 +1,132 @@
-import { type FailMode, type Run, type RunStage, type Sim, type Variant } from "../contract";
-import { between, hashSeed, intBetween, mulberry32, pickWeighted } from "../rng";
-import { environmentById, ENVIRONMENTS } from "./environments";
+import type { ActionType, Benchmark, BenchmarkCase, CaseDetail, CaseResult, Family, Outcome, PolicyManifest, Reason, Scenario, SceneObject, TraceStep, Vec3 } from "../contract";
+import { FAMILIES } from "../contract";
+import { between, hashSeed, intBetween, mulberry32 } from "../rng";
 
 /**
- * The hardcoded fallback: a complete, plausible 100-rollout eval, derived entirely from one seed.
+ * Deterministic DEMO data for FAULTLINE Pick, served until the real backend is live.
  *
- * It exists so the whole product is demonstrable before the Modal backend lands, and so the UI has
- * something deterministic to be tested against afterwards. The failure distribution is causal, not
- * random: a rollout that drew heavy clutter is the one that collides, and a slippery one is the one
- * that drops the object. That is what makes the breakdown panels say something true about the
- * policy rather than just reflecting the RNG.
+ * Nothing here was executed. Every run is labelled source "demo_fixture" and the UI says so.
+ * The data is still held to the rules a real run must obey, so the screens are exercised honestly:
+ *  - A case's scenario depends only on its case id, never on the policy, so runs are comparable.
+ *  - The outcome is scripted per policy, family and the case's difficulty rank within its family.
+ *  - The trace is built from that script, and the result is derived from the trace, so the two can
+ *    never disagree (actions, recovery attempts, simulated time).
  */
-export type GenerateOpts = {
-  id: string;
-  environmentId: string;
-  task: string;
-  fanout: number;
-  /** Share of rollouts expected to succeed, before difficulty weighting. */
-  skill?: number;
-  policy?: { name: string; commit: string; branch: string };
-  baseline?: { ref: string; passRate: number; n: number } | null;
-  /** How many rollouts execute at once. Rollouts beyond this queue for a free worker. */
-  concurrency?: number;
-  /** Report the run as if it were this many ms in, leaving later rollouts unsettled. */
-  freezeAtMs?: number;
-};
 
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-/** Container reuse between rollouts is not free. */
-const TEARDOWN_MS = 180;
+export const SUITE = "PickLab-100";
+export const EVALUATOR_VERSION = "oracle_v1";
+export const CONCURRENCY = 10;
+export const DEFAULT_CREATED_AT = "2026-10-17T12:00:00.000Z";
+export const CASES_PER_FAMILY = 20;
 
-/** How hard this particular randomisation made the rollout, in 0..1. */
-export function difficultyOf(v: Variant): number {
-  const clutter = v.distractors / 6;
-  const slip = clamp01(1 - (v.friction - 0.3) / 0.9);
-  const offset = (Math.abs(v.objectDx) + Math.abs(v.objectDy)) / 2;
-  const light = Math.min(1, Math.abs(v.lighting - 0.55) * 2);
-  return clamp01(0.30 * clutter + 0.26 * slip + 0.22 * offset + 0.12 * light + 0.10 * v.cameraJitter);
-}
+export const BASELINE_ID = "pick_policy_v1.4";
+export const RC1_ID = "pick_policy_v1.5-rc1";
+export const RC2_ID = "pick_policy_v1.5-rc2";
 
-/** Which way a rollout breaks, given what the randomiser threw at it. */
-export function failModeFor(rnd: () => number, v: Variant): FailMode {
-  const clutter = v.distractors / 6;
-  const slip = clamp01(1 - (v.friction - 0.3) / 0.9);
-  const offset = (Math.abs(v.objectDx) + Math.abs(v.objectDy)) / 2;
-  const light = Math.min(1, Math.abs(v.lighting - 0.55) * 2);
-  return pickWeighted<FailMode>(rnd, [
-    ["collision", 0.4 + 2.6 * clutter],
-    ["grasp_slip", 0.4 + 2.6 * slip],
-    ["missed_approach", 0.3 + 2.4 * offset + 1.4 * v.cameraJitter],
-    ["dropped_outside", 0.5 + 0.8 * slip],
-    ["timeout", 0.3 + 1.2 * light],
-  ]);
-}
+const manifest = (policy_id: string): PolicyManifest => ({
+  policy_id,
+  adapter_type: "scripted",
+  model: null,
+  prompt_version: null,
+  observation_modalities: ["object_estimates", "last_action_result"],
+  action_space: "symbolic_v1",
+  max_actions: 12,
+});
 
-/** Where in the episode each mode shows itself. A collision happens on approach, a drop near the bin. */
-const FAIL_WINDOW: Record<FailMode, [number, number]> = {
-  collision: [0.16, 0.34],
-  missed_approach: [0.30, 0.40],
-  grasp_slip: [0.42, 0.66],
-  dropped_outside: [0.74, 0.86],
-  timeout: [0.30, 0.60],
-};
-
-function variantFor(rnd: () => number, bias: number): Variant {
-  return {
-    lighting: between(rnd, 0.2, 0.95),
-    friction: between(rnd, 0.35, 1.35),
-    objectDx: between(rnd, -1, 1) * (0.5 + bias * 0.5),
-    objectDy: between(rnd, -1, 1) * 0.4,
-    distractors: intBetween(rnd, 0, Math.round(2 + bias * 4)),
-    cameraJitter: between(rnd, 0, 0.9),
-  };
-}
-
-export function generateRun(opts: GenerateOpts): Run {
-  const {
-    id, environmentId, task, fanout,
-    skill = 0.87,
-    policy = { name: "pi0-fast", commit: "a3f91c2", branch: "feat/grasp-refine" },
-    baseline = { ref: "main@7d21e0b", passRate: 0.82, n: 100 },
-    concurrency = 32,
-    freezeAtMs,
-  } = opts;
-
-  const env = environmentById(environmentId) ?? ENVIRONMENTS[0]!;
-  const hardness = env.difficulty === "hard" ? 1 : env.difficulty === "medium" ? 0.6 : 0.3;
-  const rnd = mulberry32(hashSeed(id));
-  const targetFail = 1 - skill;
-
-  // Two passes: draw every variant first so failure probability can be normalised against the mean
-  // difficulty of this particular fan-out, which keeps the headline rate near `skill` whatever the
-  // environment throws.
-  const drafts = Array.from({ length: fanout }, (_, i) => {
-    const variant = variantFor(rnd, hardness);
-    return { i, variant, difficulty: difficultyOf(variant), seed: (hashSeed(`${id}:${i}`) >>> 1) };
-  });
-  // Difficulty is a sum of five roughly uniform terms, so it clusters tightly around its mean and
-  // the raw value barely separates one rollout from another. Rescaling across this fan-out's own
-  // spread is what actually makes a hard rollout likelier to fail, and so what makes the breakdown
-  // panels report something about the policy rather than about the RNG.
-  const spread = drafts.map((d) => d.difficulty);
-  const lowest = Math.min(...spread);
-  const range = Math.max(1e-6, Math.max(...spread) - lowest);
-  const weight = (d: number) => 0.25 + 1.75 * ((d - lowest) / range);
-  const meanWeight = spread.reduce((s, d) => s + weight(d), 0) / Math.max(1, spread.length);
-
-  // Container cold start, per worker: most are warm, a tail is not. Paid once, not per rollout.
-  const coldStarts: readonly number[] = Array.from({ length: Math.max(1, Math.min(concurrency, fanout)) }, () =>
-    between(rnd, 120, 900) + (rnd() < 0.2 ? between(rnd, 600, 2100) : 0),
-  );
-
-  const { sims } = drafts.reduce<{ sims: readonly Sim[]; freeAt: readonly number[] }>((acc, { i, variant, difficulty, seed }) => {
-    const { freeAt } = acc;
-    const pFail = Math.min(0.95, (targetFail * weight(difficulty)) / meanWeight);
-    const fails = rnd() < pFail;
-    const failMode = fails ? failModeFor(rnd, variant) : null;
-    const [lo, hi] = failMode ? FAIL_WINDOW[failMode] : [0, 0];
-    const failAt = failMode ? between(rnd, lo, hi) : null;
-
-    const durationMs = failMode === "timeout"
-      ? 10000
-      : Math.round(between(rnd, 4200, 6400) + difficulty * 2200);
-    // Schedule onto the first free worker. With fewer workers than rollouts the fan-out lands in
-    // waves, which is both what Modal actually does and why the grid has a queue to drain.
-    const worker = freeAt.reduce((best, t, w) => (t < freeAt[best]! ? w : best), 0);
-    const startOffsetMs = Math.round(freeAt[worker]!);
-    const nextFreeAt = freeAt.map((t, w) => (w === worker ? startOffsetMs + durationMs + TEARDOWN_MS : t));
-
-    const reward = failMode
-      ? Number((0.04 + (failAt ?? 0) * 0.42 + between(rnd, -0.03, 0.03)).toFixed(3))
-      : Number(between(rnd, 0.72, 0.98).toFixed(3));
-
-    const sim: Sim = {
-      id: `sim-${String(i).padStart(3, "0")}`,
-      seed,
-      variant,
-      status: failMode ? "failed" : "passed",
-      startOffsetMs,
-      durationMs,
-      elbow: rnd() < 0.5 ? 1 : -1,
-      failMode,
-      failAt,
-      metrics: {
-        reward,
-        steps: Math.round(durationMs / 50),
-        graspAttempts: failMode === "grasp_slip" || failMode === "missed_approach" ? intBetween(rnd, 2, 3) : 1,
-      },
-    };
-    return { sims: [...acc.sims, sim], freeAt: nextFreeAt };
-  }, { sims: [], freeAt: coldStarts });
-
-  const run: Run = {
-    id,
-    createdAt: new Date().toISOString(),
-    policy,
-    environmentId: env.id,
-    environmentName: env.name,
-    task,
-    fanout,
-    concurrency: Math.max(1, Math.min(concurrency, fanout)),
-    stage: "done",
-    progress: { label: `Scored ${fanout} rollouts`, done: fanout, total: fanout },
-    sims: [...sims],
-    gate: { metric: "pass_rate", threshold: 0.8, regressionTolerancePp: 2, baseline },
-  };
-
-  return freezeAtMs === undefined ? run : freeze(run, freezeAtMs);
-}
+/** Fictional scripted policies. v1.4 is open loop; both candidates add re-observation. */
+export const POLICIES: PolicyManifest[] = [manifest(BASELINE_ID), manifest(RC1_ID), manifest(RC2_ID)];
 
 /**
- * Rewind a finished run to `atMs`, so a fixture can show a fan-out mid-flight. Unsettled rollouts
- * lose their outcome: the UI must not know how a running episode ends.
+ * Simulated execution time per action, in ms. Rule used everywhere: a step starts at the previous
+ * step's start plus that step's duration, and sim_elapsed_ms is the last step's start plus its own
+ * duration. Headless scripted execution is compressed, so wall time always exceeds sim time.
  */
-export function freeze(run: Run, atMs: number): Run {
-  const sims = run.sims.map((s): Sim => {
-    if (atMs >= s.startOffsetMs + s.durationMs) return s;
-    const started = atMs >= s.startOffsetMs;
-    // A doomed rollout reveals its failure mode the moment the harness detects it, not at the end.
-    const revealed = started && s.failAt !== null && atMs >= s.startOffsetMs + s.failAt * s.durationMs;
-    return {
-      ...s,
-      status: started ? "running" : atMs >= s.startOffsetMs - 450 ? "booting" : "queued",
-      failMode: revealed ? s.failMode : null,
-      failAt: revealed ? s.failAt : null,
-    };
-  });
-  const done = sims.filter((s) => s.status === "passed" || s.status === "failed").length;
-  const stage: RunStage = done === sims.length ? "done" : done > 0 ? "rollout" : atMs > 0 ? "booting" : "provisioning";
-  return {
-    ...run,
-    stage,
-    sims,
-    progress: { label: STAGE_LABEL[stage], done, total: sims.length },
-  };
+export const STEP_MS: Record<ActionType, number> = { OBSERVE: 120, MOVE_TO: 380, GRASP: 260, PLACE: 300, WAIT: 600, REQUEST_HELP: 80, DONE: 40 };
+
+export const CASE_IDS: string[] = Array.from({ length: FAMILIES.length * CASES_PER_FAMILY }, (_, i) => `PICK-${String(i + 1).padStart(3, "0")}`);
+
+// ---------------------------------------------------------------------------------------------
+// Scenario, a function of the case id alone
+// ---------------------------------------------------------------------------------------------
+
+const r3 = (x: number) => Math.round(x * 1000) / 1000;
+const v = (x: number, y: number, z: number): Vec3 => [r3(x), r3(y), r3(z)];
+const add = (a: Vec3, b: Vec3): Vec3 => v(a[0] + b[0], a[1] + b[1], a[2] + b[2]);
+
+function caseIndex(case_id: string): number {
+  const m = /^PICK-(\d{3})$/.exec(case_id);
+  const i = m ? Number(m[1]) : NaN;
+  if (!(i >= 1 && i <= CASE_IDS.length)) throw new Error(`unknown case_id "${case_id}"`);
+  return i;
 }
 
-export const STAGE_LABEL: Record<RunStage, string> = {
-  provisioning: "Provisioning GPU containers",
-  booting: "Booting simulator instances",
-  rollout: "Running rollouts",
-  scoring: "Scoring episodes",
-  done: "Complete",
-};
+export const familyOf = (case_id: string): Family => FAMILIES[Math.floor((caseIndex(case_id) - 1) / CASES_PER_FAMILY)]!;
+export const seedOf = (case_id: string): number => 40000 + (hashSeed(case_id) % 10000);
+
+/** Difficulty rank 0 (easiest) to 19 within the family: a seeded permutation, fixed per family. */
+export function rankOf(case_id: string): number {
+  const family = familyOf(case_id);
+  const rnd = mulberry32(hashSeed(`rank:${family}`));
+  const keys = Array.from({ length: CASES_PER_FAMILY }, () => rnd());
+  const pos = (caseIndex(case_id) - 1) % CASES_PER_FAMILY;
+  return keys.filter((k) => k < keys[pos]!).length;
+}
+
+const TARGET = "parcel_A";
+const DECOY = "parcel_A2";
+const OBSTACLE = "obstacle_D";
+const DESTINATION = "outbound_bin";
+const DEST_POS: Vec3 = [0.82, 0.5, 0];
+
+/** Displacement magnitude grows with rank. Below rank 10 it is inside the gripper's tolerance. */
+const moveMagnitude = (rank: number) => (rank < 18 ? 0.03 + rank * 0.006 : 0.2 + (rank - 18) * 0.04);
+/** Destination shift. Below rank 17 the planned place pose still lands inside the moved bin. */
+const destMagnitude = (rank: number) => (rank < 17 ? 0.02 + rank * 0.005 : 0.18 + (rank - 17) * 0.04);
+
+export function scenarioFor(case_id: string): Scenario {
+  const family = familyOf(case_id);
+  const seed = seedOf(case_id);
+  const rank = rankOf(case_id);
+  const rnd = mulberry32(seed);
+  const target = v(between(rnd, 0.25, 0.45), between(rnd, 0.35, 0.65), 0.04);
+  const angle = between(rnd, 0, Math.PI * 2);
+  const trigger = rnd() < 0.5 ? 1 : 2;
+  const withSlender = rnd() < 0.5;
+  const sign = rnd() < 0.5 ? -1 : 1;
+  const yaw = r3(between(rnd, -0.6, 0.6));
+  const decoyOffset = v(between(rnd, 0.07, 0.1), between(rnd, -0.05, 0.05), 0);
+
+  const obj = (id: string, cls: SceneObject["class"], role: SceneObject["role"], position_m: Vec3, dimensions_m: Vec3, yaw_rad = 0): SceneObject => ({ id, class: cls, role, position_m, yaw_rad, dimensions_m });
+  const objects: SceneObject[] = [
+    obj(TARGET, "parcel", "target", target, [0.12, 0.09, 0.08], yaw),
+    obj("carton_B", "carton", "distractor", v(0.18, 0.82, 0.05), [0.14, 0.12, 0.1]),
+    ...(withSlender ? [obj("slender_C", "slender", "distractor", v(0.55, 0.18, 0.06), [0.03, 0.03, 0.12])] : []),
+    // Listed at the pose the scheduled disturbance inserts them, so the inspector can draw them.
+    ...(family === "clutter_ambiguity" ? [obj(DECOY, "parcel", "distractor", add(target, decoyOffset), [0.12, 0.09, 0.08], yaw)] : []),
+    ...(family === "workspace_obstruction" ? [obj(OBSTACLE, "obstacle", "obstacle", v((target[0] + DEST_POS[0]) / 2, (target[1] + DEST_POS[1]) / 2, 0.075), [0.06, 0.22, 0.15])] : []),
+  ];
+
+  const effect = {
+    target_displacement: { type: "MOVE_OBJECT" as const, object_id: TARGET, delta_m: v(moveMagnitude(rank) * Math.cos(angle), moveMagnitude(rank) * Math.sin(angle), 0) },
+    visual_occlusion: { type: "OCCLUDE" as const, object_id: TARGET, delta_m: null },
+    workspace_obstruction: { type: "INSERT_OBSTACLE" as const, object_id: OBSTACLE, delta_m: null },
+    clutter_ambiguity: { type: "ADD_SIMILAR" as const, object_id: DECOY, delta_m: null },
+    destination_change: { type: "MOVE_DESTINATION" as const, object_id: DESTINATION, delta_m: v(0, sign * destMagnitude(rank), 0) },
+  }[family];
+  const disturbance: Scenario["disturbance"] = { ...effect, trigger: { after_action_index: trigger } };
+
+  return {
+    schema_version: "1.0",
+    case_id,
+    source: "demo_fixture",
+    family,
+    seed,
+    task: { target_id: TARGET, destination_id: DESTINATION },
+    initial_scene_ref: null,
+    initial_scene: { coordinate_frame: "workcell_normalized", objects, destination: { id: DESTINATION, position_m: DEST_POS, size_m: [0.16, 0.22] } },
+    disturbance,
+    limits: { max_actions: 12, max_sim_seconds: 30 },
+    success_predicate: "correct_item_in_outbound_and_no_forbidden_collision",
+    provenance: { capture_frame_ref: null, observation_confidence: null },
+  };
+}

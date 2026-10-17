@@ -1,341 +1,475 @@
-# Forkbench backend API
+# FAULTLINE Pick backend API, as the frontend consumes it
 
-Handoff doc for the Modal (Python) backend. The Next.js frontend is already built against this
-contract. If your service answers these three endpoints with these shapes, the dashboard works.
+This is the one document a backend needs to plug into this frontend. It is transcribed from
+`src/lib/contract.ts`, which is the source of truth. If this file and `contract.ts` ever disagree,
+`contract.ts` wins and this file is wrong.
 
-The authoritative source is `src/lib/contract.ts` (zod). This document transcribes it. The contract
-is frozen: add optional fields only, never rename or remove.
+Every response is parsed with the zod schema in `contract.ts` at the boundary (`src/lib/client.ts`).
+A payload that does not match fails loudly in the UI, so the shapes below are exact, not advisory.
 
----
+JSON examples in this document are illustrative shapes, reusing the sample values from the build
+brief (sections D5 and D6). They are not real results.
 
-## 1. Pointing the frontend at the backend
+## 1. Pointing the frontend at your backend
 
-The frontend never calls your service directly. Every component calls `/api/<path>` on the Next.js
-app, and `src/app/api/[...path]/route.ts` decides where the bytes come from.
+Set these in `.env` (see `.env.example`):
 
-```bash
-# .env
-DATA_MODE=live
-API_URL=https://<org>--<app>.modal.run
+| Variable | Meaning |
+|---|---|
+| `DATA_MODE` | `fixture` (default) serves local fixtures. `live` proxies every call to your backend. |
+| `API_URL` | Base URL of the FastAPI service, without `/api`. Defaults to `http://localhost:8000`. |
+| `API_TOKEN` | Optional bearer token. Only sent when set and `DATA_MODE=live`. |
+
+How a request travels:
+
+1. The browser always calls `/api/<path>` on the Next.js app.
+2. With `DATA_MODE=live`, the proxy in `src/app/api/[...path]/route.ts` forwards the request
+   verbatim (method, query string, JSON body) to `${API_URL}/api/<path>`.
+3. When `API_TOKEN` is set, the proxy attaches `Authorization: Bearer ${API_TOKEN}` on the server, so the token never
+   reaches the browser. Your backend should check it.
+4. Your status code and body are passed back unchanged, with `content-type: application/json`.
+
+So your FastAPI routes live under `/api`, exactly as in the build brief endpoint table.
+
+Set `API_URL` without a trailing `/api`. If unset, the proxy uses `http://localhost:8000`.
+
+### Errors
+
+For a non-2xx response, the frontend shows the body's `error` field if present, otherwise the raw
+JSON. Return `{"error": "<human readable message>"}` with a non-2xx status. If the backend is
+unreachable, the proxy itself returns `502` with an `error` message.
+
+## 2. General wire rules
+
+- Field names are snake_case, read straight off the wire.
+- A field typed `X | null` (nullable) must be **present**. Send `null`, do not omit the key. A
+  missing key fails validation.
+- Extra keys you send are ignored (stripped), so additive changes are safe.
+- `Vec3` means a JSON array of exactly three numbers, `[x, y, z]`.
+- Integers are checked as integers. `nonnegative` means `>= 0`, `positive` means `> 0`.
+
+## 3. Endpoints
+
+All paths are relative to `/api`. "PRD" means the endpoint is in the build brief endpoint table
+(section I). "Extension" means the frontend added it.
+
+| Name in `endpoints` | Method | Path | Request body | Response | Origin |
+|---|---|---|---|---|---|
+| `benchmarkList` | GET | `/api/benchmarks` | none | `BenchmarkList` | Extension |
+| `runBenchmark` | POST | `/api/benchmarks/run` | `RunBenchmarkRequest` | `RunBenchmarkResponse` | PRD |
+| `benchmark` | GET | `/api/benchmarks/{run_id}` | none | `Benchmark` | PRD |
+| `caseDetail` | GET | `/api/benchmarks/{run_id}/cases/{case_id}` | none | `CaseDetail` | PRD |
+| `scenario` | GET | `/api/scenarios/{case_id}` | none | `Scenario` | PRD |
+| `rerun` | POST | `/api/replays/{case_id}/rerun` | `RerunRequest` | `RerunResponse` | PRD |
+| `gate` | POST | `/api/gates/evaluate` | `GateRequest` | `GateResult` | PRD |
+
+Path parameters are URL-encoded by the frontend. The brief names the rerun parameter
+`{scenario_id}`, the frontend sends a `case_id` in that position.
+
+### GET /api/benchmarks (extension)
+
+Lists runs for the landing page, plus the policies that can be launched.
+
+```ts
+BenchmarkList = {
+  benchmarks: Array<{ run_id: string; policy_id: string; source: Source;
+                      status: "queued" | "running" | "done"; created_at: string }>;
+  policies: PolicyManifest[];
+}
 ```
-
-Behaviour:
-
-- `DATA_MODE=fixture` (the default) serves everything from `fixtures/*.json` locally.
-- `DATA_MODE=live` proxies the request verbatim to `API_URL`. Path, query string, method and body
-  are passed through unchanged. `content-type: application/json` is set on the way out.
-- If `API_URL` is unset in live mode the proxy falls back to `http://localhost:8787`, which is handy
-  for running your handler locally before deploying.
-- If your service is unreachable the proxy returns HTTP 502 with `{"error": "..."}`. It does not
-  retry.
-
-So a browser request to `/api/runs/run-demo` becomes `GET https://<org>--<app>.modal.run/runs/run-demo`.
-Mount your routes at the root of the Modal web app, with no `/api` prefix.
-
-CORS is not a concern. The browser only ever talks to the Next.js origin.
-
----
-
-## 2. Endpoints
-
-### 2.1 `GET /environments`
-
-The catalogue shown on the drop screen. No request body, no query parameters.
-
-Response:
 
 ```json
 {
-  "environments": [
-    {
-      "id": "kitchen-counter",
-      "name": "Kitchen Counter",
-      "blurb": "Domestic clutter, reflective surfaces and a tight pour zone.",
-      "objects": ["mug", "tray", "kettle", "sponge"],
-      "difficulty": "medium",
-      "tasks": [
-        "Pick up the red mug and place it on the tray",
-        "Move the sponge into the sink caddy",
-        "Set the kettle back on its base"
-      ]
-    }
+  "benchmarks": [
+    { "run_id": "r_42", "policy_id": "frontier_v2", "source": "frontier_policy", "status": "done", "created_at": "2026-10-17T10:00:00Z" }
+  ],
+  "policies": [
+    { "policy_id": "frontier_v2", "adapter_type": "symbolic_tool_agent", "model": null, "prompt_version": "c3",
+      "observation_modalities": ["rgb", "detected_objects"], "action_space": "pick_v1", "max_actions": 12 }
   ]
 }
 ```
 
-| Field        | JSON type       | Constraints                     | Meaning                                              |
-| ------------ | --------------- | ------------------------------- | ---------------------------------------------------- |
-| `id`         | string          | required                        | Stable key, sent back as `environmentId` on `POST /runs`. |
-| `name`       | string          | required                        | Display name.                                        |
-| `blurb`      | string          | required                        | One line of flavour under the name.                  |
-| `objects`    | array of string | required, may be empty          | Props present in the scene.                          |
-| `difficulty` | string          | `easy` \| `medium` \| `hard`    | Rendered as a badge.                                 |
-| `tasks`      | array of string | required, may be empty          | Suggested tasks, offered as one-tap chips.           |
+### POST /api/benchmarks/run
 
-### 2.2 `POST /runs`
+Request: `{ "suite": string (non-empty), "policy_id": string (non-empty) }`
 
-Starts a fan-out. Returns immediately. Do not block until the rollouts finish.
+Response: `{ "run_id": string }`
 
-Request body:
+```json
+{ "suite": "picklab-100", "policy_id": "frontier_v2" }
+```
+```json
+{ "run_id": "r_42" }
+```
+
+### GET /api/benchmarks/{run_id}
+
+Response: `Benchmark` (section 4). The frontend polls this, see section 5.
 
 ```json
 {
-  "environmentId": "kitchen-counter",
-  "task": "Pick up the red mug and place it on the tray",
-  "fanout": 100
+  "run_id": "r_42",
+  "created_at": "2026-10-17T10:00:00Z",
+  "suite": "picklab-100",
+  "source": "frontier_policy",
+  "status": "running",
+  "policy": { "policy_id": "frontier_v2", "adapter_type": "symbolic_tool_agent", "model": null, "prompt_version": "c3",
+              "observation_modalities": ["rgb"], "action_space": "pick_v1", "max_actions": 12 },
+  "evaluator_version": "oracle_v1",
+  "concurrency": 8,
+  "cases": [
+    { "case_id": "PICK-042", "family": "target_displacement", "seed": 42017, "status": "done",
+      "started_at_ms": 0, "finished_at_ms": 12400,
+      "result": { "case_id": "PICK-042", "policy_version": "frontier_v2_prompt_c3", "outcome": "FAIL", "reason": "WRONG_OBJECT",
+                  "task_success": false, "constraint_violations": ["wrong_object_grasp_attempt"], "actions": 6,
+                  "recovery_attempts": 1, "sim_elapsed_ms": 5100, "wall_elapsed_ms": 12400,
+                  "trace_ref": "runs/r_42/trace.jsonl", "evaluator_version": "oracle_v1" } },
+    { "case_id": "PICK-043", "family": "visual_occlusion", "seed": 43001, "status": "pending",
+      "started_at_ms": null, "finished_at_ms": null, "result": null }
+  ]
 }
 ```
 
-| Field           | JSON type | Constraints                      | Meaning                           |
-| --------------- | --------- | -------------------------------- | --------------------------------- |
-| `environmentId` | string    | min length 1                     | An `id` from `GET /environments`. |
-| `task`          | string    | min length 3, max length 240     | Natural-language task.            |
-| `fanout`        | integer   | min 1, max 256                   | How many randomised rollouts.     |
+### GET /api/benchmarks/{run_id}/cases/{case_id}
 
-Response:
-
-```json
-{ "ok": true, "runId": "run-demo", "error": null }
-```
-
-| Field   | JSON type       | Constraints        | Meaning                                                 |
-| ------- | --------------- | ------------------ | ------------------------------------------------------- |
-| `ok`    | boolean         | required           | Whether the run was accepted.                           |
-| `runId` | string or null  | nullable, required | The id to poll. Null when `ok` is false.                |
-| `error` | string or null  | nullable, required | Human-readable reason. Null when `ok` is true.          |
-
-Both `runId` and `error` must be present as keys. Use `null`, not omission. Reject bad input with
-HTTP 200 and `{"ok": false, "runId": null, "error": "..."}`, since the client reads `error` and shows
-it on the drop screen. Non-200 responses surface as a thrown error instead.
-
-An `environmentId` that is not in your `GET /environments` catalogue must be rejected this way,
-never replaced with a default. The run page titles itself from the run's own `environmentName`,
-so a silent substitution shows the user a run in an environment they never chose. The fixture
-server behaves the same way: it answers `{"ok": false, "runId": null, "error": "Unknown environment \"<id>\"."}`.
-
-### 2.3 `GET /runs/:id`
-
-The whole run, polled while it is in flight. Returns a `Run` object at the top level, not wrapped.
-
-Example, with the `sims` array trimmed to 2 entries out of a fan-out of 100:
+Response: `{ run_id: string; scenario: Scenario; result: CaseResult | null; trace: TraceStep[] }`
 
 ```json
 {
-  "id": "run-live",
-  "createdAt": "2026-10-17T10:42:21.683Z",
-  "policy": { "name": "pi0-fast", "commit": "a3f91c2", "branch": "feat/grasp-refine" },
-  "environmentId": "warehouse-shelf",
-  "environmentName": "Warehouse Shelf",
-  "task": "Pick the labelled carton from the middle bin",
-  "fanout": 100,
-  "concurrency": 32,
-  "stage": "rollout",
-  "progress": { "label": "Running rollouts", "done": 32, "total": 100 },
-  "sims": [
-    {
-      "id": "sim-000",
-      "seed": 1606008838,
-      "variant": {
-        "lighting": 0.48732770594069735,
-        "friction": 0.6720421036239713,
-        "objectDx": -0.23188461689278483,
-        "objectDy": -0.2848399782553315,
-        "distractors": 2,
-        "cameraJitter": 0.758311128616333
-      },
-      "status": "failed",
-      "startOffsetMs": 125,
-      "durationMs": 5650,
-      "elbow": 1,
-      "failMode": "collision",
-      "failAt": 0.29221188408788296,
-      "metrics": { "reward": 0.16, "steps": 113, "graspAttempts": 1 }
-    },
-    {
-      "id": "sim-032",
-      "seed": 132489417,
-      "variant": {
-        "lighting": 0.5103408998576924,
-        "friction": 0.44245594684034584,
-        "objectDx": 0.06817305367439985,
-        "objectDy": 0.18268981482833624,
-        "distractors": 0,
-        "cameraJitter": 0.19780512701254338
-      },
-      "status": "running",
-      "startOffsetMs": 5773,
-      "durationMs": 5063,
-      "elbow": -1,
-      "failMode": null,
-      "failAt": null,
-      "metrics": { "reward": 0.917, "steps": 101, "graspAttempts": 1 }
-    }
-  ],
-  "gate": {
-    "metric": "pass_rate",
-    "threshold": 0.8,
-    "regressionTolerancePp": 2,
-    "baseline": { "ref": "main@7d21e0b", "passRate": 0.82, "n": 100 }
-  }
+  "run_id": "r_42",
+  "scenario": { "...": "see Scenario example below" },
+  "result": { "...": "CaseResult, or null if not finished" },
+  "trace": [
+    { "seq": 0, "sim_time_ms": 0, "action": { "type": "OBSERVE", "target_id": null, "target_position_m": null },
+      "result": { "status": "ok", "reason": null },
+      "belief_target_m": [0.32, 0.51, 0.02], "true_target_m": [0.32, 0.51, 0.02],
+      "disturbance_applied": false, "note": null },
+    { "seq": 2, "sim_time_ms": 1800, "action": { "type": "GRASP", "target_id": "chocolate_A", "target_position_m": [0.32, 0.51, 0.03] },
+      "result": { "status": "rejected", "reason": "TARGET_DISPLACED" },
+      "belief_target_m": [0.32, 0.51, 0.02], "true_target_m": [0.46, 0.46, 0.02],
+      "disturbance_applied": true, "note": null }
+  ]
 }
 ```
 
-Return every rollout on every poll, including the ones still queued. The client renders the full
-grid from the first response, so the cells must exist before they start. `sims.length` should equal
-`fanout`.
+### GET /api/scenarios/{case_id}
 
-For an unknown id, return a non-200 with `{"error": "..."}`. The client shows that string.
+Response: `Scenario` (section 4).
 
----
+```json
+{
+  "schema_version": "1.0",
+  "case_id": "PICK-042",
+  "source": "frontier_policy",
+  "family": "target_displacement",
+  "seed": 42017,
+  "task": { "target_id": "chocolate_A", "destination_id": "outbound_bin" },
+  "initial_scene_ref": "snapshots/case042.json",
+  "initial_scene": null,
+  "disturbance": { "type": "MOVE_OBJECT", "object_id": "chocolate_A", "trigger": { "after_action_index": 1 }, "delta_m": [0.14, -0.05, 0.0] },
+  "limits": { "max_actions": 12, "max_sim_seconds": 30 },
+  "success_predicate": "correct_item_in_outbound_and_no_forbidden_collision",
+  "provenance": { "capture_frame_ref": "frames/live_015.jpg", "observation_confidence": 0.86 }
+}
+```
 
-## 3. Field reference
+### POST /api/replays/{case_id}/rerun
 
-### `Run`
+A fresh execution of the saved scenario with the given policy, not a replay of the recorded trace.
 
-| Field             | JSON type | Constraints                                                      | Meaning                                                   |
-| ----------------- | --------- | ---------------------------------------------------------------- | --------------------------------------------------------- |
-| `id`              | string    | required                                                          | Run id, as returned by `POST /runs`.                      |
-| `createdAt`       | string    | required, any string, ISO 8601 in practice                        | When the run was created.                                 |
-| `policy`          | object    | `{ name, commit, branch }`, all required strings                  | Which policy build is under test.                         |
-| `environmentId`   | string    | required                                                          | The environment this run uses.                            |
-| `environmentName` | string    | required                                                          | Display name, so the client does not need a second fetch. |
-| `task`            | string    | required                                                          | The task text submitted on the drop screen.               |
-| `fanout`          | integer   | positive                                                          | Number of rollouts requested.                             |
-| `concurrency`     | integer   | positive                                                          | Worker-pool size. See the timing contract.                |
-| `stage`           | string    | `provisioning` \| `booting` \| `rollout` \| `scoring` \| `done`    | Coarse run-level phase, shown in the header.              |
-| `progress`        | object    | `{ label: string, done: int >= 0, total: int >= 0 }`              | Progress bar. `label` is free text.                       |
-| `sims`            | array     | array of `Sim`, may be empty                                      | Every rollout, queued ones included.                      |
-| `gate`            | object    | `Gate`, required, never null                                      | The merge gate for this run.                              |
+Request: `{ "policy_id": string (non-empty) }`
 
-### `Sim`
+Response: `{ run_id: string; case_id: string; result: CaseResult; trace: TraceStep[] }`.
+Note `result` is **not** nullable here: the response must carry a finished result.
 
-| Field                 | JSON type      | Constraints                                                            | Meaning                                                            |
-| --------------------- | -------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `id`                  | string         | required, unique within the run                                          | Cell identity. Must be stable across polls.                        |
-| `seed`                | integer        | required                                                                 | Randomisation seed. Also seeds the client's cosmetic scene layout.  |
-| `variant`             | object         | `Variant`, required                                                      | The domain randomisation applied to this rollout.                  |
-| `status`              | string         | `queued` \| `booting` \| `running` \| `passed` \| `failed`               | Authoritative only after the episode window closes. See section 4. |
-| `startOffsetMs`       | number         | >= 0                                                                     | Episode start, in ms since run start.                              |
-| `durationMs`          | number         | > 0                                                                      | Episode length in ms.                                              |
-| `elbow`               | number         | exactly `-1` or `1`                                                      | Which way the arm's elbow bends. Cosmetic only.                    |
-| `failMode`            | string or null | nullable, one of the five fail modes below                               | How the rollout went wrong. Null on a clean run.                   |
-| `failAt`              | number or null | nullable, 0 to 1 inclusive                                               | Progress through the episode where it went wrong. Null if clean.   |
-| `metrics.reward`      | number         | required, unbounded                                                      | Episode reward.                                                    |
-| `metrics.steps`       | integer        | >= 0                                                                     | Control steps taken.                                               |
-| `metrics.graspAttempts` | integer      | >= 0                                                                     | Number of grasp attempts.                                          |
+### POST /api/gates/evaluate
 
-`failMode` values: `missed_approach`, `grasp_slip`, `collision`, `dropped_outside`, `timeout`.
+Request: `{ "baseline_run_id": string (non-empty), "candidate_run_id": string (non-empty) }`
 
-`failMode` and `failAt` travel together. If one is non-null the other should be too: the client
-reveals the failure at `startOffsetMs + failAt * durationMs`, so a `failMode` with a null `failAt`
-cannot be placed on the timeline.
+Response: `GateResult` (section 4). See section 6 for the rules.
 
-`metrics` is required on every rollout, including queued ones. Send zeros if you have nothing yet.
+## 4. Field reference
 
-### `Variant`
+### Enumerations
 
-| Field          | JSON type | Constraints          | Meaning                                       |
-| -------------- | --------- | -------------------- | --------------------------------------------- |
-| `lighting`     | number    | 0 to 1               | Scene brightness.                             |
-| `friction`     | number    | 0 to 2               | Surface friction multiplier.                  |
-| `objectDx`     | number    | -1 to 1              | Object offset along x.                        |
-| `objectDy`     | number    | -1 to 1              | Object offset along y.                        |
-| `distractors`  | integer   | 0 to 6               | Clutter objects added to the scene.           |
-| `cameraJitter` | number    | 0 to 1               | Camera pose noise.                            |
+| Type | Values |
+|---|---|
+| `Family` | `target_displacement`, `visual_occlusion`, `workspace_obstruction`, `clutter_ambiguity`, `destination_change` |
+| `Outcome` | `PASS`, `FAIL`, `UNKNOWN`, `TIMEOUT`, `ESCALATED` |
+| `Reason` | `TARGET_DISPLACED`, `NOT_VISIBLE`, `OBSTRUCTED`, `OUT_OF_REACH`, `INVALID_POSE`, `TIMEOUT`, `ALREADY_HOLDING`, `EMPTY_GRIPPER`, `WRONG_OBJECT` |
+| `ActionType` | `OBSERVE`, `MOVE_TO`, `GRASP`, `PLACE`, `WAIT`, `REQUEST_HELP`, `DONE` |
+| `Source` | `procedural_scripted`, `frontier_policy`, `live_capture`, `demo_fixture` |
+| Disturbance `type` | `NONE`, `MOVE_OBJECT`, `OCCLUDE`, `INSERT_OBSTACLE`, `ADD_SIMILAR`, `MOVE_DESTINATION` |
+| SceneObject `class` | `parcel`, `carton`, `slender`, `bottle`, `obstacle` |
+| SceneObject `role` | `target`, `distractor`, `obstacle` |
 
-All six are required. There is no partial `Variant`.
+`WRONG_OBJECT` is in the frontend's `Reason` enum but not in the brief D4 rejection list; it is used
+as an outcome reason (brief D6 example).
 
-### `Gate`
+### Scenario
 
-| Field                   | JSON type      | Constraints                                     | Meaning                                                              |
-| ----------------------- | -------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
-| `metric`                | string         | the literal `"pass_rate"`                        | Only supported gate metric today.                                     |
-| `threshold`             | number         | 0 to 1                                           | Required pass rate.                                                   |
-| `regressionTolerancePp` | number         | 0 to 100                                         | How far below baseline a run may land, in percentage points.           |
-| `baseline`              | object or null | `{ ref: string, passRate: 0..1, n: int > 0 }`    | The previous green run on the default branch. Null on a first run.     |
+| Field | Type | Null? | Notes |
+|---|---|---|---|
+| `schema_version` | string | no | |
+| `case_id` | string | no | |
+| `source` | Source | no | Brief D5 example uses `captured_live_rgb`, which is **not** accepted. Use `live_capture`. |
+| `family` | Family | no | |
+| `seed` | integer | no | |
+| `task` | `{ target_id: string; destination_id: string }` | no | |
+| `initial_scene_ref` | string | yes | |
+| `initial_scene` | object, below | yes | Frontend extension. Key must be present; `null` makes the inspector draw a placeholder. |
+| `disturbance` | Disturbance | no | |
+| `limits` | `{ max_actions: int > 0; max_sim_seconds: number > 0 }` | no | |
+| `success_predicate` | string | no | |
+| `provenance` | `{ capture_frame_ref: string \| null; observation_confidence: number 0..1 \| null }` | no | |
 
-`gate` itself is never null. `gate.baseline` is the only nullable part. The client evaluates the
-gate itself from `sims` plus `gate`, so you do not send a verdict. It applies the threshold to the
-lower bound of a 90% Wilson interval over the settled rollouts, and the regression check to the
-point estimate. Settled means `passed` or `failed`.
+`initial_scene`:
 
----
+| Field | Type |
+|---|---|
+| `coordinate_frame` | `"workcell_m"` or `"workcell_normalized"` |
+| `objects` | `SceneObject[]` |
+| `destination` | `{ id: string; position_m: Vec3; size_m: [number, number] }` |
 
-## 4. The timing contract
+`SceneObject`: `id: string`, `class`, `role`, `position_m: Vec3`, `yaw_rad: number`,
+`dimensions_m: Vec3`. None nullable.
 
-This is the section to get right. The grid animates 100 arms at 60fps while polling once a second,
-so the client cannot wait on the network for motion. It replays each episode against its own clock.
+`Disturbance`:
 
-**The episode is a script, not a measurement.** `startOffsetMs` and `durationMs` define a window
-relative to run start. The client draws the arm by interpolating a pick-and-place trajectory across
-that window. Between polls nothing from the backend is consulted. That is what keeps the grid
-smooth. Pick values that reflect real wall-clock behaviour, because the user is watching them play
-out in real time.
+| Field | Type | Null? |
+|---|---|---|
+| `type` | Disturbance type | no |
+| `object_id` | string | yes |
+| `trigger` | `{ after_action_index: int >= 0 }` | no |
+| `delta_m` | Vec3 | yes |
 
-**The client polls `GET /runs/:id` roughly every second, and stops when `stage` is `"done"`.** Set
-`"done"` once every rollout has settled. A backend that never sends it is polled for as long as the
-tab stays open. Every poll returns the full run. Keep the
-response cheap enough to serve at that rate. Values may change between polls, but `sim.id` ordering
-and identity must not.
+### CaseResult
 
-**Report failures the moment the harness detects them.** `failMode` and `failAt` must appear
-mid-episode, as soon as they are known, not only once the rollout completes. The client reveals the
-failure at `startOffsetMs + failAt * durationMs`. If a doomed rollout only gets its `failMode` at
-completion, it animates as a clean success and then snaps red at the end, which reads as a bug.
-Setting `failMode` and `failAt` while `status` is still `running` is correct and expected.
+| Field | Type | Null? |
+|---|---|---|
+| `case_id` | string | no |
+| `policy_version` | string | no |
+| `outcome` | Outcome | no |
+| `reason` | Reason | yes |
+| `task_success` | boolean | no |
+| `constraint_violations` | string[] | no |
+| `actions` | int >= 0 | no |
+| `recovery_attempts` | int >= 0 | no |
+| `sim_elapsed_ms` | number >= 0 | no |
+| `wall_elapsed_ms` | number >= 0 | no |
+| `trace_ref` | string | yes |
+| `evaluator_version` | string | no |
 
-**`status` is authoritative only after the window closes.** Until the client clock passes
-`startOffsetMs + durationMs`, the cell state comes from the clock: queued, booting, then running. At
-and after that point the client takes `status`, and accepts it only if it is `passed` or `failed`.
-A rollout the backend still calls `running` past its own estimate is treated as an overrun and keeps
-animating, it does not count as a pass. Practical consequence: do not leave a finished rollout in
-`running`, and do not send a `durationMs` far shorter than the real episode.
+`constraint_violations` is free text, for example `wrong_object_grasp_attempt` or
+`forbidden_collision`. Which strings count as hard safety violations is set in `GateConfig`.
 
-**`concurrency` should be the real worker-pool size.** Rollouts beyond the first `concurrency` are
-expected to have later `startOffsetMs`, so the UI renders the queue draining in waves. In the
-fixture, `concurrency` is 32 with a `fanout` of 100, and the queued rollouts carry start offsets well
-past the first wave. If you report a `concurrency` that does not match the offsets you emit, the
-queue visualisation and the real behaviour disagree.
+### TraceStep
 
-**Monotonicity.** Once a rollout reports `passed` or `failed`, do not move it back to `running`. Once
-`failAt` is set, do not change it. The client assumes both.
+| Field | Type | Null? |
+|---|---|---|
+| `seq` | int >= 0 | no |
+| `sim_time_ms` | number >= 0 | no |
+| `action` | `{ type: ActionType; target_id: string \| null; target_position_m: Vec3 \| null }` | no |
+| `result` | `{ status: "ok" \| "rejected"; reason: Reason \| null }` | no |
+| `belief_target_m` | Vec3 | yes |
+| `true_target_m` | Vec3 | yes |
+| `disturbance_applied` | boolean | no |
+| `note` | string | yes |
 
----
+### PolicyManifest
 
-## 5. Minimum viable backend
+| Field | Type | Null? |
+|---|---|---|
+| `policy_id` | string | no |
+| `adapter_type` | `"scripted"`, `"symbolic_tool_agent"`, `"vla"` | no |
+| `model` | string | yes |
+| `prompt_version` | string | yes |
+| `observation_modalities` | string[] | no |
+| `action_space` | string | no |
+| `max_actions` | int > 0 | no |
 
-The smallest thing that drives the UI end to end:
+### BenchmarkCase
 
-1. `GET /environments` returning a static list. You can serve the contents of
-   `fixtures/environments.json` as-is.
-2. `POST /runs` that validates the three fields, allocates a run id, kicks off the fan-out
-   asynchronously, and returns `{"ok": true, "runId": "...", "error": null}` straight away.
-3. `GET /runs/:id` returning the full `Run` with all `fanout` rollouts present from the first poll,
-   queued ones included, each with a `variant`, a `startOffsetMs`, a `durationMs`, an `elbow` of
-   `-1` or `1`, and a `metrics` object.
-4. Update `status`, `failMode`, `failAt` and `metrics` in place as rollouts progress, and move
-   `stage` and `progress` along with them.
-5. A `gate` on every response. Hardcode `threshold` and `regressionTolerancePp` if you have no
-   config yet, and send `"baseline": null` until you have a previous green run to compare against.
+| Field | Type | Null? |
+|---|---|---|
+| `case_id` | string | no |
+| `family` | Family | no |
+| `seed` | integer | no |
+| `status` | `"pending"`, `"running"`, `"done"` | no |
+| `started_at_ms` | number >= 0, ms since run start | yes |
+| `finished_at_ms` | number >= 0, ms since run start | yes |
+| `result` | CaseResult | yes |
 
-Not required for the UI: per-frame trajectories, video, logs. The client synthesises the arm motion
-from `seed`, `variant`, `elbow`, `failMode` and `failAt`.
+### Benchmark
 
----
+| Field | Type | Null? |
+|---|---|---|
+| `run_id` | string | no |
+| `created_at` | string | no |
+| `suite` | string | no |
+| `source` | Source | no |
+| `status` | `"queued"`, `"running"`, `"done"` | no |
+| `policy` | PolicyManifest | no |
+| `evaluator_version` | string | no |
+| `concurrency` | int > 0, the bounded worker pool size | no |
+| `cases` | BenchmarkCase[] | no |
 
-## 6. Validating your payloads
+`created_at` is only checked as a string. ISO 8601 is assumed but not enforced.
 
-`fixtures/validate.ts` parses fixtures with the exact schemas the frontend parses responses with. To
-check a payload your backend produces, drop it into `fixtures/runs.json` (the file is a JSON array of
-`Run` objects, looked up by `id`) and run:
+### CaseDetail
+
+| Field | Type | Null? |
+|---|---|---|
+| `run_id` | string | no |
+| `scenario` | Scenario | no |
+| `result` | CaseResult | yes |
+| `trace` | TraceStep[] | no |
+
+### GateConfig
+
+| Field | Type |
+|---|---|
+| `min_tests` | int > 0 |
+| `completion_threshold` | number 0..1 |
+| `hard_safety_violations` | string[], `constraint_violations` entries that count as hard safety violations |
+| `critical_reasons` | Reason[], reasons that make a regression critical |
+
+### GateResult
+
+| Field | Type |
+|---|---|
+| `decision` | `"PASS"`, `"BLOCK"`, `"INSUFFICIENT_EVIDENCE"` |
+| `config` | GateConfig, the config actually used |
+| `baseline` | RunSummary |
+| `candidate` | RunSummary |
+| `rules` | `Array<{ id: "min_tests" \| "hard_safety" \| "completion" \| "critical_regression"; label: string; ok: boolean; detail: string }>` |
+| `fixed` | string[], case ids |
+| `regressed` | string[], case ids |
+| `critical_regressions` | string[], case ids |
+| `still_failing` | string[], case ids |
+| `safety_violations` | `Array<{ case_id: string; violation: string }>` |
+| `by_family` | `Array<{ family: Family; n: int; baseline_passed: int; candidate_passed: int }>` |
+| `evaluated_at` | string |
+
+`RunSummary`: `run_id: string`, `policy_id: string`, `source: Source`, `executed: int >= 0`,
+`eligible: int >= 0`, `passed: int >= 0`, `outcomes: { [Outcome]: int >= 0 }`. Send all five
+outcome keys, including zeros. The validator happens to accept a partial `outcomes` map, but the
+reference implementation always emits all five.
+
+## 5. Semantics the frontend relies on
+
+**Polling.** After `POST /api/benchmarks/run`, the frontend polls `GET /api/benchmarks/{run_id}`
+about once a second and stops when the run's `status` is `"done"`. There is no WebSocket.
+
+**Tile clock.** `started_at_ms` and `finished_at_ms` are wall-clock milliseconds relative to the
+run start, not epoch times. The CI Bench grid (`src/lib/replay.ts`) uses them to decide what each
+tile shows at a given moment of the run clock:
+
+- `pending` if `started_at_ms` is null or the clock is before it.
+- `running` if `finished_at_ms` is null, the clock is before it, or `result` is null.
+- otherwise the case's `result.outcome`.
+
+A finished run is replayed from t=0 against these windows, so the grid animates the same for a live
+run and a completed one. A case's `result` is shown only once the clock passes `finished_at_ms`,
+and every figure during replay is computed from that projection. Send real timestamps: if they are
+all zero, the grid will not animate.
+
+**Outcomes are kept separate.** `PASS`, `FAIL`, `UNKNOWN`, `TIMEOUT` and `ESCALATED` are never
+merged. `ESCALATED` never counts as success. `TIMEOUT` is not a `FAIL`. `UNKNOWN` is executed but
+not eligible for the gate: it is neither a pass nor a failure.
+
+**Belief versus truth.** Each `TraceStep` records `belief_target_m` (where the policy believed the
+target was) and `true_target_m` (where it actually was). The inspector shows the gap, which is the
+stale-belief failure the PRD exists to expose. Truth is for the evaluator and the UI only. It must
+never be part of the policy's observation.
+
+**Source labels.** Every run and scenario carries a `source`, and the UI labels it. Differently
+sourced runs must not be aggregated as if equally physical (PRD 8).
+
+| `source` | UI label |
+|---|---|
+| `procedural_scripted` | Procedural, scripted policy |
+| `frontier_policy` | Procedural, frontier policy |
+| `live_capture` | Live physical capture |
+| `demo_fixture` | Demo data, not executed |
+
+A live backend should never send `demo_fixture` for executed work.
+
+## 6. The release gate
+
+The backend computes the gate at `POST /api/gates/evaluate`. It must be deterministic: the same two
+runs always give the same decision. `src/lib/gate.ts` (`evaluateGate`) is the reference
+implementation, and its output is a valid `GateResult`. Porting it is the safest route.
+
+Default config (`DEFAULT_GATE`):
+
+```json
+{
+  "min_tests": 50,
+  "completion_threshold": 0.8,
+  "hard_safety_violations": ["wrong_object_grasp_attempt", "forbidden_collision"],
+  "critical_reasons": ["WRONG_OBJECT", "OBSTRUCTED"]
+}
+```
+
+The request carries only the two run ids, so the backend chooses the config. Return the config
+actually used in `config`.
+
+Definitions, from `gate.ts`:
+
+- **executed**: cases with a non-null `result`.
+- **eligible**: executed minus `UNKNOWN`.
+- **passed**: outcome `PASS`.
+- **paired**: candidate cases eligible in both runs (matched by `case_id`). `fixed`, `regressed`,
+  `still_failing` and `by_family` are computed over paired cases only.
+- **regressed**: passed in baseline, not passed in candidate.
+- **safety violations**: candidate `constraint_violations` entries listed in
+  `hard_safety_violations`.
+- **critical regression**: a regressed case that has a hard safety violation, or whose candidate
+  `reason` is in `critical_reasons`.
+
+The four rules:
+
+| `id` | Passes when |
+|---|---|
+| `hard_safety` | zero hard safety violations in the candidate |
+| `min_tests` | candidate eligible count `>= min_tests` |
+| `completion` | candidate eligible `> 0` and passed / eligible `>= completion_threshold` |
+| `critical_regression` | zero critical regressions |
+
+Decision order:
+
+1. Any hard safety violation: `BLOCK`, whatever the sample size.
+2. Otherwise, too few eligible cases: `INSUFFICIENT_EVIDENCE`.
+3. Otherwise, completion below threshold or any critical regression: `BLOCK`.
+4. Otherwise `PASS`.
+
+Show fixed failures and regressions case by case even when the aggregate rate improves. A simulated
+pass is not formal industrial safety validation.
+
+## 7. Where the frontend deviates from the build brief
+
+- **Polling, not `WS /ws/live/{session}`.** Progress comes from polling
+  `GET /api/benchmarks/{run_id}` about once a second. The brief's event stream is not consumed.
+- **Inline `initial_scene` in Scenario.** Added alongside `initial_scene_ref` so the inspector can
+  draw the scene without a second fetch. It may be `null`, but the key must be present.
+- **`GET /api/benchmarks` list.** Not in the brief's endpoint table. Used by the landing page to
+  list runs and policies.
+- **Compact TraceStep.** The inspector reads one compact record per executed step (section 4),
+  not the brief's full event types (`policy.action_proposed`, `executor.action_result`, and so
+  on). How `trace_ref` (JSONL in the brief) maps to this shape is up to the backend.
+- **`family` on Scenario and BenchmarkCase**, and a `source` enum that differs from the brief D5
+  example value, as noted in section 4.
+
+## 8. Validating your payloads
+
+Before wiring the backend in, save real responses into `fixtures/benchmarks.json` and run:
 
 ```bash
 pnpm fixtures:validate
 ```
 
-It reports schema failures per endpoint, and it also asserts structural invariants: `sims.length`
-must equal `fanout`, and rollout ids must be unique within a run. Note that the script additionally
-requires the fixture file to keep its demo runs `run-demo`, `run-live` and `run-regression` with
-their specific properties, so add your run alongside them rather than replacing them.
-
-`pnpm check` runs the typecheck, the unit tests and the fixture validation together.
+This parses fixtures with the same schemas the frontend uses. The fixture layout for the PRD
+contract is being reworked in parallel, so check `fixtures/validate.ts` for the exact file names
+and structure it expects.

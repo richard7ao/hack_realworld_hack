@@ -78,3 +78,48 @@ export function ErrorNote({ children }: { children: ReactNode }) {
     </p>
   );
 }
+
+// ---------------------------------------------------------------------------------------------
+// FAULTLINE status vocabulary. Status is never colour alone: every badge carries a word.
+// ---------------------------------------------------------------------------------------------
+
+export const OUTCOME_STYLE: Record<string, { label: string; chip: string; ink: string; dot: string }> = {
+  PASS: { label: "Pass", chip: "bg-pass-soft text-pass", ink: "text-pass", dot: "bg-pass" },
+  FAIL: { label: "Fail", chip: "bg-fail-soft text-fail", ink: "text-fail", dot: "bg-fail" },
+  ESCALATED: { label: "Escalated", chip: "bg-warn-soft text-warn", ink: "text-warn", dot: "bg-warn" },
+  TIMEOUT: { label: "Timeout", chip: "bg-warn-soft text-warn", ink: "text-warn", dot: "bg-warn" },
+  UNKNOWN: { label: "Unknown", chip: "bg-track text-muted", ink: "text-muted", dot: "bg-faint" },
+  running: { label: "Running", chip: "bg-brand-soft text-brand", ink: "text-brand", dot: "bg-brand" },
+  pending: { label: "Pending", chip: "bg-track text-faint", ink: "text-faint", dot: "bg-line" },
+};
+
+export function OutcomeBadge({ outcome, reason }: { outcome: string; reason?: string | null }) {
+  const s = OUTCOME_STYLE[outcome] ?? OUTCOME_STYLE.UNKNOWN!;
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ${s.chip}`}>
+      <span aria-hidden className={`size-1.5 rounded-full ${s.dot}`} />
+      {s.label}
+      {reason && <span className="mono text-[11px] font-medium opacity-80">{reason}</span>}
+    </span>
+  );
+}
+
+/**
+ * Provenance, per the PRD: differently sourced trials are never presented as equally physical,
+ * and demo data is never presented as an executed run.
+ */
+export function SourceBadge({ source }: { source: string }) {
+  const demo = source === "demo_fixture";
+  const label = { procedural_scripted: "Procedural, scripted policy", frontier_policy: "Procedural, frontier policy", live_capture: "Live physical capture", demo_fixture: "Demo data, not executed" }[source] ?? source;
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.05em] ${demo ? "bg-warn-soft text-warn ring-1 ring-warn/30" : "bg-brand-soft text-brand"}`}>
+      <span aria-hidden className={`size-1.5 rounded-full ${demo ? "bg-warn" : "bg-brand"}`} />
+      {label}
+    </span>
+  );
+}
+
+/** The four provenance layers the PRD asks the UI to keep visibly distinct. */
+export function LayerTag({ layer }: { layer: "REAL CAMERA" | "ESTIMATED POSE" | "SIMULATED ACTION" | "TEST RESULT" }) {
+  return <span className="mono rounded-md bg-[#F0F2F5] px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.04em] text-muted">{layer}</span>;
+}

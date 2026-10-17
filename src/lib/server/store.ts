@@ -1,63 +1,74 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { CreateRunRequest, Run } from "../contract";
-import { generateRun } from "../sim/generate";
-import { environmentById, ENVIRONMENTS } from "../sim/environments";
+import { Benchmark, BenchmarkList, type CaseDetail, type GateResult, type RerunResponse } from "../contract";
+import { evaluateGate } from "../gate";
+import { generateBenchmark, generateCaseDetail, POLICIES, rerunCase } from "../sim/generate";
+import type { z } from "zod";
 
 /**
- * Fixture-mode run storage. Server-only.
+ * Fixture-mode backend. Server only.
  *
- * Runs started in this process are kept in memory so the bench shows the environment and task the
- * user actually chose, rather than a canned one. Anything else falls back to the committed
- * fixtures, then to deterministic regeneration from the id, so a shared link or a dev-server
- * restart never produces a 404 in front of an audience.
+ * Serves the committed demo runs, labelled `source: "demo_fixture"`, and computes case detail,
+ * reruns and the gate from the same deterministic engine, so every screen agrees with every other.
+ * Runs started from the UI are generated on demand and kept in memory; an unknown run id is a 404,
+ * never a silently substituted run.
  */
-const started = new Map<string, Run>();
-
-export class UnknownEnvironment extends Error {
-  constructor(id: string) {
-    super(`Unknown environment "${id}".`);
-  }
-}
-
 const FIXTURES = join(process.cwd(), "fixtures");
-let committed: Map<string, Run> | null = null;
 
-function fixtureRuns(): Map<string, Run> {
+export class NotFound extends Error {}
+
+let committed: Map<string, Benchmark> | null = null;
+function fixtures(): Map<string, Benchmark> {
   if (!committed) {
-    const raw: unknown = JSON.parse(readFileSync(join(FIXTURES, "runs.json"), "utf8"));
-    committed = new Map(Run.array().parse(raw).map((r) => [r.id, r]));
+    const raw: unknown = JSON.parse(readFileSync(join(FIXTURES, "benchmarks.json"), "utf8"));
+    committed = new Map(Benchmark.array().parse(raw).map((b) => [b.run_id, b]));
   }
   return committed;
 }
 
-export function readFixture(name: string): unknown {
-  return JSON.parse(readFileSync(join(FIXTURES, `${name}.json`), "utf8"));
-}
+const started = new Map<string, Benchmark>();
 
-/** A short, URL-safe, human-readable run id. */
-const newRunId = () => `run-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-
-/**
- * Start a run. Throws on an environment id the catalogue does not know: substituting a default
- * would show the user a run in an environment they never chose.
- */
-export function createRun(body: CreateRunRequest): Run {
-  const env = environmentById(body.environmentId);
-  if (!env) throw new UnknownEnvironment(body.environmentId);
-  const id = newRunId();
-  const run = generateRun({ id, environmentId: env.id, task: body.task, fanout: body.fanout });
-  started.set(id, run);
-  // The demo does not need an eviction policy, but an unbounded map in a long-lived server does.
-  if (started.size > 50) started.delete(started.keys().next().value!);
+export function getBenchmark(runId: string): Benchmark {
+  const run = started.get(runId) ?? fixtures().get(runId);
+  if (!run) throw new NotFound(`No benchmark run "${runId}".`);
   return run;
 }
 
-export function getRun(id: string): Run {
-  return started.get(id) ?? fixtureRuns().get(id) ?? regenerate(id);
+export function listBenchmarks(): z.infer<typeof BenchmarkList> {
+  const runs = [...fixtures().values(), ...started.values()];
+  return {
+    benchmarks: runs.map((r) => ({ run_id: r.run_id, policy_id: r.policy.policy_id, source: r.source, status: r.status, created_at: r.created_at })),
+    policies: POLICIES,
+  };
 }
 
-/** Last resort: a stable run for an id nobody has seen, so the page always renders something real. */
-function regenerate(id: string): Run {
-  return generateRun({ id, environmentId: ENVIRONMENTS[0]!.id, task: ENVIRONMENTS[0]!.tasks[0]!, fanout: 100 });
+export function runBenchmark(policyId: string): { run_id: string } {
+  if (!POLICIES.some((p) => p.policy_id === policyId)) throw new NotFound(`Unknown policy "${policyId}".`);
+  const run_id = `bench-${policyId}-${Date.now().toString(36)}`;
+  started.set(run_id, generateBenchmark({ run_id, policy_id: policyId, created_at: new Date().toISOString() }));
+  if (started.size > 30) started.delete(started.keys().next().value!);
+  return { run_id };
+}
+
+export function getCaseDetail(runId: string, caseId: string): CaseDetail {
+  const run = getBenchmark(runId);
+  if (!run.cases.some((c) => c.case_id === caseId)) throw new NotFound(`No case "${caseId}" in "${runId}".`);
+  return generateCaseDetail(run, caseId);
+}
+
+export function rerun(caseId: string, policyId: string): z.infer<typeof RerunResponse> {
+  if (!POLICIES.some((p) => p.policy_id === policyId)) throw new NotFound(`Unknown policy "${policyId}".`);
+  const { result, trace } = rerunCase(caseId, policyId);
+  return { run_id: `rerun-${caseId}-${policyId}`, case_id: caseId, result, trace };
+}
+
+export function gate(baselineId: string, candidateId: string): GateResult {
+  return evaluateGate(getBenchmark(baselineId), getBenchmark(candidateId));
+}
+
+export function scenario(caseId: string) {
+  // A scenario depends only on its case id, so any committed run can supply it.
+  const first = [...fixtures().values()][0];
+  if (!first || !first.cases.some((c) => c.case_id === caseId)) throw new NotFound(`No scenario "${caseId}".`);
+  return generateCaseDetail(first, caseId).scenario;
 }
